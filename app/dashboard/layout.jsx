@@ -3,19 +3,19 @@ import Header from './_components/Header'
 
 // Add metadata configuration for dashboard
 export const metadata = {
-  title: 'AI-Interview | Dashboard',
-  description: 'AI-Interview dashboard',
+    title: 'AI-Interview | Dashboard',
+    description: 'AI-Interview dashboard',
 }
 
-function DashBoardLayout({children}) {
-  return (
-    <div>
-        <Header/>
-        <div className='mx-5 md:mx-20 lg:mx-36'>
-        {children}
+function DashBoardLayout({ children }) {
+    return (
+        <div>
+            <Header />
+            <div style={{ background: '#FAF8F6', width: '100%' }} className="px-4 sm:px-6 lg:px-8">
+                {children}
+            </div>
         </div>
-    </div>
-  )
+    )
 }
 
 export default DashBoardLayout

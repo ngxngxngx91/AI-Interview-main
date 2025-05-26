@@ -2,38 +2,35 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Sparkles } from 'lucide-react';
 
 const AnalysisOverlay = () => {
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80 backdrop-blur-sm"
-    >
-      <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="bg-white dark:bg-gray-800 rounded-xl shadow-xl p-8 max-w-md mx-4 text-center"
-      >
-        <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-12 h-12 text-primary animate-spin" />
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Analyzing Scenario Content
-            </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Processing your conversation and preparing feedback...
-            </p>
-            <p className="text-sm text-gray-400 dark:text-gray-500">
-              (~10 seconds)
-            </p>
-          </div>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
+    return (
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-lg"
+        >
+            <div className="bg-gray-900/95 rounded-2xl shadow-2xl p-10 max-w-md mx-4 text-center border border-blue-700/30">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="p-4 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 mb-2">
+                        <Loader2 className="w-12 h-12 text-white animate-spin" />
+                    </div>
+                    <div className="space-y-2">
+                        <h3 className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            Analyzing Your Interview
+                        </h3>
+                        <p className="text-base text-gray-300">
+                            Processing your conversation and preparing feedback...
+                        </p>
+                        <div className="flex justify-center mt-2">
+                            <Sparkles className="w-6 h-6 text-blue-400 animate-pulse" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </motion.div>
+    );
 };
 
 export default AnalysisOverlay; 

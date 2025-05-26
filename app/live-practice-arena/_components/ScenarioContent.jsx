@@ -1,56 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  AlertCircle,
-  Mic,
-  MicOff,
-  PauseCircle,
-  PlayCircle,
-  Brain,
-  Clock,
-  Target,
-  Sparkles,
-  MessageSquare,
-  ChevronRight,
-  ChevronUp,
-  ChevronDown,
-  Globe
-} from "lucide-react";
+import { Brain, ChevronUp, ChevronDown } from "lucide-react";
 import { chatSession } from "@/utils/GeminiAIModal";
 import { analyzeResponse } from "@/utils/responseAnalyzer";
 import ConversationBox from "./ConversationBox";
-import Timer from "./Timer";
 import AnalysisOverlay from "./AnalysisOverlay";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-const ScenarioContent = ({ scenarioData, timeLimit }) => {
-  const router = useRouter();
-  const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60);
-  const [isTimeUp, setIsTimeUp] = useState(false);
-  const [isPaused, setIsPaused] = useState(true);
-  const [isListening, setIsListening] = useState(false);
-  const [messages, setMessages] = useState([]);
-  const [recognition, setRecognition] = useState(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
-  const [interimTranscript, setInterimTranscript] = useState('');
-  const [showTips, setShowTips] = useState(true);
-  const finalTranscriptRef = useRef('');
-  const transcriptBufferRef = useRef('');
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [speechMode, setSpeechMode] = useState('continuous'); // 'continuous' or 'manual'
-  const [selectedLanguage, setSelectedLanguage] = useState(''); // Empty string as initial value
-  const [hasInitialMessage, setHasInitialMessage] = useState(false);
-
-  // Available languages for speech recognition
-  const availableLanguages = [
+// Danh sách các ngôn ngữ được hỗ trợ cho cuộc phỏng vấn
+const availableLanguages = [
     { code: 'en-US', name: 'English (US)' },
     { code: 'vi-VN', name: 'Vietnamese' },
     { code: 'ja-JP', name: 'Japanese' },
@@ -59,462 +21,462 @@ const ScenarioContent = ({ scenarioData, timeLimit }) => {
     { code: 'es-ES', name: 'Spanish' },
     { code: 'fr-FR', name: 'French' },
     { code: 'de-DE', name: 'German' }
-  ];
+];
 
-  // Interview tips
-  const interviewTips = [
-    {
-      icon: Brain,
-      title: "Think Before Speaking",
-      tip: "Take a moment to organize your thoughts before responding"
-    },
-    {
-      icon: Target,
-      title: "Stay Focused",
-      tip: "Keep your responses relevant to the question"
-    },
-    {
-      icon: MessageSquare,
-      title: "Be Clear",
-      tip: "Communicate your points clearly and concisely"
-    }
-  ];
+const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
+    // Khởi tạo các state và refs cần thiết
+    const router = useRouter();
+    const [timeRemaining, setTimeRemaining] = useState(timeLimit * 60);
+    const [isTimeUp, setIsTimeUp] = useState(false);
+    const [isPaused, setIsPaused] = useState(true);
+    const [isListening, setIsListening] = useState(false);
+    const [messages, setMessages] = useState([]);
+    const [recognition, setRecognition] = useState(null);
+    const [isAnalyzing, setIsAnalyzing] = useState(false);
+    const [selectedLanguage, setSelectedLanguage] = useState('');
+    const [hasInitialMessage, setHasInitialMessage] = useState(false);
+    const [isExpanded, setIsExpanded] = useState(true);
 
-  // Initialize Web Speech API
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    // Refs để lưu trữ transcript tạm thời và cuối cùng
+    const finalTranscriptRef = useRef('');
+    const transcriptBufferRef = useRef('');
+
+    // Khởi tạo Web Speech API để nhận diện giọng nói
+    useEffect(() => {
+        if (typeof window === 'undefined' || !selectedLanguage) return;
+
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        const recognition = new SpeechRecognition();
+        if (!SpeechRecognition) return;
 
+        const recognition = new SpeechRecognition();
         recognition.continuous = true;
         recognition.interimResults = true;
         recognition.lang = selectedLanguage;
 
+        // Xử lý các sự kiện của Speech Recognition
         recognition.onstart = () => {
-          setIsListening(true);
-          if (speechMode === 'manual') {
+            setIsListening(true);
             finalTranscriptRef.current = '';
             transcriptBufferRef.current = '';
-          }
         };
 
         recognition.onend = () => {
-          setIsListening(false);
+            setIsListening(false);
         };
 
+        // Xử lý kết quả nhận diện giọng nói
         recognition.onresult = (event) => {
-          const results = Array.from(event.results);
-          let currentTranscript = '';
-          let isFinal = false;
+            const results = Array.from(event.results);
+            let currentTranscript = '';
+            let isFinal = false;
 
-          results.forEach((result, index) => {
-            const transcript = result[0].transcript;
-            currentTranscript += transcript + ' ';
+            results.forEach((result, index) => {
+                const transcript = result[0].transcript;
+                currentTranscript += transcript + ' ';
 
-            if (index === results.length - 1 && result.isFinal) {
-              isFinal = true;
+                if (index === results.length - 1 && result.isFinal) {
+                    isFinal = true;
+                }
+            });
+
+            currentTranscript = currentTranscript.trim();
+
+            if (currentTranscript) {
+                finalTranscriptRef.current = currentTranscript;
+                if (isFinal) {
+                    if (!transcriptBufferRef.current.includes(currentTranscript)) {
+                        transcriptBufferRef.current += (transcriptBufferRef.current ? ' ' : '') + currentTranscript;
+                    }
+                }
             }
-          });
-
-          currentTranscript = currentTranscript.trim();
-          setInterimTranscript(currentTranscript);
-
-          if (isFinal && currentTranscript) {
-            if (!transcriptBufferRef.current.includes(currentTranscript)) {
-              if (speechMode === 'continuous') {
-                // In continuous mode, just use the current transcript
-                handleUserMessage(currentTranscript);
-                transcriptBufferRef.current = '';
-                finalTranscriptRef.current = '';
-              } else {
-                // In manual mode, accumulate the transcript
-                transcriptBufferRef.current += (transcriptBufferRef.current ? ' ' : '') + currentTranscript;
-                finalTranscriptRef.current = transcriptBufferRef.current;
-              }
-            }
-          }
         };
 
-        recognition.onerror = (event) => {
-          setIsListening(false);
+        recognition.onerror = () => {
+            setIsListening(false);
         };
 
         setRecognition(recognition);
-      }
-    }
-  }, [speechMode, selectedLanguage]);
+    }, [selectedLanguage]);
 
-  // Timer effect
-  useEffect(() => {
-    if (timeRemaining > 0 && !isTimeUp && !isPaused) {
-      const timer = setInterval(() => {
-        setTimeRemaining((prev) => {
-          if (prev <= 1) {
-            setIsTimeUp(true);
-            clearInterval(timer);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
+    // Xử lý đếm ngược thời gian phỏng vấn
+    useEffect(() => {
+        if (timeRemaining <= 0 || isTimeUp || isPaused) return;
 
-      return () => clearInterval(timer);
-    }
-  }, [timeRemaining, isTimeUp, isPaused]);
+        const timer = setInterval(() => {
+            setTimeRemaining((prev) => {
+                if (prev <= 1) {
+                    setIsTimeUp(true);
+                    clearInterval(timer);
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
 
-  // Handle time up and analysis
-  useEffect(() => {
-    if (isTimeUp && !isAnalyzing) {
-      setIsAnalyzing(true);
-      if (isListening) {
-        recognition?.stop();
-      }
+        return () => clearInterval(timer);
+    }, [timeRemaining, isTimeUp, isPaused]);
 
-      setTimeout(() => {
-        const sessionData = {
-          scenario: scenarioData,
-          conversation: messages,
-          duration: timeLimit * 60 - timeRemaining,
-          timestamp: new Date().toISOString()
-        };
+    // Hàm xử lý và làm sạch phản hồi từ AI
+    const cleanResponse = (text) => {
+        try {
+            const jsonResponse = JSON.parse(text);
 
-        router.push(`/result-feedback?session=${encodeURIComponent(JSON.stringify(sessionData))}`);
-      }, 3000);
-    }
-  }, [isTimeUp, isAnalyzing, messages, scenarioData, timeLimit, timeRemaining, router, isListening, recognition]);
+            if (Array.isArray(jsonResponse)) {
+                const firstItem = jsonResponse[0];
+                return firstItem?.openingLine ||
+                    firstItem?.response ||
+                    firstItem?.utterance ||
+                    firstItem?.speech ||
+                    firstItem?.text ||
+                    firstItem?.Vietnamese_Response ||
+                    firstItem ||
+                    text;
+            }
 
-  // Handle language selection
-  const handleLanguageChange = async (languageCode) => {
-    setSelectedLanguage(languageCode);
-    if (!hasInitialMessage) {
-      try {
-        const result = await chatSession.sendMessage(
-          `You are a customer in the following scenario. Please provide an initial welcome message to start the conversation in ${availableLanguages.find(lang => lang.code === languageCode)?.name}. Scenario: ${scenarioData.scenario.scenario}`
-        );
-        const initialMessage = result.response.text();
-        setMessages([
-          {
-            id: Date.now(),
-            type: 'ai',
-            content: initialMessage,
-            timestamp: new Date()
-          }
-        ]);
-        setHasInitialMessage(true);
-      } catch (error) {
-        console.error('Error generating initial response:', error);
-      }
-    }
-  };
-
-  const handleUserMessage = async (transcript) => {
-    if (!transcript.trim()) return;
-
-    // First, add the message immediately without analysis
-    const userMessage = {
-      id: Date.now(),
-      type: 'user',
-      content: transcript,
-      timestamp: new Date(),
-      analysis: null // Initially null to show loading state
+            return jsonResponse.openingLine ||
+                jsonResponse.response ||
+                jsonResponse.utterance ||
+                jsonResponse.speech ||
+                jsonResponse.text ||
+                jsonResponse.Vietnamese_Response ||
+                text;
+        } catch {
+            return text
+                .replace(/^\[|\]$/g, '')
+                .replace(/^\{|\}$/g, '')
+                .replace(/"openingLine":\s*"/g, '')
+                .replace(/"response":\s*"/g, '')
+                .replace(/"utterance":\s*"/g, '')
+                .replace(/"speech":\s*"/g, '')
+                .replace(/"text":\s*"/g, '')
+                .replace(/"Vietnamese_Response":\s*"/g, '')
+                .replace(/"scenario":\s*"/g, '')
+                .replace(/"customerQuery":\s*"/g, '')
+                .replace(/"expectedResponse":\s*"/g, '')
+                .replace(/"$/, '')
+                .trim();
+        }
     };
-    setMessages(prev => [...prev, userMessage]);
 
-    // Start AI response generation immediately
-    try {
-      const result = await chatSession.sendMessage(
-        `Based on the scenario: "${scenarioData.scenario.scenario}", and the user's message: "${transcript}", provide a natural response as the customer in ${availableLanguages.find(lang => lang.code === selectedLanguage)?.name || 'English'}. Keep the response concise and conversational.`
-      );
-      const aiResponse = result.response.text();
+    // Xử lý kết thúc phỏng vấn và phân tích kết quả
+    const handleStopInterview = useCallback(async () => {
+        if (isAnalyzing) return;
+        setIsAnalyzing(true);
+        if (isListening) {
+            recognition?.stop();
+        }
 
-      setMessages(prev => [...prev, {
-        id: Date.now(),
-        type: 'ai',
-        content: aiResponse,
-        timestamp: new Date()
-      }]);
-    } catch (error) {
-      console.error('Error generating AI response:', error);
-    }
+        try {
+            // Analyze all user messages
+            const analysisPromises = messages
+                .filter(msg => msg.type === 'user')
+                .map(async (msg) => {
+                    const analysis = await analyzeResponse(msg.content, scenarioData);
+                    return {
+                        ...msg,
+                        analysis
+                    };
+                });
 
-    // Perform analysis in the background
-    try {
-      const analysis = await analyzeResponse(transcript, scenarioData.scenario.scenario);
-      // Update the message with analysis results
-      setMessages(prev => prev.map(msg =>
-        msg.id === userMessage.id
-          ? { ...msg, analysis }
-          : msg
-      ));
-    } catch (error) {
-      console.error('Error analyzing response:', error);
-      // Update the message with error state
-      setMessages(prev => prev.map(msg =>
-        msg.id === userMessage.id
-          ? { ...msg, analysis: { error: 'Failed to analyze response' } }
-          : msg
-      ));
-    }
-  };
+            const analyzedMessages = await Promise.all(analysisPromises);
 
-  const toggleListening = async () => {
-    if (isListening) {
-      recognition?.stop();
-      // Only process final transcript in manual mode
-      if (speechMode === 'manual' && finalTranscriptRef.current) {
-        await handleUserMessage(finalTranscriptRef.current);
-      }
-      // Only clear buffers in manual mode
-      if (speechMode === 'manual') {
-        transcriptBufferRef.current = '';
-        finalTranscriptRef.current = '';
-      }
-    } else {
-      try {
-        await recognition?.start();
-      } catch (error) {
-        setIsListening(false);
-      }
-    }
-  };
+            // Calculate average score
+            const scores = analyzedMessages
+                .map(msg => msg.analysis?.overallScore || 0)
+                .filter(score => score > 0);
+            
+            const averageScore = scores.length > 0 
+                ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+                : 0;
 
-  const togglePause = () => {
-    setIsPaused(prev => !prev);
-    if (isListening) {
-      recognition?.stop();
-    }
-  };
+            // Collect all strengths and weaknesses
+            const strengths = analyzedMessages
+                .flatMap(msg => msg.analysis?.strengths || [])
+                .filter((value, index, self) => self.indexOf(value) === index);
 
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
-    >
-      {/* Welcome Message with Language Selection */}
-      {!hasInitialMessage && (
+            const weaknesses = analyzedMessages
+                .flatMap(msg => msg.analysis?.weaknesses || [])
+                .filter((value, index, self) => self.indexOf(value) === index);
+
+            // Prepare feedback data
+            const feedbackData = {
+                scenario: scenarioData,
+                conversation: analyzedMessages,
+                duration: timeLimit * 60 - timeRemaining,
+                timestamp: new Date().toISOString(),
+                averageScore,
+                strengths,
+                weaknesses,
+                detailedFeedback: analyzedMessages.map(msg => msg.analysis?.feedback).filter(Boolean),
+                messageAnalysis: analyzedMessages.map(msg => ({
+                    message: msg.content,
+                    analysis: msg.analysis
+                }))
+            };
+
+            // Call the onInterviewComplete callback
+            await onInterviewComplete(feedbackData);
+
+        } catch (error) {
+            console.error('Error analyzing interview:', error);
+            // Handle error appropriately
+        }
+    }, [isAnalyzing, isListening, recognition, scenarioData, messages, timeLimit, timeRemaining, onInterviewComplete]);
+
+    // Tự động kết thúc khi hết thời gian
+    useEffect(() => {
+        if (isTimeUp) handleStopInterview();
+    }, [isTimeUp, handleStopInterview]);
+
+    // Xử lý thay đổi ngôn ngữ và tạo câu chào đầu tiên
+    const handleLanguageChange = useCallback(async (languageCode) => {
+        setSelectedLanguage(languageCode);
+        if (hasInitialMessage) return;
+
+        try {
+            const rolePrompt = `You are conducting an interview for a ${scenarioData.role || 'position'}. 
+            Start the interview with a natural greeting and opening question in ${availableLanguages.find(lang => lang.code === languageCode)?.name}.
+
+            CRITICAL: 
+            - You must respond with ONLY the interview greeting and question
+            - DO NOT include any scenario data, context, or metadata
+            - DO NOT include any JSON formatting
+            - DO NOT mention that you are an AI or interviewer
+            - DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse"
+            - Just write your response directly as if in a natural conversation
+            - Keep your response concise and focused`;
+
+            const result = await chatSession.sendMessage(rolePrompt);
+            let initialMessage = result.response.text();
+
+            initialMessage = cleanResponse(initialMessage);
+
+            if (initialMessage.includes('scenario') ||
+                initialMessage.includes('customerQuery') ||
+                initialMessage.includes('expectedResponse')) {
+                const lines = initialMessage.split('\n');
+                const validResponse = lines.find(line =>
+                    !line.includes('scenario') &&
+                    !line.includes('customerQuery') &&
+                    !line.includes('expectedResponse') &&
+                    line.trim().length > 0
+                );
+                if (validResponse) {
+                    initialMessage = validResponse.trim();
+                }
+            }
+
+            setMessages([{
+                id: Date.now(),
+                type: 'ai',
+                content: initialMessage,
+                timestamp: new Date()
+            }]);
+            setHasInitialMessage(true);
+        } catch (error) {
+            console.error('Error generating initial response:', error);
+        }
+    }, [hasInitialMessage, scenarioData]);
+
+    // Xử lý tin nhắn từ người dùng và phản hồi từ AI
+    const handleUserMessage = useCallback(async (transcript) => {
+        if (!transcript.trim()) return;
+
+        const userMessage = {
+            id: Date.now(),
+            type: 'user',
+            content: transcript,
+            timestamp: new Date(),
+            analysis: null
+        };
+        setMessages(prev => [...prev, userMessage]);
+
+        try {
+            const result = await chatSession.sendMessage(
+                `You are conducting an interview for a ${scenarioData.role || 'position'}. 
+                The candidate just said: "${transcript}"
+
+                As a professional interviewer:
+                1. Respond naturally as if you are the interviewer
+                2. Stay focused on the interview topic
+                3. If the response is off-topic, politely redirect the conversation back to the interview context
+                4. Ask relevant follow-up questions
+                5. Maintain a professional but conversational tone
+                6. Respond in ${availableLanguages.find(lang => lang.code === selectedLanguage)?.name || 'English'}
+
+                CRITICAL: 
+                - You must respond with ONLY the interview question or statement
+                - DO NOT include any scenario data, context, or metadata
+                - DO NOT include any JSON formatting
+                - DO NOT mention that you are an AI or interviewer
+                - DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse"
+                - Just write your response directly as if in a natural conversation
+                - Keep your response concise and focused`
+            );
+            let aiResponse = result.response.text();
+
+            aiResponse = cleanResponse(aiResponse);
+
+            if (aiResponse.includes('scenario') ||
+                aiResponse.includes('customerQuery') ||
+                aiResponse.includes('expectedResponse')) {
+                const lines = aiResponse.split('\n');
+                const validResponse = lines.find(line =>
+                    !line.includes('scenario') &&
+                    !line.includes('customerQuery') &&
+                    !line.includes('expectedResponse') &&
+                    line.trim().length > 0
+                );
+                if (validResponse) {
+                    aiResponse = validResponse.trim();
+                }
+            }
+
+            setMessages(prev => [...prev, {
+                id: Date.now(),
+                type: 'ai',
+                content: aiResponse,
+                timestamp: new Date()
+            }]);
+
+            const analysis = await analyzeResponse(transcript, scenarioData.scenario.scenario);
+            setMessages(prev => prev.map(msg =>
+                msg.id === userMessage.id
+                    ? { ...msg, analysis }
+                    : msg
+            ));
+        } catch (error) {
+            console.error('Error in message handling:', error);
+            setMessages(prev => prev.map(msg =>
+                msg.id === userMessage.id
+                    ? { ...msg, analysis: { error: 'Failed to process response' } }
+                    : msg
+            ));
+        }
+    }, [scenarioData, selectedLanguage]);
+
+    // Xử lý bắt đầu/dừng nhận diện giọng nói
+    const toggleListening = useCallback(async () => {
+        if (isListening) {
+            recognition?.stop();
+            const finalTranscript = transcriptBufferRef.current || finalTranscriptRef.current;
+            if (finalTranscript) {
+                await handleUserMessage(finalTranscript);
+            }
+            transcriptBufferRef.current = '';
+            finalTranscriptRef.current = '';
+        } else {
+            try {
+                transcriptBufferRef.current = '';
+                finalTranscriptRef.current = '';
+                await recognition?.start();
+            } catch (error) {
+                console.error('Error starting recognition:', error);
+                setIsListening(false);
+            }
+        }
+    }, [isListening, recognition, handleUserMessage]);
+
+    // Xử lý tạm dừng/tiếp tục phỏng vấn
+    const togglePause = useCallback(() => {
+        setIsPaused(prev => !prev);
+        if (isListening) {
+            recognition?.stop();
+        }
+    }, [isListening, recognition]);
+
+    return (
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-950/50 dark:to-purple-950/50 rounded-xl shadow-lg p-6 border border-blue-100 dark:border-blue-900"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
         >
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
-              <Globe className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-              Sẵn sàng bắt đầu phỏng vấn
-              </h3>
-              <p className="mt-1 text-gray-600 dark:text-gray-400 font-semibold">
-              Chọn ngôn ngữ phù hợp để bắt đầu cuộc trò chuyện
-              </p>
-            </div>
-          </div>
+            {/* Hiển thị thông tin kịch bản phỏng vấn */}
+            <Card className="bg-gray-900/90 backdrop-blur-lg border border-blue-700/40 rounded-2xl shadow-xl hover:border-blue-500/40 transition-all duration-300">
+                <CardContent className="p-6">
+                    <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
+                                <Brain className="w-5 h-5 text-white" />
+                            </div>
+                            <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                                Interview Scenario
+                            </h3>
+                        </div>
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsExpanded(!isExpanded)}
+                            className="gap-2 font-semibold text-blue-400 hover:text-blue-200"
+                        >
+                            {isExpanded ? (
+                                <>
+                                    <ChevronUp className="w-4 h-4" />
+                                    Collapse
+                                </>
+                            ) : (
+                                <>
+                                    <ChevronDown className="w-4 h-4" />
+                                    Expand
+                                </>
+                            )}
+                        </Button>
+                    </div>
+                    <AnimatePresence>
+                        {isExpanded && (
+                            <motion.div
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ height: "auto", opacity: 1 }}
+                                exit={{ height: 0, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="overflow-hidden"
+                            >
+                                <div className="space-y-4">
+                                    <div>
+                                        <span className="block text-xs text-blue-400 font-semibold mb-1">Question</span>
+                                        <p className="text-gray-300 font-semibold">
+                                            {scenarioData.scenario?.customerQuery || scenarioData.customerQuery || ""}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="block text-xs text-purple-400 font-semibold mb-1">Expected Response</span>
+                                        <p className="text-gray-300 font-semibold">
+                                            {scenarioData.scenario?.expectedResponse || scenarioData.expectedResponse || ""}
+                                        </p>
+                                    </div>
+                                    <div>
+                                        <span className="block text-xs text-emerald-400 font-semibold mb-1">Scenario Context</span>
+                                        <p className="text-gray-300 font-semibold">
+                                            {scenarioData.scenario?.scenario || scenarioData.scenario || ""}
+                                        </p>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </CardContent>
+            </Card>
+
+            {/* Hiển thị hộp thoại phỏng vấn */}
+            <ConversationBox
+                messages={messages}
+                isListening={isListening}
+                onToggleListening={toggleListening}
+                isPaused={isPaused}
+                isTimeUp={isTimeUp}
+                onTogglePause={togglePause}
+                timeRemaining={timeRemaining}
+                selectedLanguage={selectedLanguage}
+                onLanguageChange={handleLanguageChange}
+                availableLanguages={availableLanguages}
+                scenarioData={scenarioData}
+                onStopInterview={handleStopInterview}
+            />
+
+            {/* Hiển thị overlay phân tích khi kết thúc */}
+            {isAnalyzing && <AnalysisOverlay />}
         </motion.div>
-      )}
-
-      {/* Header with Timer and Controls */}
-      <div className={`relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 border-2 
-        ${timeRemaining <= 60 && !isTimeUp 
-          ? 'border-red-500/50 shadow-red-500/20' 
-          : 'border-transparent'}`}
-      >
-        {/* Background pulse effect when time is low */}
-        {timeRemaining <= 60 && !isTimeUp && (
-          <div className="absolute inset-0 bg-gradient-to-r from-red-500/5 to-orange-500/5 animate-pulse" />
-        )}
-        
-        <div className="relative flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div className="flex items-center gap-4">
-            <div className={`p-2 rounded-lg ${
-              timeRemaining <= 60 && !isTimeUp 
-                ? 'bg-gradient-to-r from-red-500 to-orange-500 animate-pulse' 
-                : 'bg-gradient-to-r from-blue-500 to-purple-500'
-            }`}>
-              <Clock className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <h2 className={`text-lg font-semibold ${
-                timeRemaining <= 60 && !isTimeUp 
-                  ? 'text-red-500' 
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent'
-              }`}>
-                Cài đặt phỏng vấn
-              </h2>
-              <p className={`text-sm font-semibold ${
-                timeRemaining <= 60 && !isTimeUp 
-                  ? 'text-red-500/70' 
-                  : 'text-gray-500 dark:text-gray-400'
-              }`}>
-                {Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')} còn lại
-              </p>
-            </div>
-          </div>
-
-          {/* Controls */}
-          <div className="flex items-center gap-2">
-            <Select
-              value={selectedLanguage}
-              onValueChange={handleLanguageChange}
-            >
-              <SelectTrigger className="w-[180px] border-2 hover:border-blue-500/50 transition-colors font-semibold">
-                <SelectValue placeholder="Chọn ngôn ngữ" />
-              </SelectTrigger>
-              <SelectContent>
-                {availableLanguages.map((lang) => (
-                  <SelectItem key={lang.code} value={lang.code}>
-                    {lang.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSpeechMode(prev => prev === 'continuous' ? 'manual' : 'continuous')}
-              className="gap-2 border-2 hover:border-purple-500/50 transition-colors font-semibold"
-            >
-              {speechMode === 'continuous' ? (
-                <>
-                  <MessageSquare className="w-4 h-4" />
-                  Thủ công
-                </>
-              ) : (
-                <>
-                  <Target className="w-4 h-4" />
-                  Tự động
-                </>
-              )}
-            </Button>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={togglePause}
-              className={`gap-2 border-2 transition-colors font-semibold ${
-                timeRemaining <= 60 && !isTimeUp 
-                  ? 'hover:border-red-500/50' 
-                  : 'hover:border-blue-500/50'
-              }`}
-            >
-              {isPaused ? (
-                <>
-                  <PlayCircle className="w-4 h-4" />
-                  Bắt đầu
-                </>
-              ) : (
-                <>
-                  <PauseCircle className="w-4 h-4" />
-                  Tạm dừng
-                </>
-              )}
-            </Button>
-
-            <Button
-              variant={isListening ? "destructive" : "default"}
-              size="sm"
-              onClick={toggleListening}
-              disabled={isTimeUp || isPaused}
-              className={`gap-2 transition-all duration-300 font-semibold ${
-                isListening 
-                  ? 'bg-red-500 hover:bg-red-600' 
-                  : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500'
-              }`}
-            >
-              {isListening ? (
-                <>
-                  <MicOff className="w-4 h-4" />
-                  Dừng
-                </>
-              ) : (
-                <>
-                  <Mic className="w-4 h-4" />
-                  Ghi âm câu trả lời
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Scenario Context with improved styling */}
-      <Card className="bg-white dark:bg-gray-800 border-2 hover:border-blue-500/20 transition-all duration-300">
-        <CardContent className="p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-lg bg-primary/10">
-                <Brain className="w-5 h-5 text-primary" />
-              </div>
-              <h3 className="text-lg font-semibold">Kịch bản phỏng vấn</h3>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsExpanded(!isExpanded)}
-              className="gap-2 font-semibold"
-            >
-              {isExpanded ? (
-                <>
-                  <ChevronUp className="w-4 h-4" />
-                  Thu gọn
-                </>
-              ) : (
-                <>
-                  <ChevronDown className="w-4 h-4" />
-                  Mở rộng
-                </>
-              )}
-            </Button>
-          </div>
-          <AnimatePresence>
-            {isExpanded && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="overflow-hidden"
-              >
-                <p className="text-gray-600 dark:text-gray-400 font-semibold">
-                  {scenarioData.scenario.scenario}
-                </p>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </CardContent>
-      </Card>
-
-      {/* Conversation */}
-      <ConversationBox messages={messages} />
-
-      {/* Time Up Alert with improved styling */}
-      {isTimeUp && !isAnalyzing && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-gradient-to-r from-yellow-50 to-orange-50 dark:from-yellow-900/20 dark:to-orange-900/20 border-2 border-yellow-200 dark:border-yellow-800 rounded-xl p-6"
-        >
-          <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 rounded-lg bg-gradient-to-r from-yellow-500 to-orange-500">
-              <AlertCircle className="w-5 h-5 text-white" />
-            </div>
-            <h3 className="font-medium text-gradient bg-gradient-to-r from-yellow-600 to-orange-600 bg-clip-text text-transparent">
-              Hết Giờ!
-            </h3>
-          </div>
-          <p className="text-sm text-yellow-700 dark:text-yellow-300">
-          Tuyệt vời! đang phân tích buổi phỏng vấn...
-          </p>
-        </motion.div>
-      )}
-
-      {/* Analysis Overlay */}
-      {isAnalyzing && <AnalysisOverlay />}
-    </motion.div>
-  );
+    );
 };
 
 export default ScenarioContent; 

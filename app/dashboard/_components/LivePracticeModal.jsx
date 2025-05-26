@@ -3,80 +3,87 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { X, Swords, Briefcase, Target, Sparkles, ArrowRight } from "lucide-react";
-import ScenarioDesignModal from "./ScenarioDesignModal";
+import { X, Swords, Target, ArrowRight, RefreshCw, Loader2, Globe2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-const LivePracticeModal = ({
-  showLivePractice,
-  setShowLivePractice
-}) => {
+const industries = [
+  { value: "sales", label: "Sales", icon: "💼" },
+  { value: "customer-service", label: "Customer Service", icon: "🎯" },
+  { value: "business-analysis", label: "Business Analysis", icon: "📊" },
+  { value: "it", label: "IT", icon: "💻" },
+  { value: "healthcare", label: "Healthcare", icon: "🏥" },
+];
+
+const levels = [
+  { value: "easy", label: "Easy", color: "bg-green-500" },
+  { value: "medium", label: "Medium", color: "bg-yellow-500" },
+  { value: "hard", label: "Hard", color: "bg-red-500" },
+];
+
+const languages = [
+  { value: "en", label: "English" },
+  { value: "vi", label: "Vietnamese" },
+];
+
+// const mockScenario = (industry, role, level, language) => {
+//   if (language === "vi") {
+//     return {
+//       scenario: `Bạn đang phỏng vấn cho vị trí ${role} trong ngành ${industry} ở cấp độ ${level}. Nhà tuyển dụng yêu cầu bạn mô tả cách tiếp cận một tình huống khó khăn.`,
+//       customerQuery: "Bạn có thể kể về một lần bạn vượt qua thử thách lớn trong công việc không?",
+//       expectedResponse: "Mô tả tình huống, hành động của bạn và kết quả.",
+//       level: level,
+//       language: language
+//     };
+//   }
+//   return {
+//     scenario: `You are interviewing for a ${role} in the ${industry} industry at ${level} level. The interviewer asks you to describe your approach to a challenging situation.`,
+//     customerQuery: "Can you tell me about a time you overcame a major challenge at work?",
+//     expectedResponse: "Describe the situation, your actions, and the outcome.",
+//     level: level,
+//     language: language
+//   };
+// };
+
+const LivePracticeModal = ({ showLivePractice, setShowLivePractice, scenario }) => {
   const router = useRouter();
-  const [selectedIndustry, setSelectedIndustry] = useState("");
-  const [roleDescription, setRoleDescription] = useState("");
-  const [showScenarioDesign, setShowScenarioDesign] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [progress, setProgress] = useState(0);
 
-  // Industry options with descriptions
-  const industries = [
-    {
-      value: "sales",
-      label: "Sales",
-      description: "Thực hành kỹ thuật bán hàng và tương tác với khách hàng",
-      icon: "💼"
-    },
-    {
-      value: "customer-service",
-      label: "Customer Service",
-      description: "Xử lý thắc mắc khách hàng và giải quyết vấn đề",
-      icon: "🎯"
-    },
-    {
-      value: "business-analysis",
-      label: "Business Analysis",
-      description: "Phân tích vấn đề kinh doanh và đề xuất giải pháp",
-      icon: "📊"
-    },
-    {
-      value: "it",
-      label: "IT",
-      description: "Phỏng vấn kỹ thuật và tình huống giải quyết vấn đề",
-      icon: "💻"
-    },
-    {
-      value: "healthcare",
-      label: "Healthcare",
-      description: "Chăm sóc bệnh nhân và tình huống y khoa",
-      icon: "🏥"
-    },
-  ];
+  const handleProceed = async () => {
+    try {
+    const scenarioData = {
+      title: scenario.title,
+      description: scenario.description,
+      difficulty: scenario.difficulty,
+      scenario: scenario.scenario,
+      customerQuery: scenario.customerQuery,
+      expectedResponse: scenario.expectedResponse,
+      language: scenario.language,
+      industry: scenario.industry,
+        role: scenario.role,
+        createdBy: "user", // This should be replaced with actual user ID/email
+        createdAt: new Date().toISOString(),
+        mockID: crypto.randomUUID() // Generate a unique ID for the mock interview
+      };
 
-  const handleGenerateScenario = () => {
-    setIsLoading(true);
-    setProgress(0);
+      // Save to database
+      const response = await fetch('/api/mock-interview', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(scenarioData),
+      });
 
-    // Simulate loading progress
-    const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 20, 90));
-    }, 500);
+      if (!response.ok) {
+        throw new Error('Failed to save scenario');
+      }
 
-    // Simulate API call delay
-    setTimeout(() => {
-      clearInterval(progressInterval);
-      setProgress(100);
-      setIsLoading(false);
-      setShowScenarioDesign(true);
-    }, 2000);
-  };
-
-  const handleScenarioProceed = (scenarioData) => {
+      // Redirect to practice screen with the scenario data
     router.push(`/live-practice-arena?scenario=${encodeURIComponent(JSON.stringify(scenarioData))}`);
+    } catch (error) {
+      console.error('Error saving scenario:', error);
+      // Handle error appropriately
+    }
   };
 
   return (
@@ -87,28 +94,28 @@ const LivePracticeModal = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/70 backdrop-blur-md z-50 flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.97, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-              className="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg overflow-hidden border-2 border-blue-500/20 dark:border-blue-400/20"
+              exit={{ opacity: 0, scale: 0.97, y: 20 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="bg-gray-900/95 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-blue-700/30"
             >
               {/* Modal Header */}
-              <div className="p-6 border-b border-gray-200 dark:border-gray-700 bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
+              <div className="p-5 border-b border-gray-800 bg-gradient-to-r from-blue-900/30 to-purple-900/30">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-blue-500 text-white shadow-lg shadow-blue-500/20">
+                    <div className="p-2 rounded-lg bg-blue-600 text-white shadow-lg">
                       <Swords className="w-6 h-6" />
                     </div>
                     <div>
-                      <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                        Phỏng Vấn Thực Chiến
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                        Live Interview Practice
                       </h2>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">
-                        Nâng Tầm Kỹ Năng Phỏng Vấn Của Bạn 🚀
+                      <p className="text-xs text-gray-400 mt-1">
+                        Practice real interviews with AI
                       </p>
                     </div>
                   </div>
@@ -116,115 +123,60 @@ const LivePracticeModal = ({
                     variant="ghost"
                     size="icon"
                     onClick={() => setShowLivePractice(false)}
-                    className="hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full"
+                    className="hover:bg-gray-800 rounded-full"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-5 h-5 text-gray-300" />
                   </Button>
                 </div>
               </div>
 
               {/* Modal Content */}
               <div className="p-6 space-y-6">
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                      <Target className="w-4 h-4 text-blue-500" />
-                      Chọn Công Việc Của Bạn
-                    </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      {industries.map((industry) => (
-                        <motion.button
-                          key={industry.value}
-                          whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => setSelectedIndustry(industry.value)}
-                          className={`p-4 rounded-lg border-2 transition-all duration-200 ${selectedIndustry === industry.value
-                            ? "border-blue-500 bg-blue-50 dark:bg-blue-900/20 shadow-lg shadow-blue-500/10"
-                            : "border-gray-200 dark:border-gray-700 hover:border-blue-300 dark:hover:border-blue-500/50"
-                            }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            <span className="text-2xl transform transition-transform group-hover:scale-110">
-                              {industry.icon}
-                            </span>
-                            <div className="text-left">
-                              <p className="text-sm font-medium">{industry.label}</p>
-                              <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                {industry.description}
-                              </p>
-                            </div>
-                          </div>
-                        </motion.button>
-                      ))}
+                {scenario && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="space-y-4"
+                  >
+                    <div className="rounded-lg border border-blue-700/40 p-4 bg-gradient-to-r from-blue-900/20 to-purple-900/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Target className="w-4 h-4 text-blue-400" />
+                        <h3 className="font-medium bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                          Your Interview Scenario
+                        </h3>
+                        <span className={`ml-auto px-2 py-0.5 rounded text-xs font-semibold uppercase ${scenario.difficulty === 'easy' ? 'bg-green-700 text-green-200' : scenario.difficulty === 'medium' ? 'bg-yellow-700 text-yellow-100' : 'bg-red-700 text-red-100'}`}>{scenario.difficulty}</span>
+                        <span className={`ml-2 px-2 py-0.5 rounded text-xs font-semibold uppercase bg-emerald-700 text-emerald-100`}>{scenario.language === 'vi' ? 'VI' : 'EN'}</span>
+                      </div>
+                      <div className="flex gap-2 mb-3">
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-blue-900/30 text-blue-200 border border-blue-700/40">
+                          {scenario.industry}
+                        </span>
+                        <span className="px-2 py-0.5 rounded text-xs font-medium bg-purple-900/30 text-purple-200 border border-purple-700/40">
+                          {scenario.role}
+                        </span>
+                      </div>
+                      <p className="text-sm text-gray-300 mb-2">{scenario.scenario}</p>
+                      <div className="pl-4 border-l-2 border-blue-500">
+                        <p className="text-sm font-medium text-gray-100">{scenario.customerQuery}</p>
+                        <p className="text-xs text-gray-400 mt-1">Expected: {scenario.expectedResponse}</p>
+                      </div>
                     </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
-                      <Briefcase className="w-4 h-4 text-purple-500" />
-                      Hãy Cho AI-Interview Biết Về Công Việc Của Bạn
-                    </label>
-                    <Textarea
-                      value={roleDescription}
-                      onChange={(e) => setRoleDescription(e.target.value)}
-                      placeholder="Mô Tả Vị Trí Bạn Đang Chuẩn Bị..."
-                      className="min-h-[100px] border-2 focus:border-purple-500 focus:ring-purple-500/20"
-                    />
-                  </div>
-                </div>
-
-                {isLoading && (
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-blue-600 dark:text-blue-400 font-medium">
-                        Đang Thiết Kế Buổi Phỏng Vấn Hoàn Hảo Cho Bạn...
-                      </span>
-                      <span className="text-purple-600 dark:text-purple-400 font-bold">
-                        {progress}%
-                      </span>
+                    <div className="flex gap-2">
+                      <Button
+                        className="flex-1 h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"
+                        onClick={handleProceed}
+                      >
+                        Continue
+                        <ArrowRight className="w-4 h-4 ml-1" />
+                      </Button>
                     </div>
-                    <Progress
-                      value={progress}
-                      className="h-2 bg-gray-100 dark:bg-gray-700"
-                    />
-                  </div>
+                  </motion.div>
                 )}
-
-                <Button
-                  className={`w-full h-12 rounded-lg transition-all duration-300 
-                    ${!selectedIndustry || !roleDescription.trim() || isLoading
-                      ? 'bg-gray-100 dark:bg-gray-800 text-gray-400'
-                      : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl shadow-blue-500/20 hover:shadow-purple-500/30'
-                    }`}
-                  disabled={!selectedIndustry || !roleDescription.trim() || isLoading}
-                  onClick={handleGenerateScenario}
-                >
-                  {isLoading ? (
-                    <span className="flex items-center gap-2">
-                      <Sparkles className="w-4 h-4 animate-pulse" />
-                      Đang Tạo Buổi Phỏng Vấn Của Bạn...
-                    </span>
-                  ) : (
-                    <span className="flex items-center gap-2">
-                      <Target className="w-4 h-4" />
-                      Bắt Đầu Thiết Kế
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </span>
-                  )}
-                </Button>
               </div>
             </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      <ScenarioDesignModal
-        show={showScenarioDesign}
-        onClose={() => setShowScenarioDesign(false)}
-        selectedIndustry={selectedIndustry}
-        roleDescription={roleDescription}
-        onProceed={handleScenarioProceed}
-      />
     </>
   );
 };

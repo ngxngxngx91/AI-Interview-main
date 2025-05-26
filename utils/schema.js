@@ -1,34 +1,38 @@
-import { pgTable, serial, text, varchar } from "drizzle-orm/pg-core";
+import {pgTable, serial, text, varchar} from "drizzle-orm/pg-core";
 
 export const MockInterview = pgTable('mockInterview', {
     id: serial('id').primaryKey(),
-    jsonMockResp: text('jsonMockResp').notNull(),
-    jobPosition: varchar('jobPosition').notNull(),
-    jobDesc: varchar('jobDesc').notNull(),
-    jobExperience: varchar('jobExperience').notNull(),
+    title: varchar('title').notNull(),
+    description: text('description'),
+    difficulty: varchar('difficulty').notNull(),
+    scenario: text('scenario').notNull(),
+    customerQuery: text('customerQuery').notNull(),
+    expectedResponse: text('expectedResponse').notNull(),
+    language: varchar('language').notNull(),
+    industry: varchar('industry').notNull(),
+    role: varchar('role').notNull(),
     createdBy: varchar('createdBy').notNull(),
     createdAt: varchar('createdAt'),
     mockID: varchar('mockID').notNull()
-
 })
 
-export const UserAnswer = pgTable('userAnswer', {
-    id: serial('id').primaryKey(),
-    mockIdRef: varchar('mockId').notNull(),
-    question: varchar('question').notNull(),
-    suggestAns: text('suggestAns').notNull(),
-    userAns: text('userAns').notNull(),
-    feedback: text('feedback').notNull(),
-    rating: varchar('rating').notNull(),
-    userEmail: varchar('userEmail').notNull(),
-    createdAt: varchar('createdAt').notNull(),
-
-})
-
-export const OverallFeedback = pgTable('overallFeedback', {
+export const InterviewFeedback = pgTable('interviewFeedback', {
     id: serial('id').primaryKey(),
     mockIdRef: varchar('mockId').notNull(),
     userEmail: varchar('userEmail').notNull(),
     createdAt: varchar('createdAt').notNull(),
-    bodyLanguageFeedback: varchar('bodyLanguageFeedback').notNull(),
+    
+    // Overall session data
+    duration: varchar('duration').notNull(),
+    totalMessages: varchar('totalMessages').notNull(),
+    averageScore: varchar('averageScore').notNull(),
+    
+    // Detailed feedback
+    conversation: text('conversation').notNull(), // JSON string of all messages
+    strengths: text('strengths').notNull(), // JSON array of strengths
+    weaknesses: text('weaknesses').notNull(), // JSON array of weaknesses
+    detailedFeedback: text('detailedFeedback').notNull(), // JSON array of detailed feedback
+    
+    // Individual message analysis
+    messageAnalysis: text('messageAnalysis').notNull() // JSON array of per-message analysis
 })

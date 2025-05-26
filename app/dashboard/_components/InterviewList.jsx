@@ -1,102 +1,133 @@
-"use client"
-import { db } from '@/utils/db';
-import { MockInterview } from '@/utils/schema';
-import { useUser } from '@clerk/nextjs'
-import { desc, eq } from 'drizzle-orm';
-import React, { useEffect, useState } from 'react'
-import InterviewItemCard from './InterviewItemCard';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import InterviewCard from './InterviewCard';
+import { motion } from "framer-motion";
+import { PlusCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 
-function InterviewList({ viewType = "grid" }) {
-    const { user } = useUser();
-    const [interviewList, setInterviewList] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
+const InterviewList = () => {
+  const [interviews, setInterviews] = useState([]);
+  const [searchTerm, setSearchTerm] = useState('');
 
-    useEffect(() => {
-        if (user) {
-            GetInterviewList();
+  useEffect(() => {
+    // Fetch interview data from your API
+    const fetchInterviews = async () => {
+      try {
+        const response = await fetch('/api/interview-feedback'); // Assuming this endpoint exists or create one
+        if (!response.ok) {
+          throw new Error('Failed to fetch interviews');
         }
-    }, [user]);
-
-    const GetInterviewList = async () => {
-        try {
-            setLoading(true);
-            const result = await db.select()
-                .from(MockInterview)
-                .where(eq(MockInterview.createdBy, user?.primaryEmailAddress?.emailAddress))
-                .orderBy(desc(MockInterview.id));
-
-            setInterviewList(result);
-        } catch (err) {
-            console.error("Error fetching interviews:", err);
-            setError("Failed to load interviews. Please try again later.");
-        } finally {
-            setLoading(false);
-        }
+        const data = await response.json();
+        // Data from the database might be JSON strings, parse them
+        const parsedData = data.map(item => ({
+          ...item,
+          conversation: JSON.parse(item.conversation),
+          strengths: JSON.parse(item.strengths),
+          weaknesses: JSON.parse(item.weaknesses),
+          detailedFeedback: JSON.parse(item.detailedFeedback),
+          messageAnalysis: JSON.parse(item.messageAnalysis),
+          // No need to parse bodyLanguageFeedback anymore as it's removed
+        }));
+        setInterviews(parsedData);
+      } catch (error) {
+        console.error('Error fetching interviews:', error);
+        // Handle error (e.g., show a message to the user)
+      }
     };
 
-    if (loading) {
-        return (
-            <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    fetchInterviews();
+  }, []); // Empty dependency array means this effect runs once on mount
+
+  const filteredInterviews = interviews.filter(interview =>
+    interview.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    interview.industry?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h2 className="text-4xl md:text-4xl font-bold text-[#2d332b] text-left mb-8 mt-24">Hành trình luyện tập của bạn</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Card 1 */}
+          <div className="flex items-center justify-between rounded-[1.5rem] bg-[#f9f3ef] px-6 py-5 h-[110px] border border-[#e0d8ce] transition-all duration-200 hover:bg-white hover:border-[#d6d0c4]">
+            <div className="flex flex-col items-start">
+              <span className="text-2xl font-bold text-[#2d332b] mb-1">{interviews.length}</span>
+              <span className="text-base text-[#6b6f6a]">Buổi phỏng vấn</span>
             </div>
-        );
-    }
-
-    if (error) {
-        return (
-            <div className="text-center py-12">
-                <p className="text-red-500">{error}</p>
+            {/* Image placeholder */}
+            <div className="w-16 h-16 rounded-xl bg-[#f3e0d2] ml-4 flex items-center justify-center"></div>
+          </div>
+          {/* Card 2 */}
+          <div className="flex items-center justify-between rounded-[1.5rem] bg-[#eaf6e6] px-6 py-5 h-[110px] border border-[#cfe2d2] transition-all duration-200 hover:bg-white hover:border-[#b7c8b7]">
+            <div className="flex flex-col items-start">
+              <span className="text-2xl font-bold text-[#2d332b] mb-1">80/100</span>
+              <span className="text-base text-[#6b6f6a]">Điểm cao nhất</span>
             </div>
-        );
-    }
+            {/* Image placeholder */}
+            <div className="w-16 h-16 rounded-xl bg-[#f7e7b7] ml-4 flex items-center justify-center"></div>
+          </div>
+          {/* Card 3 */}
+          <div className="flex items-center justify-between rounded-[1.5rem] bg-[#f8f6e7] px-6 py-5 h-[110px] border border-[#e6e3c9] transition-all duration-200 hover:bg-white hover:border-[#d1ceb6]">
+            <div className="flex flex-col items-start">
+              <span className="text-2xl font-bold text-[#2d332b] mb-1">+50%</span>
+              <span className="text-base text-[#6b6f6a]">Tỷ lệ phát triển</span>
+            </div>
+            {/* Image placeholder */}
+            <div className="w-16 h-16 rounded-xl bg-[#d6eac7] ml-4 flex items-center justify-center"></div>
+          </div>
+        </div>
+      </motion.div>
 
-    if (!interviewList?.length) {
-        return (
-            <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center py-12"
-            >
-                <p className="text-gray-500 dark:text-gray-400">
-                    No interviews found. Start by creating a new interview session!
-                </p>
-            </motion.div>
-        );
-    }
+      {/* Search and Create Button */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex w-full gap-6 items-stretch justify-between"
+      >
+        <div className="flex w-full gap-6 items-stretch justify-between mt-3">
+        <div className="relative w-[440px] max-w-full">
+          <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#6b6f6a]">
+            <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#6b6f6a" strokeWidth="2"/><path stroke="#6b6f6a" strokeWidth="2" strokeLinecap="round" d="M20 20l-3-3"/></svg>
+          </span>
+          <input
+            type="text"
+            placeholder="Tìm theo tên buổi phỏng vấn"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full pl-12 pr-4 py-3 rounded-[1rem] border-2 border-[#e0d8ce] bg-white text-[#3d463b] placeholder-[#6b6f6a] focus:outline-none focus:border-[#b6b6a8] text-base shadow-sm h-full"
+          />
+        </div>
+        <div>
+          <Button
+            variant="outline"
+            className="border-2 border-[#f3b6b6] text-[#e45a5a] hover:bg-[#f9f3ef] hover:border-[#e45a5a] rounded-[2rem] gap-2 font-semibold px-8 py-3 text-base flex items-center justify-center h-full"
+            style={{ color: '#e45a5a', background: 'transparent' }}
+          >
+            <PlusCircle className="w-5 h-5 text-[#e45a5a]" />
+            Tạo buổi phỏng vấn mới
+          </Button>
+        </div>
+        </div>
+      </motion.div>
 
-    return (
-        <AnimatePresence mode="wait">
-            <motion.div
-                key={viewType}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.3 }}
-                className={
-                    viewType === "grid"
-                        ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-                        : "space-y-4"
-                }
-            >
-                {interviewList.map((interview, index) => (
-                    <motion.div
-                        key={interview.mockID}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.3, delay: index * 0.1 }}
-                    >
-                        <InterviewItemCard
-                            interview={interview}
-                            viewType={viewType}
-                        />
-                    </motion.div>
-                ))}
-            </motion.div>
-        </AnimatePresence>
-    );
-}
+      {/* List of Interview Cards */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+      >
+        {filteredInterviews.map((interview) => (
+          <InterviewCard key={interview.id} interview={interview} />
+        ))}
+      </motion.div>
+    </div>
+  );
+};
 
-export default InterviewList;
+export default InterviewList; 
