@@ -14,7 +14,9 @@ import {
     Lock,
     Loader2,
     Github,
-    User
+    User,
+    Eye,
+    EyeOff
 } from 'lucide-react';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +25,8 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { useState, useRef } from "react";
 import { useRouter } from 'next/navigation';
+import { useSignUp } from '@clerk/nextjs';
+import Image from 'next/image';
 
 // Danh sách các tính năng chính của ứng dụng
 const features = [
@@ -86,187 +90,166 @@ const benefits = [
     }
 ];
 
-export default function Page() {
+function CustomSignUpForm() {
+    const { signUp, setActive, isLoaded } = useSignUp();
+    const [name, setName] = useState("");
+    const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const router = useRouter();
 
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+        if (!isLoaded) return;
+        try {
+            await signUp.create({
+                emailAddress: email,
+                password,
+                username,
+                firstName: name,
+            });
+            await signUp.prepareEmailAddressVerification({ strategy: 'email_code' });
+            // Optionally, you can redirect to a verification page or auto-activate
+            router.push('/sign-in');
+        } catch (err) {
+            setError(err.errors?.[0]?.message || "Đăng ký thất bại");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleSocial = (strategy) => {
+        if (!isLoaded) return;
+        signUp.authenticateWithRedirect({ strategy, redirectUrl: '/dashboard' });
+    };
+
     return (
-        <div className="min-h-screen bg-gray-900">
-            {/* Nền trang với hiệu ứng gradient và pattern */}
-            <div className="absolute inset-0">
-                <div className="absolute inset-0 bg-grid-gray-800/20 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 animate-pulse" />
-            </div>
-
-            <div className="relative container mx-auto flex min-h-screen items-center justify-center p-8">
-                <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
-                    {/* Cột trái - Giới thiệu tính năng */}
-                    <div className="space-y-8 text-gray-100 lg:pr-8">
-                        {/* Badge chào mừng với animation */}
-                        <motion.div
-                            initial={{ scale: 0.8 }}
-                            animate={{ scale: 1 }}
-                            transition={{ duration: 0.5 }}
-                        >
-                            <Badge
-                                variant="secondary"
-                                className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-gray-700/60"
-                            >
-                                <Sparkles className="w-4 h-4 mr-2 text-blue-400" />
-                                Start Your Interview Success Story
-                            </Badge>
-                        </motion.div>
-
-                        {/* Tiêu đề và mô tả */}
-                        <div className="space-y-4">
-                            <motion.h1
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0.1 }}
-                                className="text-4xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent"
-                            >
-                                Begin Your Journey Today
-                            </motion.h1>
-                            <motion.p
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.5, delay: 0.2 }}
-                                className="text-lg text-gray-400"
-                            >
-                                Join thousands who have transformed their interview skills with AI-Interview!
-                            </motion.p>
-                        </div>
-
-                        {/* Thống kê với hiệu ứng hover */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.3 }}
-                            className="grid grid-cols-3 gap-4"
-                        >
-                            {stats.map((stat, index) => (
-                                <div
-                                    key={stat.label}
-                                    className="relative group overflow-hidden rounded-lg bg-gray-800/80 backdrop-blur-lg p-4 shadow-lg border border-gray-700/60 transition-all duration-300 hover:shadow-xl hover:border-blue-500/40"
-                                >
-                                    <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                                    <div className="relative">
-                                        <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                                        <div className="text-sm text-gray-400 font-bold">{stat.label}</div>
-                                    </div>
-                                </div>
-                            ))}
-                        </motion.div>
-
-                        {/* Lưới tính năng với hiệu ứng hover */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.4 }}
-                            className="grid grid-cols-2 gap-4"
-                        >
-                            {features.map((feature, index) => (
-                                <div
-                                    key={feature.title}
-                                    className="relative group"
-                                >
-                                    <Card className="relative overflow-hidden bg-gray-800/80 backdrop-blur-lg border border-gray-700/60 hover:border-blue-500/40 transition-all duration-300">
-                                        <CardContent className="p-6">
-                                            <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 w-fit mb-4">
-                                                <feature.icon className="w-6 h-6 text-blue-400" />
-                                            </div>
-                                            <h3 className="font-bold text-gray-100">{feature.title}</h3>
-                                            <p className="text-sm text-gray-400 mt-1">{feature.description}</p>
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            ))}
-                        </motion.div>
-
-                        {/* Phần lợi ích */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.5, delay: 0.5 }}
-                            className="space-y-4"
-                        >
-                            <h2 className="text-xl font-semibold text-gray-100">Why Choose AI-Interview?</h2>
-                            <div className="grid grid-cols-2 gap-4">
-                                {benefits.map((benefit, index) => (
-                                    <div key={benefit.title} className="flex items-center gap-2 text-gray-300">
-                                        <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
-                                        <span>{benefit.title}</span>
-                                    </div>
-                                ))}
-                            </div>
-                        </motion.div>
-                    </div>
-
-                    {/* Cột phải - Form đăng ký */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.6 }}
-                        className="lg:pl-8"
+        <div className="w-full max-w-md flex flex-col items-center justify-center translate-x-36">
+            <Image src="/logo.png" alt="Logo" width={72} height={72} className="mb-4" />
+            <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Đăng ký tài khoản</h2>
+            <p className="text-base text-center text-gray-500 mb-6">Tạo tài khoản để Bắt đầu con đường dẫn bạn đến đỉnh cao thành công trong phỏng vấn</p>
+            <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
+                <label className="text-left w-full text-gray-700 font-semibold mb-1">Họ và tên</label>
+                <input
+                    className="w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-3 mb-4 text-base focus:border-green-400 focus:ring-2 focus:ring-green-100 placeholder:text-gray-400 transition-all"
+                    placeholder="Nhập họ và tên"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    required
+                />
+                <label className="text-left w-full text-gray-700 font-semibold mb-1">Tên người dùng</label>
+                <input
+                    className="w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-3 mb-4 text-base focus:border-green-400 focus:ring-2 focus:ring-green-100 placeholder:text-gray-400 transition-all"
+                    placeholder="Nhập tên người dùng"
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                    required
+                />
+                <label className="text-left w-full text-gray-700 font-semibold mb-1">Địa chỉ email</label>
+                <input
+                    type="email"
+                    className="w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-3 mb-4 text-base focus:border-green-400 focus:ring-2 focus:ring-green-100 placeholder:text-gray-400 transition-all"
+                    placeholder="Nhập địa chỉ email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    required
+                />
+                <label className="text-left w-full text-gray-700 font-semibold mb-1">Mật khẩu</label>
+                <div className="w-full relative mb-4">
+                    <input
+                        type={showPassword ? "text" : "password"}
+                        className="w-full rounded-xl border border-gray-200 bg-white text-gray-900 px-4 py-3 text-base focus:border-green-400 focus:ring-2 focus:ring-green-100 placeholder:text-gray-400 transition-all pr-12"
+                        placeholder="Nhập mật khẩu"
+                        value={password}
+                        onChange={e => setPassword(e.target.value)}
+                        required
+                    />
+                    <button
+                        type="button"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                        tabIndex={-1}
+                        onClick={() => setShowPassword(v => !v)}
                     >
-                        <Card className="relative overflow-hidden bg-gray-800/80 backdrop-blur-lg border border-gray-700/60 shadow-xl">
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10" />
-                            <div className="relative p-6">
-                                <div className="space-y-6">
-                                    {/* Header form đăng ký */}
-                                    <div className="space-y-2 text-center">
-                                        <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
-                                            Create Your Account
-                                        </h2>
-                                        <p className="text-sm text-gray-400">
-                                            Start your journey to interview success!
-                                        </p>
-                                    </div>
-                                    {/* Component đăng ký từ Clerk */}
-                                    <SignUp
-                                        appearance={{
-                                            elements: {
-                                                formButtonPrimary:
-                                                    "bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white transition-all duration-300",
-                                                formButtonSecondary:
-                                                    "bg-gray-700/80 border-gray-600 hover:bg-gray-700 text-gray-100 transition-colors",
-                                                card: "bg-transparent shadow-none",
-                                                headerTitle: "text-gray-100",
-                                                headerSubtitle: "text-gray-400",
-                                                socialButtonsBlockButton:
-                                                    "bg-gray-700/80 border border-gray-600 hover:bg-gray-700 text-gray-100 transition-colors",
-                                                socialButtonsBlockButtonText: "text-gray-100",
-                                                socialButtonsBlockButtonArrow: "text-gray-100",
-                                                dividerLine: "bg-gray-700",
-                                                dividerText: "text-gray-400",
-                                                formFieldLabel: "text-gray-300",
-                                                formFieldInput:
-                                                    "bg-gray-700/60 border-gray-600 text-gray-100 placeholder:text-gray-500 focus:border-blue-500/50 transition-colors",
-                                                formFieldInputShowPasswordButton: "text-gray-400",
-                                                footerActionLink: "text-blue-400 hover:text-blue-300",
-                                                footerActionText: "text-gray-400",
-                                                identityPreviewText: "text-gray-100",
-                                                identityPreviewEditButton:
-                                                    "text-gray-400 hover:text-gray-300",
-                                                alertText: "text-gray-400",
-                                                formFieldWarningText: "text-yellow-400",
-                                                formFieldErrorText: "text-red-400",
-                                                headerBackIcon: "text-gray-100",
-                                                headerBackLink: "text-gray-100 hover:text-gray-300",
-                                            },
-                                            layout: {
-                                                unsafe_disableDevelopmentModeWarnings: true,
-                                                socialButtonsIconButton: "hidden",
-                                            }
-                                        }}
-                                        redirectUrl="/dashboard"
-                                        routing="path"
-                                        path="/sign-up"
-                                        signInUrl="/sign-in"
-                                    />
-                                </div>
-                            </div>
-                        </Card>
-                    </motion.div>
+                        {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                    </button>
+                </div>
+                <button
+                    type="submit"
+                    className="w-full rounded-full bg-[#B5ED76] hover:bg-[#b6f2c7] text-gray-900 font-semibold py-3 mt-2 mb-4 text-base transition-all duration-300"
+                    disabled={loading}
+                >
+                    {loading ? 'Đang đăng ký...' : 'Đăng ký'}
+                </button>
+                {error && <div className="text-red-500 text-center mb-2">{error}</div>}
+            </form>
+            <div className="text-center text-gray-500 mb-2">
+                Đã có tài khoản? <a href="/sign-in" className="font-bold text-gray-800">Đăng nhập ngay</a>
+            </div>
+            <div className="flex items-center w-full my-4">
+                <div className="flex-grow h-px bg-gray-300" />
+                <span className="mx-2 text-gray-400 text-sm">hoặc</span>
+                <div className="flex-grow h-px bg-gray-300" />
+            </div>
+            <div className="flex flex-row items-center justify-center gap-4 mt-2 mb-2">
+                <button
+                    type="button"
+                    aria-label="Đăng ký với Facebook"
+                    className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-100 mx-2 shadow-none"
+                    onClick={() => handleSocial('oauth_facebook')}
+                >
+                    <Image src="/facebook.png" alt="Facebook" width={28} height={28} />
+                </button>
+                <button
+                    type="button"
+                    aria-label="Đăng ký với Google"
+                    className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-100 mx-2 shadow-none"
+                    onClick={() => handleSocial('oauth_google')}
+                >
+                    <Image src="/google.png" alt="Google" width={28} height={28} />
+                </button>
+            </div>
+        </div>
+    );
+}
+
+export default function Page() {
+    return (
+        <div className="min-h-screen w-full flex flex-row bg-transparent">
+            {/* Left Side: 3/4, sign-up form, background image */}
+            <div
+                className="w-full min-h-screen flex items-center justify-center relative"
+                style={{
+                    backgroundImage: 'url(/sign-in,up_background.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            >
+                <CustomSignUpForm />
+            </div>
+            {/* Right Side: 1/4, image only, background color and background image matches left bg */}
+            <div
+                className="w-full min-h-screen flex items-center justify-center relative overflow-hidden"
+                style={{
+                    backgroundColor: '#F7F5EF',
+                    backgroundImage: 'url(/sign-in,up_background.png)',
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center',
+                }}
+            >
+                <div className="absolute right-0 top-1/2 -translate-y-1/2">
+                    <Image
+                        src="/sign-up.png"
+                        alt="Sign In Illustration"
+                        width={750}
+                        height={950}
+                        quality={100}
+                        priority
+                    />
                 </div>
             </div>
         </div>
