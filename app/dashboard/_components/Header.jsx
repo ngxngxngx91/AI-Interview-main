@@ -76,8 +76,8 @@ function Header() {
                         <Image
                             src="/Logo.png"
                             alt="Logo"
-                            width={120}
-                            height={50}
+                            width={40}
+                            height={40}
                             className="w-auto h-12 relative"
                             priority
                         />
