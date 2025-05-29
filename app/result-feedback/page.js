@@ -31,6 +31,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 function ResultFeedbackContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
+    // State quản lý dữ liệu và trạng thái UI
     const [sessionData, setSessionData] = useState(null);
     const [isConversationOpen, setIsConversationOpen] = useState(true);
     const [isFeedbackOpen, setIsFeedbackOpen] = useState(true);
@@ -43,6 +44,7 @@ function ResultFeedbackContent() {
         restDelta: 0.001
     });
 
+    // Xử lý dữ liệu phiên phỏng vấn từ URL
     useEffect(() => {
         const sessionParam = searchParams.get("session");
         if (sessionParam) {
@@ -59,10 +61,12 @@ function ResultFeedbackContent() {
         setIsLoading(false);
     }, [searchParams, router]);
 
+    // Hàm xuất kết quả ra file PDF
     const handleSavePDF = () => {
         generateSessionPDF(sessionData);
     };
 
+    // Hiển thị màn hình loading
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
@@ -82,6 +86,7 @@ function ResultFeedbackContent() {
 
     if (!sessionData) return null;
 
+    // Tính điểm trung bình từ các phân tích
     const averageScore = Math.round(
         sessionData.conversation
             .filter(msg => msg.type === 'user' && msg.analysis?.overallScore)
@@ -92,13 +97,13 @@ function ResultFeedbackContent() {
     return (
         <div
             className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-950 to-black dark:from-gray-950 dark:via-gray-900 dark:to-gray-950">
-            {/* Progress Bar */}
+            {/* Thanh tiến trình cuộn trang */}
             <motion.div
                 className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-purple-500 origin-left z-50"
                 style={{ scaleX }}
             />
 
-            {/* Fixed Top Bar */}
+            {/* Thanh điều hướng cố định */}
             <motion.div
                 initial={{ y: -100 }}
                 animate={{ y: 0 }}
@@ -135,10 +140,10 @@ function ResultFeedbackContent() {
                 </div>
             </motion.div>
 
-            {/* Main Content */}
+            {/* Nội dung chính */}
             <div className="pt-24 pb-8">
                 <div className="max-w-4xl mx-auto px-4">
-                    {/* Score Overview Card */}
+                    {/* Card tổng quan điểm số */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -154,14 +159,17 @@ function ResultFeedbackContent() {
                                                 {sessionData.scenario.title}
                                             </h2>
                                             <div className="flex flex-wrap items-center gap-3">
+                                                {/* Badge thời gian */}
                                                 <Badge variant="outline" className="bg-blue-900/40 border-blue-700/40 text-blue-300 gap-1 px-2 py-1">
                                                     <Clock className="w-4 h-4 text-blue-400" />
                                                     {Math.floor(sessionData.duration / 60)}m {sessionData.duration % 60}s
                                                 </Badge>
+                                                {/* Badge độ khó */}
                                                 <Badge variant="outline" className="bg-purple-900/40 border-purple-700/40 text-purple-200 gap-1 px-2 py-1">
                                                     <Target className="w-4 h-4 text-purple-400" />
                                                     {sessionData.scenario.difficulty}
                                                 </Badge>
+                                                {/* Badge số tin nhắn */}
                                                 <Badge variant="outline" className="bg-emerald-900/40 border-emerald-700/40 text-emerald-200 gap-1 px-2 py-1">
                                                     <MessageSquare className="w-4 h-4 text-emerald-400" />
                                                     {sessionData.conversation.length} Messages
@@ -185,7 +193,7 @@ function ResultFeedbackContent() {
                         </Card>
                     </motion.div>
 
-                    {/* Tabs */}
+                    {/* Thanh tab điều hướng */}
                     <div className="flex gap-2 mb-6 overflow-x-auto pb-2 font-semibold">
                         {["overview", "conversation", "feedback", "recommendations"].map((tab) => (
                             <Button
@@ -203,8 +211,9 @@ function ResultFeedbackContent() {
                         ))}
                     </div>
 
-                    {/* Tab Content */}
+                    {/* Nội dung các tab */}
                     <AnimatePresence mode="wait">
+                        {/* Tab Tổng quan */}
                         {activeTab === "overview" && (
                             <motion.div
                                 key="overview"
@@ -213,7 +222,7 @@ function ResultFeedbackContent() {
                                 exit={{ opacity: 0, y: -20 }}
                                 className="space-y-6"
                             >
-                                {/* Performance Overview */}
+                                {/* Card phân tích hiệu suất */}
                                 <Card className="p-6 border-blue-700/40 bg-gradient-to-br from-gray-900/80 to-blue-950/80 shadow rounded-2xl">
                                     <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
                                         <BarChart3 className="w-5 h-5 text-blue-400" />
@@ -228,6 +237,7 @@ function ResultFeedbackContent() {
                                             <Progress value={averageScore} className="h-2 bg-blue-700/40" />
                                         </div>
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            {/* Card điểm mạnh */}
                                             <div className="p-4 bg-green-900/30 rounded-lg">
                                                 <h4 className="font-bold text-green-300 mb-2">Strengths</h4>
                                                 <ul className="space-y-2">
@@ -244,6 +254,7 @@ function ResultFeedbackContent() {
                                                         ))}
                                                 </ul>
                                             </div>
+                                            {/* Card điểm yếu */}
                                             <div className="p-4 bg-red-900/30 rounded-lg">
                                                 <h4 className="font-bold text-red-300 mb-2">Areas to Improve</h4>
                                                 <ul className="space-y-2">
@@ -264,7 +275,7 @@ function ResultFeedbackContent() {
                                     </div>
                                 </Card>
 
-                                {/* Key Insights */}
+                                {/* Card phân tích chi tiết */}
                                 <Card className="p-6 border-blue-700/40 bg-gradient-to-br from-gray-900/80 to-blue-950/80 shadow rounded-2xl">
                                     <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
                                         <Lightbulb className="w-5 h-5 text-yellow-400" />
@@ -289,6 +300,7 @@ function ResultFeedbackContent() {
                             </motion.div>
                         )}
 
+                        {/* Tab Hội thoại */}
                         {activeTab === "conversation" && (
                             <motion.div
                                 key="conversation"
@@ -327,6 +339,7 @@ function ResultFeedbackContent() {
                             </motion.div>
                         )}
 
+                        {/* Tab Phản hồi */}
                         {activeTab === "feedback" && (
                             <motion.div
                                 key="feedback"
@@ -335,7 +348,7 @@ function ResultFeedbackContent() {
                                 exit={{ opacity: 0, y: -20 }}
                                 className="space-y-6"
                             >
-                                {/* Detailed Feedback */}
+                                {/* Card phản hồi chi tiết */}
                                 <Card className="p-6 border-blue-700/40 bg-gradient-to-br from-gray-900/80 to-blue-950/80 shadow rounded-2xl">
                                     <h3 className="text-xl font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent mb-4 flex items-center gap-2">
                                         <MessageSquare className="w-5 h-5 text-blue-400" />
@@ -359,6 +372,7 @@ function ResultFeedbackContent() {
                                                         </Badge>
                                                     </div>
                                                     <div className="space-y-3">
+                                                        {/* Phần điểm mạnh */}
                                                         <div>
                                                             <h4 className="text-sm font-medium text-green-300 mb-1">Strengths</h4>
                                                             <ul className="space-y-1">
@@ -370,6 +384,7 @@ function ResultFeedbackContent() {
                                                                 ))}
                                                             </ul>
                                                         </div>
+                                                        {/* Phần điểm yếu */}
                                                         <div>
                                                             <h4 className="text-sm font-medium text-red-300 mb-1">Areas to Improve</h4>
                                                             <ul className="space-y-1">
@@ -389,6 +404,7 @@ function ResultFeedbackContent() {
                             </motion.div>
                         )}
 
+                        {/* Tab Đề xuất */}
                         {activeTab === "recommendations" && (
                             <motion.div
                                 key="recommendations"
@@ -436,7 +452,7 @@ function ResultFeedbackContent() {
                         )}
                     </AnimatePresence>
 
-                    {/* Action Buttons */}
+                    {/* Các nút hành động */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
@@ -463,7 +479,7 @@ function ResultFeedbackContent() {
     );
 }
 
-// Add this new component for the circular progress
+// Component hiển thị thanh tiến trình dạng tròn
 const CircularProgress = ({ value }) => (
     <div className="relative w-full h-full">
         <svg className="w-full h-full" viewBox="0 0 36 36">
@@ -501,6 +517,7 @@ const CircularProgress = ({ value }) => (
     </div>
 );
 
+// Component chính với Suspense
 export default function ResultFeedback() {
     return (
         <Suspense

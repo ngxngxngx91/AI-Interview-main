@@ -167,7 +167,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
         }
 
         try {
-            // Analyze all user messages
+            // Phân tích tất cả tin nhắn của người dùng
             const analysisPromises = messages
                 .filter(msg => msg.type === 'user')
                 .map(async (msg) => {
@@ -180,7 +180,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
 
             const analyzedMessages = await Promise.all(analysisPromises);
 
-            // Calculate average score
+            // Tính điểm trung bình
             const scores = analyzedMessages
                 .map(msg => msg.analysis?.overallScore || 0)
                 .filter(score => score > 0);
@@ -189,7 +189,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
                 : 0;
 
-            // Collect all strengths and weaknesses
+            // Thu thập tất cả điểm mạnh và điểm yếu
             const strengths = analyzedMessages
                 .flatMap(msg => msg.analysis?.strengths || [])
                 .filter((value, index, self) => self.indexOf(value) === index);
@@ -198,7 +198,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 .flatMap(msg => msg.analysis?.weaknesses || [])
                 .filter((value, index, self) => self.indexOf(value) === index);
 
-            // Prepare feedback data
+            // Chuẩn bị dữ liệu phản hồi
             const feedbackData = {
                 scenario: scenarioData,
                 conversation: analyzedMessages,
@@ -214,12 +214,12 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 }))
             };
 
-            // Call the onInterviewComplete callback
+            // Gọi callback khi hoàn thành phỏng vấn
             await onInterviewComplete(feedbackData);
 
         } catch (error) {
             console.error('Error analyzing interview:', error);
-            // Handle error appropriately
+            // Xử lý lỗi phù hợp
         }
     }, [isAnalyzing, isListening, recognition, scenarioData, messages, timeLimit, timeRemaining, onInterviewComplete]);
 
@@ -391,9 +391,10 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
         >
-            {/* Hiển thị thông tin kịch bản phỏng vấn */}
+            {/* Card hiển thị thông tin kịch bản phỏng vấn */}
             <Card className="bg-gray-900/90 backdrop-blur-lg border border-blue-700/40 rounded-2xl shadow-xl hover:border-blue-500/40 transition-all duration-300">
                 <CardContent className="p-6">
+                    {/* Header của card với icon và nút mở rộng/thu gọn */}
                     <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-3">
                             <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
@@ -422,6 +423,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                             )}
                         </Button>
                     </div>
+                    {/* Nội dung chi tiết của kịch bản phỏng vấn */}
                     <AnimatePresence>
                         {isExpanded && (
                             <motion.div
@@ -432,18 +434,21 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                                 className="overflow-hidden"
                             >
                                 <div className="space-y-4">
+                                    {/* Phần câu hỏi */}
                                     <div>
                                         <span className="block text-xs text-blue-400 font-semibold mb-1">Question</span>
                                         <p className="text-gray-300 font-semibold">
                                             {scenarioData.scenario?.customerQuery || scenarioData.customerQuery || ""}
                                         </p>
                                     </div>
+                                    {/* Phần câu trả lời mong đợi */}
                                     <div>
                                         <span className="block text-xs text-purple-400 font-semibold mb-1">Expected Response</span>
                                         <p className="text-gray-300 font-semibold">
                                             {scenarioData.scenario?.expectedResponse || scenarioData.expectedResponse || ""}
                                         </p>
                                     </div>
+                                    {/* Phần ngữ cảnh kịch bản */}
                                     <div>
                                         <span className="block text-xs text-emerald-400 font-semibold mb-1">Scenario Context</span>
                                         <p className="text-gray-300 font-semibold">
@@ -457,7 +462,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 </CardContent>
             </Card>
 
-            {/* Hiển thị hộp thoại phỏng vấn */}
+            {/* Hộp thoại phỏng vấn với các tính năng tương tác */}
             <ConversationBox
                 messages={messages}
                 isListening={isListening}
@@ -473,7 +478,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 onStopInterview={handleStopInterview}
             />
 
-            {/* Hiển thị overlay phân tích khi kết thúc */}
+            {/* Overlay hiển thị khi đang phân tích kết quả */}
             {isAnalyzing && <AnalysisOverlay />}
         </motion.div>
     );

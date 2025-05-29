@@ -39,7 +39,7 @@ export default function Home() {
     const [isLoading, setIsLoading] = useState(false);
     const [showDemo, setShowDemo] = useState(false);
 
-    // Common interview questions
+    // Danh sách câu hỏi phỏng vấn phổ biến
     const commonQuestions = [
         "Hãy kể cho tôi về bản thân bạn và lý lịch của bạn.",
         "Điểm mạnh lớn nhất và điểm yếu của bạn là gì?",
@@ -100,6 +100,7 @@ export default function Home() {
         }
     };
 
+    // Danh sách các tính năng chính của ứng dụng
     const features = [
         {
             icon: Brain,
@@ -127,6 +128,7 @@ export default function Home() {
         }
     ];
 
+    // Danh sách các lợi ích của ứng dụng
     const benefits = [
         {
             icon: Star,
@@ -147,7 +149,7 @@ export default function Home() {
 
     return (
         <div className="min-h-screen" style={{ background: '#FCF9F2' }}>
-            {/* Hero Section - Vietnamese Redesign */}
+            {/* Phần Hero Section - Thiết kế giao diện chính */}
             <div
                 className="relative overflow-hidden min-h-[654px] h-[654px] flex items-center"
                 style={{
@@ -158,17 +160,20 @@ export default function Home() {
                 }}
             >
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col h-full justify-center">
-                    {/* Header Row */}
+                    {/* Thanh điều hướng (Navigation Bar) */}
                     <div className="flex justify-between items-center w-full" style={{ minHeight: '80px' }}>
+                        {/* Logo và tên ứng dụng */}
                         <div className="flex items-center gap-3">
                             <Image src="/Logo.png" alt="AI.Interview Logo" width={88} height={88} quality={100} priority/>
                             <span className="font-bold text-2xl text-[#22372B]" style={{ fontFamily: 'Inter, sans-serif' }}>AI.Interview</span>
                         </div>
+                        {/* Menu điều hướng chính */}
                         <nav className="hidden md:flex gap-16 text-lg">
                             <Link href="#how-it-works" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Cách hoạt động</Link>
                             <Link href="#pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Bảng giá</Link>
                             <Link href="#affiliate" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Affiliate</Link>
                         </nav>
+                        {/* Nút CTA (Call-to-Action) chính */}
                         <Link href="/dashboard">
                             <button
                                 className="bg-gradient-to-r from-[#F97C7C] to-[#D72660] text-white font-bold rounded-full px-8 py-2 shadow-md text-lg transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95"
@@ -178,19 +183,22 @@ export default function Home() {
                             </button>
                         </Link>
                     </div>
-                    {/* Main Content: 2-column layout */}
+                    {/* Nội dung chính: Layout 2 cột */}
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 flex-1">
-                        {/* Left Section: Text and Buttons */}
+                        {/* Cột trái: Text và các nút */}
                         <div className="flex-1 flex flex-col items-start justify-center gap-8 min-w-[462px] min-h-[390px]">
+                            {/* Tiêu đề chính với hiệu ứng gradient */}
                             <h1 className="text-[56px] leading-[1.1] font-bold text-[#22372B] mb-4" style={{ letterSpacing: '-2px' }}>
                                 Chinh phục<br />
                                 nhà tuyển dụng<br />
                                 cùng <span className="bg-gradient-to-r from-[#3DC47E] to-[#1E9C5A] bg-clip-text text-transparent">AI-Interview</span>
                             </h1>
+                            {/* Đoạn mô tả ngắn */}
                             <p className="text-xl text-[#6B7A6A] font-normal mb-8 max-w-xl">
                                 Nhận phản hồi tức thì, cải thiện kỹ năng của bạn và <br />
                                 tăng cường sự tự tin cho cuộc phỏng vấn tiếp theo
                             </p>
+                            {/* Nhóm các nút CTA */}
                             <div className="flex gap-4">
                                 <Link href="/dashboard">
                                     <button
@@ -250,13 +258,13 @@ export default function Home() {
             </div>
 
             {/* Featured Benefits Section - Vietnamese Redesign */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20" style={{ height: '928px', minHeight: '928px' }}>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center" style={{ height: '928px', minHeight: '928px' }}>
                 <div className="text-center mb-12">
-                    <h2 className="text-5xl font-bold text-[#22372B] mb-6">Tính năng nổi bật</h2>
-                    <p className="text-[#7A8576] text-lg">Mọi thứ bạn cần để thể hiện tốt nhất trong các cuộc phỏng vấn</p>
+                    <h2 className="text-[48px] md:text-[56px] font-bold text-[#22372B] mb-3 md:mb-6" style={{ letterSpacing: '-1.5px' }}>Tối ưu hành trình Làm Chủ & Cải Thiện với 4 tính năng tuyệt vời</h2>
+                    <p className="text-[#4B6358] text-lg md:text-xl">AI-Interview sẽ luôn đồng hành cùng bạn xuyên suốt hành trình luyện tập cho đến ngày "hái quả ngọt"</p>
                 </div>
-                {/* Auto-scrolling vertical gallery */}
-                <AutoScrollGallery />
+                {/* Scrollable feature card gallery */}
+                <FeatureScrollGallery />
             </div>
 
             {/* Free Interview Experience Section - Vietnamese Redesign */}
@@ -473,7 +481,7 @@ export default function Home() {
                             quality={100}
                             unoptimized={true}
                             priority
-                            className="w-[90%] sm:w-[80%] md:w-[70%] lg:w-[81%] h-auto object-contain -translate-y-2 sm:-translate-y-4 md:-translate-y-6 lg:-translate-y-[4%] lg:-translate-x-[1%]"
+                            className="w-[90%] sm:w-[80%] md:w-[70%] lg:w-[81%] h-auto object-contain -translate-y-2 sm:-translate-y-4 md:-translate-y-6 lg:-translate-y-[4%] lg:-translate-x-[0%]"
                         />
                     </div>
                 </div>
@@ -523,76 +531,190 @@ export default function Home() {
     );
 }
 
-function AutoScrollGallery() {
-    const images = [
-        '/landing_page_section_feature_1.png',
-        '/landing_page_section_feature_2.png',
-        '/landing_page_section_feature_3.png',
-        '/landing_page_section_feature_4.png',
+function FeatureScrollGallery() {
+    const cards = [
+        {
+            // Card 1: yellow
+            bg: '#F3C96B',
+            image: '/landing_page_section_feature_1.png',
+            right: (
+                <>
+                    <div className="flex items-center mb-4">
+                        <Image src="/landing_page_section_feature_icon_1.png" alt="Chat Icon" width={48} height={48} className="mr-3" />
+                        <span className="text-3xl md:text-4xl font-bold text-[#22372B]">Phỏng vấn thực tế với AI</span>
+                    </div>
+                    <div className="text-lg md:text-xl text-[#22372B] max-w-xl">
+                        Mô phỏng phỏng vấn như thật, giúp bạn làm quen với nhiều tình huống và nâng cao khả năng ứng biến trong các buổi phỏng vấn thực tế
+                    </div>
+                </>
+            ),
+        },
+        {
+            // Card 2: orange
+            bg: '#F98B5C',
+            image: '/landing_page_section_feature_2.png',
+            right: (
+                <>
+                    <div className="flex items-center mb-4">
+                        <Image src="/landing_page_section_feature_icon_2.png" alt="Chat Icon" width={48} height={48} className="mr-3" />
+                        <span className="text-3xl font-bold text-white">Phản hồi mang tính cá nhân hóa</span>
+                    </div>
+                    <div className="text-lg text-white max-w-xl">
+                        Phân tích cụ thể từng phần trong câu trả lời của bạn – từ nội dung, ngữ điệu, cho đến biểu cảm – để giúp bạn chỉnh sửa hiệu quả
+                    </div>
+                </>
+            ),
+        },
+        {
+            // Card 3: green
+            bg: '#B6F57D',
+            image: '/landing_page_section_feature_3.png',
+            right: (
+                <>
+                    <div className="flex items-center mb-4">
+                        <Image src="/landing_page_section_feature_icon_3.png" alt="Chat Icon" width={48} height={48} className="mr-3" />
+                        <span className="text-3xl font-bold text-[#22372B]">Câu hỏi đa dạng theo ngành nghề</span>
+                    </div>
+                    <div className="text-lg text-[#22372B] max-w-xl">
+                        Các câu hỏi được tuỳ chỉnh theo vai trò và cấp độ kinh nghiệm của bạn
+                    </div>
+                </>
+            ),
+        },
+        {
+            // Card 4: dark green
+            bg: '#22372B',
+            image: '/landing_page_section_feature_4.png',
+            right: (
+                <>
+                    <div className="flex items-center mb-4">
+                        <Image src="/landing_page_section_feature_icon_4.png" alt="Chat Icon" width={48} height={48} className="mr-3" />
+                        <span className="text-3xl font-bold text-white">Phân Tích Kết Quả Trong Tích Tắc</span>
+                    </div>
+                    <div className="text-lg text-white max-w-xl">
+                        Ngay sau khi hoàn thành, bạn sẽ nhận được đánh giá tổng thể cùng lời khuyên thiết thực để phát triển kỹ năng một cách liên tục
+                    </div>
+                </>
+            ),
+        },
     ];
     const [current, setCurrent] = useState(0);
-    const timeoutRef = useRef(null);
+    const containerRef = useRef(null);
+    const CARD_WIDTH = 1240;
+    const CARD_HEIGHT = 528;
+    const IMAGE_WIDTH = 538;
+    const IMAGE_HEIGHT = 332;
+    const stackOffsetY = 8; // 4px down per stack
+    const stackOffsetX = 0; // 24px right per stack
 
+    // Handle mouse wheel scroll and prevent page scroll
     useEffect(() => {
-        timeoutRef.current = setTimeout(() => {
-            setCurrent((prev) => (prev + 1) % images.length);
-        }, 3000);
-        return () => clearTimeout(timeoutRef.current);
-    }, [current]);
+        const handleWheel = (e) => {
+            e.preventDefault();
+            if (e.deltaY > 0) {
+                setCurrent((prev) => (prev + 1) % cards.length);
+            } else if (e.deltaY < 0) {
+                setCurrent((prev) => (prev - 1 + cards.length) % cards.length);
+            }
+        };
+        const ref = containerRef.current;
+        if (ref) {
+            ref.addEventListener('wheel', handleWheel, { passive: false });
+        }
+        return () => {
+            if (ref) ref.removeEventListener('wheel', handleWheel);
+        };
+    }, [cards.length]);
 
-    // Use the natural size of your images
-    const imgWidth = 1200;
-    const imgHeight = 600;
-    const peekOffset = 48;
-    const next = (current + 1) % images.length;
-
+    // Render stacked cards
     return (
-        <div className="flex flex-col items-center justify-center w-full min-h-0">
-            <div className="relative" style={{ width: imgWidth, height: imgHeight + peekOffset }}>
-                <AnimatePresence initial={false}>
-                    {/* Current image (top card) */}
-                    <motion.div
-                        key={current}
-                        initial={{ opacity: 0, y: 40 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -40 }}
-                        transition={{ duration: 0.7, ease: 'easeInOut' }}
-                        className="absolute left-0 top-0 w-full h-auto"
-                        style={{ zIndex: 2 }}
-                    >
-                        <Image
-                            src={images[current]}
-                            alt={`Feature ${current + 1}`}
-                            width={imgWidth}
-                            height={imgHeight}
-                            quality={100}
-                            unoptimized={true}
-                            className="rounded-3xl w-full h-auto object-cover"
-                            style={{ boxShadow: 'none', border: 'none', background: 'none', display: 'block' }}
-                        />
-                    </motion.div>
-                    {/* Next image (peeking below) */}
-                    <motion.div
-                        key={next + '-peek'}
-                        initial={{ opacity: 0, y: peekOffset }}
-                        animate={{ opacity: 0.7, y: peekOffset }}
-                        exit={{ opacity: 0, y: peekOffset }}
-                        transition={{ duration: 0.7, ease: 'easeInOut' }}
-                        className="absolute left-0 top-0 w-full h-auto"
-                        style={{ zIndex: 1 }}
-                    >
-                        <Image
-                            src={images[next]}
-                            alt={`Feature ${next + 1}`}
-                            width={imgWidth}
-                            height={imgHeight}
-                            quality={100}
-                            unoptimized={true}
-                            className="rounded-3xl w-full h-auto object-cover"
-                            style={{ boxShadow: 'none', border: 'none', background: 'none', display: 'block' }}
-                        />
-                    </motion.div>
-                </AnimatePresence>
+        <div ref={containerRef} className="flex flex-col items-center justify-center w-full min-h-0 select-none" style={{ outline: 'none', minHeight: CARD_HEIGHT + 80 }} tabIndex={0}>
+            <div className="relative mx-auto flex items-center justify-center" style={{ minHeight: CARD_HEIGHT, height: CARD_HEIGHT, width: CARD_WIDTH }}>
+                {/* Stack all cards, only top card animates */}
+                {cards.map((card, idx) => {
+                    // Calculate stack position
+                    const pos = (idx - current + cards.length) % cards.length;
+                    if (pos === 0) {
+                        // Top card (active)
+                        return (
+                            <div
+                                key={idx}
+                                className="absolute left-1/2 top-0 flex flex-row rounded-[40px] shadow-2xl overflow-visible"
+                                style={{
+                                    border: 'none',
+                                    zIndex: 10,
+                                    background: card.bg,
+                                    boxShadow: '0 8px 40px 0 rgba(34,55,43,0.10)',
+                                    width: CARD_WIDTH,
+                                    height: CARD_HEIGHT,
+                                    transform: `translateX(-50%) translateY(${0 * stackOffsetY}px) translateX(${0 * stackOffsetX}px)`
+                                }}
+                            >
+                                {/* Left: Image */}
+                                <div className="flex items-center justify-center bg-transparent" style={{ flexBasis: IMAGE_WIDTH, minWidth: IMAGE_WIDTH, maxWidth: IMAGE_WIDTH, height: '100%', borderRadius: '32px', overflow: 'visible', position: 'relative' }}>
+                                    <Image
+                                        src={card.image}
+                                        alt="Feature visual"
+                                        width={IMAGE_WIDTH}
+                                        height={IMAGE_HEIGHT}
+                                        quality={100}
+                                        className="w-full h-[400px] object-contain rounded-[32px]"
+                                    />
+                                </div>
+                                {/* Right: Text/Content */}
+                                <div className="flex flex-col justify-center px-16 py-10 gap-6" style={{ flex: 1, minWidth: 0 }}>
+                                    {card.right}
+                                </div>
+                            </div>
+                        );
+                    } else if (pos < 4) {
+                        // Stacked cards below, solid color, no blur, no opacity, offset down and right
+                        return (
+                            <div
+                                key={idx}
+                                className="absolute left-1/2 top-0 flex flex-row rounded-[40px] shadow-2xl overflow-visible pointer-events-none"
+                                style={{
+                                    border: 'none',
+                                    zIndex: 10 - pos,
+                                    background: card.bg,
+                                    transform: `translateX(-50%) translateY(${pos * stackOffsetY}px) translateX(${pos * stackOffsetX}px)`,
+                                    boxShadow: '0 8px 40px 0 rgba(34,55,43,0.10)',
+                                    width: CARD_WIDTH,
+                                    height: CARD_HEIGHT,
+                                }}
+                                aria-hidden="true"
+                            >
+                                {/* Left: Image */}
+                                <div className="flex items-center justify-center bg-transparent" style={{ flexBasis: IMAGE_WIDTH, minWidth: IMAGE_WIDTH, maxWidth: IMAGE_WIDTH, height: '100%', borderRadius: '32px', overflow: 'visible', position: 'relative' }}>
+                                    <Image
+                                        src={card.image}
+                                        alt="Feature visual"
+                                        width={IMAGE_WIDTH}
+                                        height={IMAGE_HEIGHT}
+                                        quality={100}
+                                        className="w-full h-[400px] object-contain rounded-[32px]"
+                                    />
+                                </div>
+                                {/* Right: Text/Content */}
+                                <div className="flex flex-col justify-center px-16 py-10 gap-6" style={{ flex: 1, minWidth: 0 }}>
+                                    {card.right}
+                                </div>
+                            </div>
+                        );
+                    } else {
+                        return null;
+                    }
+                })}
+            </div>
+            <div className="flex gap-2 mt-28">
+                {cards.map((_, idx) => (
+                    <button
+                        key={idx}
+                        onClick={() => setCurrent(idx)}
+                        className={`w-3 h-3 rounded-full ${current === idx ? 'bg-[#3DC47E]' : 'bg-[#E0E0E0]'}`}
+                        aria-label={`Chuyển đến thẻ ${idx + 1}`}
+                    />
+                ))}
             </div>
         </div>
     );

@@ -23,16 +23,17 @@ function DashBoard() {
     return (
         <div className="w-full min-h-screen bg-[#FAF8F6]">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                {/* Hero Section (Welcome Message) */}
+                {/* Phần Hero - Thông điệp chào mừng với animation */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex items-center gap-5 mb-8"
                 >
-                    {/* Avatar placeholder */}
+                    {/* Avatar người dùng */}
                     <div className="w-16 h-16 rounded-full bg-pink-200 flex items-center justify-center shadow-md">
-                        {/* You can replace this with an <img> or SVG later */}
+                        {/* Có thể thay thế bằng hình ảnh hoặc SVG sau này */}
                     </div>
+                    {/* Thông tin chào mừng */}
                     <div className="flex flex-col justify-center">
                         <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-1 text-left">
                             Chào mừng trở lại
@@ -43,29 +44,31 @@ function DashBoard() {
                     </div>
                 </motion.div>
 
-                {/* Main Content Grid: Practice Card (Left) and Features (Right) */}
+                {/* Grid chính: Card thực hành (trái) và Tính năng (phải) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start mb-16">
 
-                    {/* Left Column - Live Practice Card */}
+                    {/* Cột trái - Card thực hành trực tiếp */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
                         className="md:col-span-2 flex flex-col h-full"
                     >
                         <div className="relative h-full">
-                            {/* Card shadow as a real card */}
+                            {/* Hiệu ứng bóng đổ cho card */}
                             <Card className="bg-lime-600 rounded-[2.5rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
+                            {/* Card chính với nội dung */}
                             <Card className="bg-lime-400 rounded-[2rem] overflow-hidden shadow-2xl border border-lime-300 h-full flex flex-col z-10 relative">
                                 <CardContent className="p-8 h-full flex text-gray-800 relative">
-                                    {/* Placeholder for the person figure covering the right half */}
+                                    {/* Phần hình ảnh minh họa bên phải */}
                                     <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-400/30 rounded-tl-full"></div>
-                                    {/* Container for left-aligned text and button, moved closer to top-left */}
+                                    {/* Container cho nội dung bên trái */}
                                     <div className="flex flex-col justify-start h-full z-10 pr-4 w-3/4 items-start pt-2">
-                                        {/* More prominent 'Nổi bật' label */}
+                                        {/* Label "Nổi bật" */}
                                         <div className="inline-flex items-center gap-2 bg-white text-lime-700 px-4 py-2 rounded-[1rem] text-lg font-semibold mb-4 shadow border border-lime-300">
                                             <FiActivity className="w-4 h-4" />
                                             Nổi bật
                                         </div>
+                                        {/* Tiêu đề và mô tả */}
                                         <h2 className="text-4xl font-bold text-gray-900 mb-3 text-left">
                                             Phỏng vấn thực chiến
                                         </h2>
@@ -75,7 +78,7 @@ function DashBoard() {
                                         <p className="text-gray-800 mb-6 text-left">
                                             nhận phản hồi tức thì để phát triển!
                                         </p>
-                                        {/* More rounded, prominent button */}
+                                        {/* Nút CTA với hiệu ứng hover */}
                                         <Button
                                             onClick={() => setShowDesignModal(true)}
                                             className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white h-14 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group px-8 self-start border-2 border-white"
@@ -89,17 +92,20 @@ function DashBoard() {
                         </div>
                     </motion.div>
 
-                    {/* Right Column - Features - Grouped into a single box */}
+                    {/* Cột phải - Danh sách tính năng */}
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         className="md:col-span-1 flex flex-col h-full relative"
                     >
-                        {/* Card shadow as a real card for features */}
+                        {/* Hiệu ứng bóng đổ cho card tính năng */}
                         <Card className="bg-[#3a220f] rounded-[2rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
+                        {/* Card tính năng chính */}
                         <Card className="bg-amber-950 rounded-[2rem] p-6 shadow-xl border border-amber-900 h-full flex flex-col z-10 relative">
                             <h3 className="text-lg font-bold text-gray-100 mb-4">Tính năng nổi bật</h3>
+                            {/* Danh sách các tính năng */}
                             <div className="space-y-6 flex-grow flex flex-col justify-center">
+                                {/* Tính năng 1: Phản hồi thời gian thực */}
                                 <div className="flex items-center gap-4">
                                     <div className="w-8 h-8 rounded-md bg-blue-500/20"></div>
                                     <div className="flex-grow">
@@ -108,6 +114,7 @@ function DashBoard() {
                                     </div>
                                 </div>
 
+                                {/* Tính năng 2: Phản hồi từ AI */}
                                 <div className="flex items-center gap-4">
                                     <div className="w-8 h-8 rounded-md bg-purple-500/20"></div>
                                     <div className="flex-grow">
@@ -116,6 +123,7 @@ function DashBoard() {
                                     </div>
                                 </div>
 
+                                {/* Tính năng 3: Phân tích thể hiện */}
                                 <div className="flex items-center gap-4">
                                     <div className="w-8 h-8 rounded-md bg-emerald-500/20"></div>
                                     <div className="flex-grow">
@@ -128,12 +136,12 @@ function DashBoard() {
                     </motion.div>
                 </div>
 
-                {/* Interview History Section */}
+                {/* Phần lịch sử phỏng vấn */}
                 <InterviewList />
 
             </div>
 
-            {/* Scenario Design Modal */}
+            {/* Modal thiết kế kịch bản phỏng vấn */}
             <ScenarioDesignModal
                 show={showDesignModal}
                 onClose={() => setShowDesignModal(false)}
@@ -144,7 +152,7 @@ function DashBoard() {
                 }}
             />
 
-            {/* Live Practice Modal */}
+            {/* Modal thực hành trực tiếp */}
             <LivePracticeModal
                 showLivePractice={showLivePractice}
                 setShowLivePractice={setShowLivePractice}

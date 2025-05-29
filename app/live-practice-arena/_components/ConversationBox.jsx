@@ -23,6 +23,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
+// Component chính hiển thị hộp thoại phỏng vấn
 const ConversationBox = ({
     messages,
     isListening,
@@ -37,6 +38,7 @@ const ConversationBox = ({
     scenarioData,
     onStopInterview
 }) => {
+    // Refs và state quản lý UI
     const messagesEndRef = useRef(null);
     const [showScrollButton, setShowScrollButton] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
@@ -46,7 +48,7 @@ const ConversationBox = ({
     const audioContext = useRef(null);
     const [showConfirm, setShowConfirm] = useState(false);
 
-    // Audio context for beep
+    // Khởi tạo AudioContext cho âm thanh cảnh báo
     useEffect(() => {
         if (typeof window !== 'undefined') {
             audioContext.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -54,6 +56,7 @@ const ConversationBox = ({
         return () => audioContext.current?.close();
     }, []);
 
+    // Hàm phát âm thanh cảnh báo
     const playBeep = () => {
         if (!audioContext.current) return;
         const oscillator = audioContext.current.createOscillator();
@@ -67,7 +70,7 @@ const ConversationBox = ({
         oscillator.stop(audioContext.current.currentTime + 0.1);
     };
 
-    // Show warning and beep at 30 seconds
+    // Hiển thị cảnh báo và phát âm thanh khi còn 30 giây
     useEffect(() => {
         if (timeRemaining === 30 && !isPaused && !isTimeUp) {
             setShowWarning(true);
@@ -77,7 +80,7 @@ const ConversationBox = ({
         }
     }, [timeRemaining, isPaused, isTimeUp]);
 
-    // Scroll handling
+    // Xử lý cuộn trang
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
         setShowScrollButton(false);
@@ -104,7 +107,7 @@ const ConversationBox = ({
         return () => clearTimeout(timer);
     }, [messages]);
 
-    // Timer formatting and style
+    // Định dạng và style cho bộ đếm thời gian
     const formatTime = (seconds) => {
         const minutes = Math.floor(seconds / 60);
         const remainingSeconds = seconds % 60;
@@ -116,7 +119,7 @@ const ConversationBox = ({
         return 'text-blue-400';
     };
 
-    // Empty state
+    // Hiển thị trạng thái trống
     const renderEmptyState = () => (
         <div className="flex flex-col items-center justify-center h-full text-center p-6">
             <div className="p-3 rounded-full bg-gradient-to-r from-blue-500/20 to-purple-500/20 mb-4">
@@ -125,7 +128,7 @@ const ConversationBox = ({
         </div>
     );
 
-    // Message list
+    // Hiển thị danh sách tin nhắn
     const renderMessages = () => (
         <div className="space-y-4 p-4">
             <AnimatePresence mode="popLayout">
@@ -151,9 +154,9 @@ const ConversationBox = ({
             animate={{ opacity: 1, y: 0 }}
             className="relative bg-gray-900/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-blue-700/40 hover:border-blue-500/40 transition-all duration-300"
         >
-            {/* Header - More compact */}
+            {/* Header - Thanh điều khiển */}
             <div className="flex flex-wrap items-center justify-between gap-3 p-3 border-b border-blue-700/40 bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-t-2xl">
-                {/* Left: Title and Status - More compact */}
+                {/* Phần trái: Tiêu đề và trạng thái */}
                 <div className="flex items-center gap-2 min-w-0">
                     <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20">
                         <MessageSquare className="w-4 h-4 text-blue-400" />
@@ -170,7 +173,7 @@ const ConversationBox = ({
                     </div>
                 </div>
 
-                {/* Center: Timer and Controls - More compact */}
+                {/* Phần giữa: Bộ đếm thời gian và điều khiển */}
                 <div className="flex items-center gap-2">
                     <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-800/50 border border-blue-700/40">
                         <Clock className="w-3.5 h-3.5 text-blue-400" />
@@ -195,6 +198,7 @@ const ConversationBox = ({
                         </AnimatePresence>
                     </div>
                     <div className="flex items-center gap-1">
+                        {/* Nút tạm dừng/tiếp tục */}
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -228,6 +232,7 @@ const ConversationBox = ({
                                 </TooltipContent>
                             </Tooltip>
                         </TooltipProvider>
+                        {/* Nút ghi âm */}
                         <TooltipProvider>
                             <Tooltip>
                                 <TooltipTrigger asChild>
@@ -271,8 +276,9 @@ const ConversationBox = ({
                     </div>
                 </div>
 
-                {/* Right: End Interview button - More compact */}
+                {/* Phần phải: Nút kết thúc và chọn ngôn ngữ */}
                 <div className="flex items-center gap-2">
+                    {/* Nút kết thúc phỏng vấn */}
                     {(messages.length > 0 || !isPaused) && (
                         <TooltipProvider>
                             <Tooltip>
@@ -294,7 +300,7 @@ const ConversationBox = ({
                             </Tooltip>
                         </TooltipProvider>
                     )}
-                    {/* Language Selector - More compact */}
+                    {/* Bộ chọn ngôn ngữ */}
                     {!selectedLanguage && (
                         <div className="flex items-center gap-2">
                             <Select
@@ -317,7 +323,7 @@ const ConversationBox = ({
                 </div>
             </div>
 
-            {/* Warning Message - More compact */}
+            {/* Cảnh báo thời gian */}
             <AnimatePresence>
                 {showWarning && timeRemaining <= 30 && !isTimeUp && (
                     <motion.div
@@ -332,7 +338,7 @@ const ConversationBox = ({
                 )}
             </AnimatePresence>
 
-            {/* Messages Container - Expanded height */}
+            {/* Khu vực hiển thị tin nhắn */}
             <div
                 ref={containerRef}
                 className="h-[calc(100vh-12rem)] overflow-y-auto scroll-smooth relative bg-gradient-to-br from-gray-900/60 to-gray-800/80"
@@ -340,7 +346,7 @@ const ConversationBox = ({
                 {messages.length === 0 ? renderEmptyState() : renderMessages()}
             </div>
 
-            {/* Scroll to Bottom Button - More compact */}
+            {/* Nút cuộn xuống */}
             <AnimatePresence>
                 {showScrollButton && (
                     <motion.div
@@ -360,7 +366,7 @@ const ConversationBox = ({
                 )}
             </AnimatePresence>
 
-            {/* Confirm Stop Dialog - More compact */}
+            {/* Hộp thoại xác nhận kết thúc */}
             <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
                 <DialogContent className="max-w-sm">
                     <DialogHeader>

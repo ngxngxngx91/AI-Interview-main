@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
+// Danh sách các ngành nghề được hỗ trợ
 const industries = [
   { value: "sales", label: "Sales", icon: "💼" },
   { value: "customer-service", label: "Customer Service", icon: "🎯" },
@@ -27,6 +28,7 @@ const ScenarioDesignModal = ({
   roleDescription,
   onProceed
 }) => {
+  // State quản lý thông tin kịch bản phỏng vấn
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [difficulty, setDifficulty] = React.useState("");
@@ -38,23 +40,26 @@ const ScenarioDesignModal = ({
   const [selectedIndustryLocal, setSelectedIndustryLocal] = React.useState(selectedIndustry || "");
   const [roleDescriptionLocal, setRoleDescriptionLocal] = React.useState(roleDescription || "");
 
+  // Danh sách các cấp độ khó dễ
   const difficulties = [
     { value: "easy", label: "Easy", description: "Phù Hợp Cho Người Mới", color: "bg-green-500" },
     { value: "medium", label: "Medium", description: "Có Tính Thử Thách", color: "bg-yellow-500" },
     { value: "hard", label: "Hard", description: "Phỏng Vấn Nâng Cao", color: "bg-red-500" },
   ];
 
+  // Danh sách ngôn ngữ được hỗ trợ
   const languages = [
     { value: "en", label: "English" },
     { value: "vi", label: "Vietnamese" },
   ];
 
+  // Hàm tạo kịch bản phỏng vấn bằng AI
   const generateScenario = async () => {
     setIsGenerating(true);
     setError(null);
     setProgress(0);
 
-    // Simulate progress
+    // Hiệu ứng loading với thanh tiến trình
     const progressInterval = setInterval(() => {
       setProgress(prev => Math.min(prev + 10, 90));
     }, 500);
@@ -139,6 +144,7 @@ Generate a realistic interview scenario in this exact JSON format:
     }
   };
 
+  // Xử lý khi người dùng muốn tiếp tục với kịch bản đã tạo
   const handleProceed = () => {
     onProceed({
       title,
@@ -169,7 +175,7 @@ Generate a realistic interview scenario in this exact JSON format:
             transition={{ duration: 0.3, ease: "easeOut" }}
             className="bg-gray-900/95 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-purple-700/30"
           >
-            {/* Modal Header */}
+            {/* Header của modal */}
             <div
               className="p-5 border-b border-gray-800 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
               <div className="flex items-center justify-between">
@@ -198,17 +204,18 @@ Generate a realistic interview scenario in this exact JSON format:
               </div>
             </div>
 
-            {/* Modal Content */}
+            {/* Nội dung chính của modal */}
             <div className="p-6 space-y-6">
               {!generatedScenario && (
                 <div className="space-y-6">
-                  {/* Basic Information Section */}
+                  {/* Phần thông tin cơ bản */}
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
                       <Target className="w-4 h-4 text-purple-400" />
                       Basic Information
                     </h3>
 
+                    {/* Grid chọn ngành và độ khó */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs text-gray-400 mb-1.5">
@@ -263,6 +270,7 @@ Generate a realistic interview scenario in this exact JSON format:
                       </div>
                     </div>
 
+                    {/* Mô tả vai trò */}
                     <div>
                       <label className="block text-xs text-gray-400 mb-1.5">
                         Role Description
@@ -276,13 +284,14 @@ Generate a realistic interview scenario in this exact JSON format:
                     </div>
                   </div>
 
-                  {/* Additional Settings Section */}
+                  {/* Phần cài đặt bổ sung */}
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium text-gray-300 flex items-center gap-2">
                       <Sparkles className="w-4 h-4 text-blue-400" />
                       Additional Settings
                     </h3>
 
+                    {/* Grid chọn ngôn ngữ và tiêu đề */}
                     <div className="grid grid-cols-2 gap-4">
                       <div>
                         <label className="block text-xs text-gray-400 mb-1.5">
@@ -322,6 +331,7 @@ Generate a realistic interview scenario in this exact JSON format:
                       </div>
                     </div>
 
+                    {/* Thêm ngữ cảnh bổ sung */}
                     <div>
                       <label className="block text-xs text-gray-400 mb-1.5">
                         Additional Context (Optional)
@@ -335,6 +345,7 @@ Generate a realistic interview scenario in this exact JSON format:
                     </div>
                   </div>
 
+                  {/* Hiển thị lỗi nếu có */}
                   {error && (
                     <motion.div
                       initial={{ opacity: 0, y: -10 }}
@@ -346,6 +357,7 @@ Generate a realistic interview scenario in this exact JSON format:
                     </motion.div>
                   )}
 
+                  {/* Hiển thị trạng thái đang tạo kịch bản */}
                   {isGenerating && (
                     <motion.div
                       initial={{ opacity: 0 }}
@@ -363,6 +375,7 @@ Generate a realistic interview scenario in this exact JSON format:
                     </motion.div>
                   )}
 
+                  {/* Nút tạo kịch bản */}
                   {!isGenerating && (
                     <Button
                       className={`w-full h-12 rounded-lg transition-all duration-300 
@@ -384,6 +397,7 @@ Generate a realistic interview scenario in this exact JSON format:
                   )}
                 </div>
               )}
+              {/* Hiển thị kịch bản đã tạo */}
               {generatedScenario && (
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -408,6 +422,7 @@ Generate a realistic interview scenario in this exact JSON format:
                       </div>
                     </div>
                   </div>
+                  {/* Các nút điều khiển */}
                   <div className="flex gap-2">
                     <Button
                       className="flex-1 h-11 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white rounded-lg shadow-lg hover:shadow-xl transition-all duration-300"

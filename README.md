@@ -1,42 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [
-`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# AI Interview Coach
 
-## Getting Started
+An intelligent interview preparation platform built with Next.js that helps users practice and improve their interview skills using AI-powered feedback and analysis.
 
-First, run the development server:
+## 🚀 Features
 
+- **Live Practice Arena**: Real-time interview simulation with AI-powered feedback
+- **Speech Recognition**: Practice speaking and get instant feedback
+- **Video Recording**: Record your interview sessions for later review
+- **Performance Analytics**: Detailed feedback and improvement suggestions
+- **PDF Export**: Download your interview feedback and analysis
+- **Dark/Light Mode**: Seamless theme switching for comfortable practice
+- **Responsive Design**: Practice on any device
+
+## 🛠️ Tech Stack
+
+- **Framework**: Next.js 15
+- **Authentication**: Clerk
+- **Database**: Neon (PostgreSQL) with Drizzle ORM
+- **AI Integration**: Google Generative AI
+- **Styling**: Tailwind CSS with Radix UI components
+- **Animations**: Framer Motion
+- **PDF Generation**: jsPDF
+- **Speech Recognition**: react-hook-speech-to-text
+- **Video Recording**: react-webcam
+
+## 📋 Prerequisites
+
+- Node.js (Latest LTS version recommended)
+- npm or yarn
+- PostgreSQL database (Neon recommended)
+- Google AI API key
+- Clerk account and API keys
+
+## 🚀 Getting Started
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/ai-interview-coach.git
+cd ai-interview-coach
+```
+
+2. Install dependencies:
+```bash
+npm install
+# or
+yarn install
+```
+
+3. Set up environment variables:
+Create a `.env.local` file in the root directory with the following variables:
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
+CLERK_SECRET_KEY=your_clerk_secret_key
+GOOGLE_AI_API_KEY=your_google_ai_api_key
+DATABASE_URL=your_database_url
+```
+
+4. Initialize the database:
+```bash
+npm run db:push
+# or
+yarn db:push
+```
+
+5. Start the development server:
 ```bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically
-optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+ai-interview-coach/
+├── app/                    # Next.js app directory
+│   ├── api/               # API routes
+│   ├── dashboard/         # Dashboard pages
+│   ├── live-practice-arena/ # Interview practice pages
+│   └── result-feedback/   # Feedback and analysis pages
+├── components/            # Reusable React components
+├── lib/                   # Utility functions and configurations
+├── public/               # Static assets
+└── utils/                # Helper functions
+```
 
-## Learn More
+## 🛠️ Available Scripts
 
-To learn more about Next.js, take a look at the following resources:
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run start` - Start production server
+- `npm run lint` - Run ESLint
+- `npm run db:push` - Push database schema changes
+- `npm run db:studio` - Open Drizzle Studio
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🤝 Contributing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions
-are welcome!
+Contributions are welcome! Please feel free to submit a Pull Request.
 
-## Deploy on Vercel
+## 📝 License
 
-The easiest way to deploy your Next.js app is to use
-the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
-from the creators of Next.js.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for
-more details.
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org)
+- [Clerk](https://clerk.com)
+- [Google AI](https://ai.google.dev)
+- [Neon](https://neon.tech)
+- [Radix UI](https://www.radix-ui.com)
+- [Tailwind CSS](https://tailwindcss.com)

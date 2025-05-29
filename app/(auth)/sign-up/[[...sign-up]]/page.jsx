@@ -24,6 +24,7 @@ import Link from "next/link";
 import { useState, useRef } from "react";
 import { useRouter } from 'next/navigation';
 
+// Danh sách các tính năng chính của ứng dụng
 const features = [
     {
         icon: Brain,
@@ -51,6 +52,7 @@ const features = [
     }
 ];
 
+// Thống kê về nền tảng
 const stats = [
     {
         icon: Brain,
@@ -72,6 +74,7 @@ const stats = [
     }
 ];
 
+// Lợi ích khi sử dụng nền tảng
 const benefits = [
     {
         title: "Personalized Learning",
@@ -88,7 +91,7 @@ export default function Page() {
 
     return (
         <div className="min-h-screen bg-gray-900">
-            {/* Enhanced Background Pattern */}
+            {/* Nền trang với hiệu ứng gradient và pattern */}
             <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-grid-gray-800/20 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)]" />
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-emerald-500/10 animate-pulse" />
@@ -96,8 +99,9 @@ export default function Page() {
 
             <div className="relative container mx-auto flex min-h-screen items-center justify-center p-8">
                 <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
-                    {/* Left Side - Enhanced Features */}
+                    {/* Cột trái - Giới thiệu tính năng */}
                     <div className="space-y-8 text-gray-100 lg:pr-8">
+                        {/* Badge chào mừng với animation */}
                         <motion.div
                             initial={{ scale: 0.8 }}
                             animate={{ scale: 1 }}
@@ -112,6 +116,7 @@ export default function Page() {
                             </Badge>
                         </motion.div>
 
+                        {/* Tiêu đề và mô tả */}
                         <div className="space-y-4">
                             <motion.h1
                                 initial={{ opacity: 0, y: 20 }}
@@ -131,7 +136,7 @@ export default function Page() {
                             </motion.p>
                         </div>
 
-                        {/* Enhanced Stats */}
+                        {/* Thống kê với hiệu ứng hover */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -152,7 +157,7 @@ export default function Page() {
                             ))}
                         </motion.div>
 
-                        {/* Enhanced Features Grid */}
+                        {/* Lưới tính năng với hiệu ứng hover */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -177,7 +182,7 @@ export default function Page() {
                             ))}
                         </motion.div>
 
-                        {/* Benefits */}
+                        {/* Phần lợi ích */}
                         <motion.div
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -196,7 +201,7 @@ export default function Page() {
                         </motion.div>
                     </div>
 
-                    {/* Right Side - Enhanced Sign Up Form */}
+                    {/* Cột phải - Form đăng ký */}
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
@@ -207,6 +212,7 @@ export default function Page() {
                             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10" />
                             <div className="relative p-6">
                                 <div className="space-y-6">
+                                    {/* Header form đăng ký */}
                                     <div className="space-y-2 text-center">
                                         <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
                                             Create Your Account
@@ -215,6 +221,7 @@ export default function Page() {
                                             Start your journey to interview success!
                                         </p>
                                     </div>
+                                    {/* Component đăng ký từ Clerk */}
                                     <SignUp
                                         appearance={{
                                             elements: {

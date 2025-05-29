@@ -20,17 +20,20 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
+// Component hiển thị tin nhắn trong cuộc phỏng vấn
 const Message = ({ message }) => {
     const isUser = message.type === 'user';
     const hasAnalysis = message.analysis && message.type === 'user';
     const [showAnalysis, setShowAnalysis] = useState(false);
 
+    // Hàm xác định màu sắc dựa trên điểm số
     const getScoreColor = (score) => {
         if (score >= 80) return 'from-emerald-500 to-green-500';
         if (score >= 60) return 'from-yellow-500 to-orange-500';
         return 'from-red-500 to-rose-500';
     };
 
+    // Component hiển thị phần phân tích tin nhắn
     const renderAnalysis = () => {
         if (!hasAnalysis) return null;
 
@@ -41,7 +44,7 @@ const Message = ({ message }) => {
                 exit={{ height: 0, opacity: 0 }}
                 className="mt-4 pt-4 border-t border-orange-400/40"
             >
-                {/* Score Badge */}
+                {/* Badge hiển thị điểm số */}
                 <div className="flex items-center gap-3 mb-4">
                     <Badge
                         className={`bg-gradient-to-r ${getScoreColor(message.analysis.overallScore)} text-white px-3 py-1 shadow-md`}
@@ -55,7 +58,7 @@ const Message = ({ message }) => {
                     />
                 </div>
 
-                {/* Strengths */}
+                {/* Phần hiển thị điểm mạnh */}
                 {message.analysis.strengths.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -85,7 +88,7 @@ const Message = ({ message }) => {
                     </motion.div>
                 )}
 
-                {/* Areas for Improvement */}
+                {/* Phần hiển thị điểm cần cải thiện */}
                 {message.analysis.weaknesses.length > 0 && (
                     <motion.div
                         initial={{ opacity: 0 }}
@@ -115,7 +118,7 @@ const Message = ({ message }) => {
                     </motion.div>
                 )}
 
-                {/* Feedback */}
+                {/* Phần phản hồi chi tiết */}
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -139,7 +142,7 @@ const Message = ({ message }) => {
             animate={{ opacity: 1, y: 0 }}
             className={`flex items-start gap-3 ${isUser ? 'flex-row-reverse' : ''}`}
         >
-            {/* Avatar */}
+            {/* Avatar người dùng hoặc bot */}
             <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
@@ -150,7 +153,7 @@ const Message = ({ message }) => {
                 {isUser ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
             </motion.div>
 
-            {/* Message Content */}
+            {/* Nội dung tin nhắn */}
             <motion.div
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -161,6 +164,7 @@ const Message = ({ message }) => {
                     <p className={`text-sm ${isUser ? 'text-orange-100' : 'text-blue-100'}`}>
                         {message.content}
                     </p>
+                    {/* Nút mở/đóng phân tích cho tin nhắn của người dùng */}
                     {isUser && (
                         <div className="flex items-center gap-2">
                             {message.analysis === null ? (
@@ -185,7 +189,7 @@ const Message = ({ message }) => {
                     )}
                 </div>
 
-                {/* Analysis Section */}
+                {/* Phần phân tích tin nhắn */}
                 <AnimatePresence>
                     {showAnalysis && renderAnalysis()}
                 </AnimatePresence>
