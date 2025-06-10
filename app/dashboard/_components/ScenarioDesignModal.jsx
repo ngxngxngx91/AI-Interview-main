@@ -21,6 +21,7 @@ const industries = [
   { value: "healthcare", label: "Healthcare", icon: "🏥" },
 ];
 
+// Component modal thiết kế kịch bản phỏng vấn
 const ScenarioDesignModal = ({
   show,
   onClose,
@@ -65,6 +66,7 @@ const ScenarioDesignModal = ({
     }, 500);
 
     try {
+      // Tạo prompt cho AI để tạo kịch bản
       const prompt = `Create an interview scenario with these parameters:
 Industry: ${selectedIndustryLocal}
 Role: ${roleDescriptionLocal}
@@ -94,6 +96,7 @@ Generate a realistic interview scenario in this exact JSON format:
   "expectedResponse": "Key points to address"
 }`;
 
+      // Gửi prompt đến AI và xử lý kết quả
       const result = await chatSession.sendMessage(prompt);
       const responseText = result.response.text();
 
@@ -112,6 +115,7 @@ Generate a realistic interview scenario in this exact JSON format:
         });
         setProgress(100);
       } catch (jsonError) {
+        // Xử lý lỗi parse JSON
         const cleanedResponse = responseText
           .replace(/```json/g, '')
           .replace(/```/g, '')
@@ -147,15 +151,15 @@ Generate a realistic interview scenario in this exact JSON format:
   // Xử lý khi người dùng muốn tiếp tục với kịch bản đã tạo
   const handleProceed = () => {
     onProceed({
-      title,
-      description,
+      title: title.trim(),
+      description: description.trim(),
       difficulty,
-      scenario: generatedScenario.scenario,
-      customerQuery: generatedScenario.customerQuery,
-      expectedResponse: generatedScenario.expectedResponse,
+      scenario: generatedScenario.scenario.trim(),
+      customerQuery: generatedScenario.customerQuery.trim(),
+      expectedResponse: generatedScenario.expectedResponse.trim(),
       language: selectedLanguage,
-      industry: selectedIndustryLocal,
-      role: roleDescriptionLocal
+      industry: selectedIndustryLocal.trim(),
+      role: roleDescriptionLocal.trim()
     });
   };
 
@@ -176,12 +180,10 @@ Generate a realistic interview scenario in this exact JSON format:
             className="bg-gray-900/95 rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-purple-700/30"
           >
             {/* Header của modal */}
-            <div
-              className="p-5 border-b border-gray-800 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
+            <div className="p-5 border-b border-gray-800 bg-gradient-to-r from-purple-900/30 to-blue-900/30">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div
-                    className="p-2 rounded-lg bg-purple-600 text-white shadow-lg">
+                  <div className="p-2 rounded-lg bg-purple-600 text-white shadow-lg">
                     <Wand2 className="w-6 h-6" />
                   </div>
                   <div>
@@ -453,4 +455,4 @@ Generate a realistic interview scenario in this exact JSON format:
   );
 };
 
-export default ScenarioDesignModal; 
+export default ScenarioDesignModal;

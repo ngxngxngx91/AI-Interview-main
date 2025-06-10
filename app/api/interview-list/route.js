@@ -4,24 +4,26 @@ import { InterviewFeedback, MockInterview } from '@/utils/schema';
 import { eq, sql } from 'drizzle-orm';
 import { currentUser } from '@clerk/nextjs/server';
 
+// API endpoint để lấy danh sách phỏng vấn của người dùng
 export async function GET() {
   try {
+    // Kiểm tra xác thực người dùng
     const user = await currentUser();
     if (!user || !user.emailAddresses || user.emailAddresses.length === 0) {
       return NextResponse.json({ error: "User email not found or user not authenticated" }, { status: 401 });
     }
     const userEmail = user.emailAddresses[0].emailAddress;
 
-    // Fetch only the necessary fields for displaying interview cards
+    // Truy vấn các trường cần thiết để hiển thị thông tin phỏng vấn
     const result = await db.select({
-      // From MockInterview table
+      // Thông tin từ bảng MockInterview
       id: MockInterview.id,
       title: MockInterview.title,
       difficulty: MockInterview.difficulty,
       industry: MockInterview.industry,
       mockID: MockInterview.mockID,
       
-      // From InterviewFeedback table
+      // Thông tin từ bảng InterviewFeedback
       duration: InterviewFeedback.duration,
       averageScore: InterviewFeedback.averageScore,
       createdAt: InterviewFeedback.createdAt,

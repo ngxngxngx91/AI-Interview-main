@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Target, Clock, Briefcase } from "lucide-react"; // Using lucide-react for icons
 import { useRouter } from 'next/navigation'; // Import useRouter
 
+// Component hiển thị thông tin một buổi phỏng vấn
 const InterviewCard = ({ interview }) => {
-  // Dummy data for score for now, replace with actual interview.averageScore later
+  // Lấy điểm số từ dữ liệu phỏng vấn
   const overallScore = interview.averageScore || 0;
   const router = useRouter(); // Get router instance
   
-  // Function to determine badge color based on difficulty
+  // Hàm xác định màu sắc badge dựa trên độ khó
   const getDifficultyColor = (difficulty) => {
     switch (difficulty?.toLowerCase()) {
       case 'easy': return 'bg-green-900/30 text-green-200 border-green-500';
@@ -20,7 +21,7 @@ const InterviewCard = ({ interview }) => {
     }
   };
 
-  // Function to format duration from seconds to m:s
+  // Hàm chuyển đổi thời gian từ giây sang định dạng phút:giây
   const formatDuration = (seconds) => {
     if (!seconds) return 'N/A';
     const minutes = Math.floor(parseInt(seconds) / 60);
@@ -28,17 +29,19 @@ const InterviewCard = ({ interview }) => {
     return `${minutes}m ${remainingSeconds}s`;
   };
 
-  // Function to get color based on score
+  // Hàm xác định màu sắc dựa trên điểm số
   const getScoreColor = (score) => {
-    if (score < 30) return '#e88a7d'; // red
-    if (score < 65) return '#eac36b'; // yellow
-    return '#8bc34a'; // green
+    if (score < 30) return '#e88a7d'; // đỏ
+    if (score < 65) return '#eac36b'; // vàng
+    return '#8bc34a'; // xanh lá
   };
 
+  // Xử lý khi nhấn nút xem phản hồi
   const handleViewFeedback = () => {
     router.push(`/result-feedback?mockId=${interview.mockID}`);
   };
 
+  // Xử lý khi nhấn nút làm lại phỏng vấn
   const handleRedoInterview = () => {
     router.push(`/live-practice-arena?mockId=${interview.mockID}`);
   };
@@ -51,17 +54,17 @@ const InterviewCard = ({ interview }) => {
         <div className="flex-1 min-w-0">
           <h3 className="text-2xl font-bold text-[#2d332b] truncate mb-1 group-hover:text-[#2d332b] transition-colors duration-200">{interview.title || 'Untitled Interview'}</h3>
           <div className="flex items-center gap-2 mb-1">
-            {/* Difficulty badge */}
+            {/* Badge độ khó */}
             <span className="bg-[#f3f4f6] text-[#6b6f6a] group-hover:text-[#2d332b] rounded-full px-3 py-2 text-xs font-semibold flex items-center gap-1 transition-colors duration-200">
               <Target className="w-4 h-4" />
               {interview.difficulty || 'N/A'}
             </span>
-            {/* Duration badge */}
+            {/* Badge thời gian */}
             <span className="bg-[#f3f4f6] text-[#6b6f6a] group-hover:text-[#2d332b] rounded-full px-3 py-2 text-xs font-semibold flex items-center gap-1 transition-colors duration-200">
               <Clock className="w-4 h-4" />
               {formatDuration(interview.duration)}
             </span>
-            {/* Industry badge if available */}
+            {/* Badge ngành nghề nếu có */}
             {interview.industry && (
               <span className="bg-[#f3f4f6] text-[#6b6f6a] group-hover:text-[#2d332b] rounded-full px-3 py-2 text-xs font-semibold flex items-center gap-1 transition-colors duration-200">
                 <Briefcase className="w-4 h-4" />
@@ -70,7 +73,7 @@ const InterviewCard = ({ interview }) => {
             )}
           </div>
         </div>
-        {/* Circular score display */}
+        {/* Hiển thị điểm số dạng vòng tròn */}
         <div className="flex items-center justify-center ml-4">
           <svg width="64" height="64" viewBox="0 0 64 64">
             <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e5e5" strokeWidth="6" />
@@ -91,6 +94,7 @@ const InterviewCard = ({ interview }) => {
         </div>
       </div>
       <hr className="my-4 border-[#f3f4f6]" />
+      {/* Các nút hành động */}
       <div className="flex gap-4">
         <Button
           variant="outline"

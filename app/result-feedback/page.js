@@ -46,7 +46,7 @@ function ResultFeedbackContent() {
     useEffect(() => {
         const mockId = searchParams.get("mockId");
         if (mockId) {
-            // Fetch feedback data from the database
+            // Lấy dữ liệu phản hồi từ database
             fetch(`/api/interview-feedback?mockId=${mockId}`)
                 .then(response => {
                     if (!response.ok) {
@@ -55,7 +55,7 @@ function ResultFeedbackContent() {
                     return response.json();
                 })
                 .then(data => {
-                    // Parse the JSON strings back into objects
+                    // Chuyển đổi các chuỗi JSON thành đối tượng
                     const feedbackData = {
                         ...data,
                         conversation: JSON.parse(data.conversation),
@@ -63,7 +63,7 @@ function ResultFeedbackContent() {
                         weaknesses: JSON.parse(data.weaknesses),
                         detailedFeedback: JSON.parse(data.detailedFeedback),
                         messageAnalysis: JSON.parse(data.messageAnalysis),
-                        // The scenario data is already in the correct structure
+                        // Dữ liệu kịch bản đã ở định dạng đúng
                         scenario: data.scenario
                     };
                     setSessionData(feedbackData);
@@ -101,6 +101,7 @@ function ResultFeedbackContent() {
 
     if (!sessionData) return null;
 
+    // Tính điểm trung bình từ tất cả các tin nhắn của người dùng
     const averageScore = Math.round(
         sessionData.conversation
             .filter(msg => msg.type === 'user' && msg.analysis?.overallScore)
@@ -482,10 +483,11 @@ function ResultFeedbackContent() {
     );
 }
 
-// Add this new component for the circular progress
+// Component hiển thị tiến trình dạng vòng tròn
 const CircularProgress = ({ value }) => (
     <div className="relative w-full h-full">
         <svg className="w-full h-full" viewBox="0 0 36 36">
+            {/* Đường viền nền của vòng tròn */}
             <path
                 d="M18 2.0845
           a 15.9155 15.9155 0 0 1 0 31.831
@@ -495,6 +497,7 @@ const CircularProgress = ({ value }) => (
                 strokeWidth="3"
                 className="dark:stroke-gray-700"
             />
+            {/* Đường viền tiến trình với gradient */}
             <path
                 d="M18 2.0845
           a 15.9155 15.9155 0 0 1 0 31.831

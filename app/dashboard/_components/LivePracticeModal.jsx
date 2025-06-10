@@ -55,6 +55,7 @@ const LivePracticeModal = ({ showLivePractice, setShowLivePractice, scenario }) 
   const handleProceed = async () => {
     try {
       // Chuẩn bị dữ liệu kịch bản phỏng vấn
+      const mockID = crypto.randomUUID(); // Tạo ID duy nhất cho buổi phỏng vấn
       const scenarioData = {
         title: scenario.title,
         description: scenario.description,
@@ -67,7 +68,7 @@ const LivePracticeModal = ({ showLivePractice, setShowLivePractice, scenario }) 
         role: scenario.role,
         createdBy: "user", // Sẽ được thay thế bằng ID/email người dùng thực tế
         createdAt: new Date().toISOString(),
-        mockID: crypto.randomUUID() // Tạo ID duy nhất cho buổi phỏng vấn
+        mockID: mockID
       };
 
       // Lưu vào database
@@ -83,8 +84,8 @@ const LivePracticeModal = ({ showLivePractice, setShowLivePractice, scenario }) 
         throw new Error('Failed to save scenario');
       }
 
-      // Chuyển hướng đến trang thực hành với dữ liệu kịch bản
-      router.push(`/live-practice-arena?scenario=${encodeURIComponent(JSON.stringify(scenarioData))}`);
+      // Chuyển hướng đến trang thực hành với mockId
+      router.push(`/live-practice-arena?mockId=${mockID}`);
     } catch (error) {
       console.error('Error saving scenario:', error);
       // Xử lý lỗi phù hợp

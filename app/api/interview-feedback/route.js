@@ -4,40 +4,41 @@ import { InterviewFeedback, MockInterview } from '@/utils/schema';
 import { eq, sql } from 'drizzle-orm';
 import { currentUser } from '@clerk/nextjs/server';
 
+// API endpoint để lưu phản hồi phỏng vấn mới
 export async function POST(request) {
   try {
     const data = await request.json();
-    console.log('Received feedback data:', data); // Log incoming data
+    console.log('Received feedback data:', data);
     
-    // Ensure array fields are always JSON-serializable as arrays
+    // Đảm bảo các trường mảng luôn có thể chuyển đổi thành JSON
     const conversationData = data.conversation || [];
     const strengthsData = data.strengths || [];
     const weaknessesData = data.weaknesses || [];
     const detailedFeedbackData = data.detailedFeedback || [];
     const messageAnalysisData = data.messageAnalysis || [];
 
-    // Insert the interview feedback data into the database
+    // Lưu dữ liệu phản hồi phỏng vấn vào cơ sở dữ liệu
     const result = await db.insert(InterviewFeedback).values({
       mockIdRef: data.mockIdRef,
       userEmail: data.userEmail,
       createdAt: new Date().toISOString(),
       
-      // Overall session data
+      // Dữ liệu tổng quan về phiên phỏng vấn
       duration: data.duration.toString(),
       totalMessages: data.totalMessages.toString(),
       averageScore: parseFloat(data.averageScore),
       
-      // Detailed feedback
+      // Phản hồi chi tiết
       conversation: JSON.stringify(conversationData),
       strengths: JSON.stringify(strengthsData),
       weaknesses: JSON.stringify(weaknessesData),
       detailedFeedback: JSON.stringify(detailedFeedbackData),
       
-      // Individual message analysis
+      // Phân tích từng tin nhắn
       messageAnalysis: JSON.stringify(messageAnalysisData)
     });
 
-    console.log('Database insert result:', result); // Log insert result
+    console.log('Database insert result:', result);
 
     return NextResponse.json({ success: true, data: result });
   } catch (error) {
@@ -49,6 +50,7 @@ export async function POST(request) {
   }
 }
 
+// API endpoint để lấy phản hồi phỏng vấn theo mockId
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -58,9 +60,9 @@ export async function GET(request) {
       return NextResponse.json({ error: "mockId is required" }, { status: 400 });
     }
 
-    // Fetch the feedback data from the database with scenario information
+    // Truy vấn dữ liệu phản hồi kèm thông tin kịch bản phỏng vấn
     const result = await db.select({
-      // InterviewFeedback fields
+      // Các trường từ bảng InterviewFeedback
       id: InterviewFeedback.id,
       mockIdRef: InterviewFeedback.mockIdRef,
       userEmail: InterviewFeedback.userEmail,
@@ -74,7 +76,7 @@ export async function GET(request) {
       detailedFeedback: InterviewFeedback.detailedFeedback,
       messageAnalysis: InterviewFeedback.messageAnalysis,
       
-      // MockInterview fields
+      // Các trường từ bảng MockInterview
       scenario: {
         title: MockInterview.title,
         description: MockInterview.description,
@@ -107,6 +109,7 @@ export async function GET(request) {
   }
 }
 
+// API endpoint để xóa phản hồi phỏng vấn
 export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -121,6 +124,7 @@ export async function DELETE(request) {
 
     console.log('Deleting feedback for mockId:', mockIdToDelete);
 
+    // Xóa phản hồi phỏng vấn dựa trên mockId
     const result = await db.delete(InterviewFeedback)
       .where(eq(InterviewFeedback.mockIdRef, mockIdToDelete));
 

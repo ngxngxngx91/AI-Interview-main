@@ -31,7 +31,7 @@ function LivePracticeArenaContent() {
     const [error, setError] = useState(null);
     const [showScenarioDetails, setShowScenarioDetails] = useState(true);
 
-    // Time options in minutes with descriptions
+    // Các tùy chọn thời gian cho buổi phỏng vấn (tính bằng phút)
     const timeOptions = [
         {
             value: "3",
@@ -54,10 +54,10 @@ function LivePracticeArenaContent() {
     ];
 
     useEffect(() => {
-        // Get mockId from URL
+        // Lấy mockId từ URL
         const mockId = searchParams.get("mockId");
         if (mockId) {
-            // Fetch scenario data from the database
+            // Lấy dữ liệu kịch bản từ database
             fetch(`/api/mock-interview?mockId=${mockId}`)
                 .then(response => {
                     if (!response.ok) {
@@ -106,7 +106,7 @@ function LivePracticeArenaContent() {
 
     const handleInterviewComplete = async (feedbackData) => {
         try {
-            // If it's a redo session (mockID exists), delete previous feedback
+            // Nếu là phiên làm lại (có mockID), xóa phản hồi trước đó
             if (scenarioData.mockID) {
                 const deleteResponse = await fetch(`/api/interview-feedback?mockId=${scenarioData.mockID}`, {
                     method: 'DELETE',
@@ -118,10 +118,10 @@ function LivePracticeArenaContent() {
                 }
             }
 
-            // Prepare the feedback data
+            // Chuẩn bị dữ liệu phản hồi để lưu
             const dataToSave = {
                 mockIdRef: scenarioData.mockID,
-                userEmail: "user@example.com", // Replace with actual user email from auth
+                userEmail: "user@example.com", // Thay thế bằng email người dùng thực tế từ auth
                 duration: feedbackData.duration,
                 totalMessages: feedbackData.conversation.length,
                 averageScore: feedbackData.averageScore,

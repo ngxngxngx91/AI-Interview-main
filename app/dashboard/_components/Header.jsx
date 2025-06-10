@@ -17,6 +17,7 @@ import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import Link from "next/link";
 
+// Component Header chính của ứng dụng
 function Header() {
     const path = usePathname();
     const [isOpen, setIsOpen] = useState(false);
@@ -24,7 +25,7 @@ function Header() {
     const isDashboard = path === "/dashboard";
     const isInterview = path.includes("interview");
 
-    // Handle scroll effect
+    // Xử lý hiệu ứng cuộn trang
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 20);
@@ -33,9 +34,10 @@ function Header() {
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // Early return for interview pages
+    // Không hiển thị header ở trang phỏng vấn
     if (isInterview) return null;
 
+    // Danh sách các mục menu chính
     const menuItems = [
         {
             name: "Dashboard",
@@ -65,14 +67,14 @@ function Header() {
 
     return (
         <>
-            {/* Spacer to prevent content from being hidden behind fixed header */}
+            {/* Khoảng trống để tránh nội dung bị che bởi header cố định */}
             <div className="h-[72px]" />
 
             <header
                 className="w-full bg-[#FAF8F6] border-b border-[#eceae6] fixed top-0 left-0 right-0 z-50"
             >
                 <div className="flex justify-between items-center px-4 sm:px-6 lg:px-32 py-3">
-                    {/* Logo */}
+                    {/* Logo và tên ứng dụng */}
                     <div className="flex-shrink-0 relative group flex items-center gap-2">
                         <Image
                             src="/Logo.png"
@@ -85,7 +87,7 @@ function Header() {
                         <span className="text-2xl font-bold text-[#3d463b] ml-1">AI.Interview</span>
                     </div>
 
-                    {/* Middle Menu - updated style */}
+                    {/* Menu chính ở giữa */}
                     <nav className="flex-1 flex items-center justify-center">
                         <ul className="flex gap-8">
                             <li>
@@ -103,7 +105,7 @@ function Header() {
                         </ul>
                     </nav>
 
-                    {/* Right User Button */}
+                    {/* Phần bên phải: Nút nâng cấp và tài khoản người dùng */}
                     <div className="flex items-center gap-3">
                     <Link href="/pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">
                         <Button className="bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold rounded-full px-6 py-2 flex items-center gap-2 shadow-md">

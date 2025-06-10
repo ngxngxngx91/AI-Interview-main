@@ -5,11 +5,15 @@ import { PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Image from 'next/image';
 
+// Component hiển thị danh sách các buổi phỏng vấn
 const InterviewList = ({ setShowDesignModal }) => {
   const [interviews, setInterviews] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [highestScore, setHighestScore] = useState(0);
+  const [selectedLanguage, setSelectedLanguage] = React.useState("vi");
+  const [selectedIndustry, setSelectedIndustry] = React.useState("");
 
+  // Lấy dữ liệu danh sách phỏng vấn và điểm cao nhất khi component được mount
   useEffect(() => {
     const fetchInterviews = async () => {
       try {
@@ -41,7 +45,7 @@ const InterviewList = ({ setShowDesignModal }) => {
     fetchHighestScore();
   }, []);
 
-  // Filter interviews based on search term
+  // Lọc danh sách phỏng vấn dựa trên từ khóa tìm kiếm
   const filteredInterviews = interviews.filter(interview =>
     interview.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     interview.industry?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -49,15 +53,15 @@ const InterviewList = ({ setShowDesignModal }) => {
 
   return (
     <div className="space-y-8">
-      {/* Header with animation */}
+      {/* Header với animation */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <h2 className="text-4xl md:text-4xl font-bold text-[#2d332b] text-left mb-8 mt-24">Hành trình luyện tập của bạn</h2>
-        {/* Stats grid */}
+        {/* Grid thống kê */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Interview count card */}
+          {/* Card thống kê 1: Số lượng phỏng vấn */}
           <div className="relative flex items-center justify-between rounded-[1.5rem] px-6 py-5 h-[120px] border border-[#e0d8ce] transition-all duration-200 hover:bg-white hover:border-[#d6d0c4] overflow-hidden">
             <Image
               src="/dasboard_background_2.png"
@@ -105,7 +109,7 @@ const InterviewList = ({ setShowDesignModal }) => {
         </div>
       </motion.div>
 
-      {/* Search and create button with animation */}
+      {/* Thanh tìm kiếm và nút tạo mới với animation */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -113,7 +117,7 @@ const InterviewList = ({ setShowDesignModal }) => {
         className="flex w-full gap-6 items-stretch justify-between"
       >
         <div className="flex w-full gap-6 items-stretch justify-between mt-3">
-          {/* Search input with icon */}
+          {/* Ô tìm kiếm với icon */}
           <div className="relative w-[440px] max-w-full">
             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#6b6f6a]">
               <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#6b6f6a" strokeWidth="2"/><path stroke="#6b6f6a" strokeWidth="2" strokeLinecap="round" d="M20 20l-3-3"/></svg>
@@ -126,7 +130,7 @@ const InterviewList = ({ setShowDesignModal }) => {
               className="w-full pl-12 pr-4 py-3 rounded-[1rem] border-2 border-[#e0d8ce] bg-white text-[#3d463b] placeholder-[#6b6f6a] focus:outline-none focus:border-[#b6b6a8] text-base shadow-sm h-full"
             />
           </div>
-          {/* Create new interview button */}
+          {/* Nút tạo phỏng vấn mới */}
           <div>
             <Button
               variant="outline"
@@ -141,7 +145,7 @@ const InterviewList = ({ setShowDesignModal }) => {
         </div>
       </motion.div>
 
-      {/* Interview cards grid with animation */}
+      {/* Grid hiển thị các card phỏng vấn với animation */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

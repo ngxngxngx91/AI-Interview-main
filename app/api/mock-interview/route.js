@@ -4,8 +4,10 @@ import { MockInterview } from '@/utils/schema';
 import { currentUser } from '@clerk/nextjs/server';
 import { eq } from 'drizzle-orm';
 
+// API endpoint để tạo phỏng vấn mới
 export async function POST(request) {
   try {
+    // Kiểm tra xác thực người dùng
     const user = await currentUser();
 
     if (!user || !user.emailAddresses || user.emailAddresses.length === 0) {
@@ -15,7 +17,7 @@ export async function POST(request) {
 
     const data = await request.json();
     
-    // Insert the mock interview data into the database
+    // Lưu thông tin phỏng vấn mới vào cơ sở dữ liệu
     const result = await db.insert(MockInterview).values({
       title: data.title,
       description: data.description,
@@ -42,6 +44,7 @@ export async function POST(request) {
   }
 }
 
+// API endpoint để lấy thông tin chi tiết của một phỏng vấn
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -51,7 +54,7 @@ export async function GET(request) {
       return NextResponse.json({ error: "mockId is required" }, { status: 400 });
     }
 
-    // Fetch the mock interview data from the database
+    // Truy vấn thông tin chi tiết của phỏng vấn từ cơ sở dữ liệu
     const result = await db.select()
       .from(MockInterview)
       .where(eq(MockInterview.mockID, mockId))
