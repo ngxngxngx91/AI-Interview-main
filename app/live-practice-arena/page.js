@@ -54,29 +54,37 @@ function LivePracticeArenaContent() {
     ];
 
     useEffect(() => {
-        // Parse scenario data from URL
-        const scenarioParam = searchParams.get("scenario");
-        if (scenarioParam) {
-            try {
-                const decodedData = JSON.parse(decodeURIComponent(scenarioParam));
-                setScenarioData({
-                    title: decodedData.title || "Interview Practice",
-                    description: decodedData.description || "",
-                    difficulty: decodedData.difficulty || "medium",
-                    scenario: decodedData.scenario || "",
-                    customerQuery: decodedData.customerQuery || "",
-                    expectedResponse: decodedData.expectedResponse || "",
-                    language: decodedData.language || "en",
-                    industry: decodedData.industry || "",
-                    role: decodedData.role || "",
-                    mockID: decodedData.mockID,
+        // Get mockId from URL
+        const mockId = searchParams.get("mockId");
+        if (mockId) {
+            // Fetch scenario data from the database
+            fetch(`/api/mock-interview?mockId=${mockId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to fetch scenario data');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    setScenarioData({
+                        title: data.title || "Interview Practice",
+                        description: data.description || "",
+                        difficulty: data.difficulty || "medium",
+                        scenario: data.scenario || "",
+                        customerQuery: data.customerQuery || "",
+                        expectedResponse: data.expectedResponse || "",
+                        language: data.language || "en",
+                        industry: data.industry || "",
+                        role: data.role || "",
+                        mockID: data.mockID,
+                    });
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error("Error fetching scenario data:", error);
+                    setError("Failed to load scenario. Please try again.");
+                    setIsLoading(false);
                 });
-                setIsLoading(false);
-            } catch (error) {
-                console.error("Error parsing scenario data:", error);
-                setError("Failed to load scenario. Please try again.");
-                setIsLoading(false);
-            }
         } else {
             router.push("/dashboard");
         }

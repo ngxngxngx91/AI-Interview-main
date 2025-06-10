@@ -9,6 +9,7 @@ import {
     FiArrowRight
 } from "react-icons/fi";
 import { Trophy } from "lucide-react";
+import Image from "next/image";
 import LivePracticeModal from "./_components/LivePracticeModal";
 import ScenarioDesignModal from "./_components/ScenarioDesignModal";
 import InterviewList from "./_components/InterviewList";
@@ -30,8 +31,15 @@ function DashBoard() {
                     className="flex items-center gap-5 mb-8"
                 >
                     {/* Avatar người dùng */}
-                    <div className="w-16 h-16 rounded-full bg-pink-200 flex items-center justify-center shadow-md">
-                        {/* Có thể thay thế bằng hình ảnh hoặc SVG sau này */}
+                    <div className="w-24 h-24 flex items-center justify-center relative overflow-hidden">
+                        <Image
+                            src="/dasboard_icon_1.png"
+                            alt="User Avatar"
+                            layout="fill"
+                            objectFit="cover"
+                            className="absolute inset-0"
+                            quality={100}
+                        />
                     </div>
                     {/* Thông tin chào mừng */}
                     <div className="flex flex-col justify-center">
@@ -57,10 +65,15 @@ function DashBoard() {
                             {/* Hiệu ứng bóng đổ cho card */}
                             <Card className="bg-lime-600 rounded-[2.5rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
                             {/* Card chính với nội dung */}
-                            <Card className="bg-lime-400 rounded-[2rem] overflow-hidden shadow-2xl border border-lime-300 h-full flex flex-col z-10 relative">
-                                <CardContent className="p-8 h-full flex text-gray-800 relative">
-                                    {/* Phần hình ảnh minh họa bên phải */}
-                                    <div className="absolute top-0 right-0 w-1/2 h-full bg-gray-400/30 rounded-tl-full"></div>
+                                <Image
+                                    src="/dasboard_background_1.png"
+                                    alt="Background"
+                                    layout="fill"
+                                    objectFit="cover"
+                                    quality={100}
+                                    className="absolute inset-0 rounded-[2rem]"
+                                />
+                                <CardContent className="p-8 h-full flex text-gray-800 relative z-10">
                                     {/* Container cho nội dung bên trái */}
                                     <div className="flex flex-col justify-start h-full z-10 pr-4 w-3/4 items-start pt-2">
                                         {/* Label "Nổi bật" */}
@@ -87,8 +100,7 @@ function DashBoard() {
                                             <FiArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
                                         </Button>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                </CardContent>                  
                         </div>
                     </motion.div>
 
@@ -101,13 +113,21 @@ function DashBoard() {
                         {/* Hiệu ứng bóng đổ cho card tính năng */}
                         <Card className="bg-[#3a220f] rounded-[2rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
                         {/* Card tính năng chính */}
-                        <Card className="bg-amber-950 rounded-[2rem] p-6 shadow-xl border border-amber-900 h-full flex flex-col z-10 relative">
+                        <Card className="bg-[#4F3422] rounded-[2rem] p-6 shadow-xl border border-amber-900 h-full flex flex-col z-10 relative">
                             <h3 className="text-lg font-bold text-gray-100 mb-4">Tính năng nổi bật</h3>
                             {/* Danh sách các tính năng */}
                             <div className="space-y-6 flex-grow flex flex-col justify-center">
                                 {/* Tính năng 1: Phản hồi thời gian thực */}
                                 <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-md bg-blue-500/20"></div>
+                                    <div className="w-16 h-12 rounded-xl bg-[#684B38] flex items-center justify-center">
+                                        <Image
+                                            src="/dasboard_icon_2.png"
+                                            alt="Real-time feedback icon"
+                                            width={32}
+                                            height={32}
+                                            quality={100}
+                                        />
+                                    </div>
                                     <div className="flex-grow">
                                         <h3 className="text-lg font-semibold text-gray-100">Phản hồi thời gian thực</h3>
                                         <p className="text-gray-300">Nhận ngay những nhận xét chi tiết về câu trả lời của bạn!</p>
@@ -116,7 +136,15 @@ function DashBoard() {
 
                                 {/* Tính năng 2: Phản hồi từ AI */}
                                 <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-md bg-purple-500/20"></div>
+                                    <div className="w-16 h-12 rounded-xl bg-[#684B38] flex items-center justify-center">
+                                        <Image
+                                            src="/dasboard_icon_3.png"
+                                            alt="AI feedback icon"
+                                            width={32}
+                                            height={32}
+                                            quality={100}
+                                        />
+                                    </div>
                                     <div className="flex-grow">
                                         <h3 className="text-lg font-semibold text-gray-100">Phản hồi từ AI</h3>
                                         <p className="text-gray-300">Trò chuyện tự nhiên, thoải mái cùng công nghệ Al tiên tiến!</p>
@@ -125,7 +153,15 @@ function DashBoard() {
 
                                 {/* Tính năng 3: Phân tích thể hiện */}
                                 <div className="flex items-center gap-4">
-                                    <div className="w-8 h-8 rounded-md bg-emerald-500/20"></div>
+                                    <div className="w-16 h-12 rounded-xl bg-[#684B38] flex items-center justify-center">
+                                        <Image
+                                            src="/dasboard_icon_4.png"
+                                            alt="Performance analysis icon"
+                                            width={32}
+                                            height={32}
+                                            quality={100}
+                                        />
+                                    </div>
                                     <div className="flex-grow">
                                         <h3 className="text-lg font-semibold text-gray-100">Phân tích thể hiện</h3>
                                         <p className="text-gray-300">Điểm số chi tiết và bí quyết cải thiện dành riêng cho bạn!</p>
@@ -137,7 +173,7 @@ function DashBoard() {
                 </div>
 
                 {/* Phần lịch sử phỏng vấn */}
-                <InterviewList />
+                <InterviewList setShowDesignModal={setShowDesignModal} />
 
             </div>
 

@@ -13,7 +13,8 @@ export const MockInterview = pgTable('mockInterview', {
     role: varchar('role').notNull(),
     createdBy: varchar('createdBy').notNull(),
     createdAt: varchar('createdAt'),
-    mockID: varchar('mockID').notNull()
+    mockID: varchar('mockID').notNull(),
+    userEmail: varchar('userEmail').notNull(),
 })
 
 export const InterviewFeedback = pgTable('interviewFeedback', {

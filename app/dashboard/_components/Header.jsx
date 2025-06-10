@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import Link from "next/link";
 
 function Header() {
     const path = usePathname();
@@ -104,9 +105,11 @@ function Header() {
 
                     {/* Right User Button */}
                     <div className="flex items-center gap-3">
+                    <Link href="/pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">
                         <Button className="bg-gradient-to-r from-pink-500 to-red-500 text-white font-semibold rounded-full px-6 py-2 flex items-center gap-2 shadow-md">
                             Nâng cấp
                         </Button>
+                        </Link>
                         <UserButton
                             appearance={{
                                 elements: {

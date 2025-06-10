@@ -169,9 +169,9 @@ export default function Home() {
                         </div>
                         {/* Menu điều hướng chính */}
                         <nav className="hidden md:flex gap-16 text-lg">
-                            <Link href="#how-it-works" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Cách hoạt động</Link>
-                            <Link href="#pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Bảng giá</Link>
-                            <Link href="#affiliate" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Affiliate</Link>
+                            <Link href="/how-it-works" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Cách hoạt động</Link>
+                            <Link href="/pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Bảng giá</Link>
+                            <Link href="/affiliate" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Affiliate</Link>
                         </nav>
                         {/* Nút CTA (Call-to-Action) chính */}
                         <Link href="/dashboard">

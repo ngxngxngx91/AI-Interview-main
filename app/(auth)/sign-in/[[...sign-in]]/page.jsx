@@ -36,7 +36,7 @@ function CustomLoginForm() {
 
   return (
     <div className="w-full max-w-md flex flex-col items-center justify-center translate-x-36">
-      <Image src="/logo.png" alt="Logo" width={72} height={72} className="mb-4" />
+      <Image src="/logo.png" alt="Logo" width={64} height={64} className="mb-4" />
       <h2 className="text-3xl font-bold text-center text-gray-800 mb-2">Chào mừng bạn đến với<br />AI.Interview</h2>
       <p className="text-base text-center text-gray-500 mb-6">Đăng nhập để bắt đầu hành trình chinh phục phỏng vấn</p>
       <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">

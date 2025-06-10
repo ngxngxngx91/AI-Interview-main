@@ -22,9 +22,9 @@ const InterviewCard = ({ interview }) => {
 
   // Function to format duration from seconds to m:s
   const formatDuration = (seconds) => {
-    if (typeof seconds !== 'number' || isNaN(seconds)) return 'N/A';
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
+    if (!seconds) return 'N/A';
+    const minutes = Math.floor(parseInt(seconds) / 60);
+    const remainingSeconds = parseInt(seconds) % 60;
     return `${minutes}m ${remainingSeconds}s`;
   };
 
@@ -36,30 +36,16 @@ const InterviewCard = ({ interview }) => {
   };
 
   const handleViewFeedback = () => {
-      // Pass the entire interview object, which now contains feedback and scenario data
-      router.push(`/result-feedback?session=${encodeURIComponent(JSON.stringify(interview))}`);
+    router.push(`/result-feedback?mockId=${interview.mockID}`);
   };
 
   const handleRedoInterview = () => {
-      // Pass only the scenario data for the redo button
-      const scenarioData = {
-          title: interview.title,
-          description: interview.description,
-          difficulty: interview.difficulty,
-          scenario: interview.scenario,
-          customerQuery: interview.customerQuery,
-          expectedResponse: interview.expectedResponse,
-          language: interview.language,
-          industry: interview.industry,
-          role: interview.role,
-          mockID: interview.mockID, // Pass the existing mockID
-      };
-      router.push(`/live-practice-arena?scenario=${encodeURIComponent(JSON.stringify(scenarioData))}`);
+    router.push(`/live-practice-arena?mockId=${interview.mockID}`);
   };
 
   return (
     <div className="bg-white rounded-[1.5rem] shadow-md p-6 flex flex-col justify-between min-h-[170px] border border-[#e0d8ce] transition-colors duration-200 hover:text-[#2d332b] group">
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex items-start">
         {/* Icon placeholder */}
         <div className="w-12 h-12 rounded-xl bg-[#f3e0d2] flex items-center justify-center mr-4"></div>
         <div className="flex-1 min-w-0">
@@ -73,7 +59,7 @@ const InterviewCard = ({ interview }) => {
             {/* Duration badge */}
             <span className="bg-[#f3f4f6] text-[#6b6f6a] group-hover:text-[#2d332b] rounded-full px-3 py-2 text-xs font-semibold flex items-center gap-1 transition-colors duration-200">
               <Clock className="w-4 h-4" />
-              {formatDuration(parseInt(interview.duration))}
+              {formatDuration(interview.duration)}
             </span>
             {/* Industry badge if available */}
             {interview.industry && (
