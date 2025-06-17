@@ -15,35 +15,53 @@ const InterviewList = ({ setShowDesignModal }) => {
 
   // Lấy dữ liệu danh sách phỏng vấn và điểm cao nhất khi component được mount
   useEffect(() => {
-    const fetchInterviews = async () => {
-      try {
-        const response = await fetch('/api/interview-list');
-        if (!response.ok) {
-          throw new Error('Failed to fetch interviews');
-        }
-        const data = await response.json();
-        setInterviews(data);
-      } catch (error) {
-        console.error('Error fetching interviews:', error);
-      }
-    };
-
-    const fetchHighestScore = async () => {
-      try {
-        const response = await fetch('/api/highest-score');
-        if (!response.ok) {
-          throw new Error('Failed to fetch highest score');
-        }
-        const data = await response.json();
-        setHighestScore(data.highestScore);
-      } catch (error) {
-        console.error('Error fetching highest score:', error);
-      }
-    };
-
     fetchInterviews();
     fetchHighestScore();
   }, []);
+
+  const fetchInterviews = async () => {
+    try {
+      const response = await fetch('/api/interview-list');
+      if (!response.ok) {
+        throw new Error('Failed to fetch interviews');
+      }
+      const data = await response.json();
+      setInterviews(data);
+    } catch (error) {
+      console.error('Error fetching interviews:', error);
+    }
+  };
+
+  const fetchHighestScore = async () => {
+    try {
+      const response = await fetch('/api/highest-score');
+      if (!response.ok) {
+        throw new Error('Failed to fetch highest score');
+      }
+      const data = await response.json();
+      setHighestScore(data.highestScore);
+    } catch (error) {
+      console.error('Error fetching highest score:', error);
+    }
+  };
+
+  // Xử lý xóa phỏng vấn
+  const handleDeleteInterview = async (mockId) => {
+    try {
+      const response = await fetch(`/api/interview-list/${mockId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete interview');
+      }
+
+      // Cập nhật lại danh sách phỏng vấn sau khi xóa
+      await fetchInterviews();
+    } catch (error) {
+      console.error('Error deleting interview:', error);
+    }
+  };
 
   // Lọc danh sách phỏng vấn dựa trên từ khóa tìm kiếm
   const filteredInterviews = interviews.filter(interview =>
@@ -153,7 +171,11 @@ const InterviewList = ({ setShowDesignModal }) => {
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         {filteredInterviews.map((interview) => (
-          <InterviewCard key={interview.id} interview={interview} />
+          <InterviewCard 
+            key={interview.id} 
+            interview={interview} 
+            onDelete={handleDeleteInterview}
+          />
         ))}
       </motion.div>
     </div>

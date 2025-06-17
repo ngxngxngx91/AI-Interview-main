@@ -10,7 +10,6 @@ import {
 } from "react-icons/fi";
 import { Trophy } from "lucide-react";
 import Image from "next/image";
-import LivePracticeModal from "./_components/LivePracticeModal";
 import ScenarioDesignModal from "./_components/ScenarioDesignModal";
 import InterviewList from "./_components/InterviewList";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,8 +17,6 @@ import { Button } from "@/components/ui/button";
 
 function DashBoard() {
     const [showDesignModal, setShowDesignModal] = useState(false);
-    const [showLivePractice, setShowLivePractice] = useState(false);
-    const [scenario, setScenario] = useState(null);
 
     return (
         <div className="w-full min-h-screen bg-[#FAF8F6]">
@@ -181,18 +178,6 @@ function DashBoard() {
             <ScenarioDesignModal
                 show={showDesignModal}
                 onClose={() => setShowDesignModal(false)}
-                onProceed={(generatedScenario) => {
-                    setScenario(generatedScenario);
-                    setShowDesignModal(false);
-                    setShowLivePractice(true);
-                }}
-            />
-
-            {/* Modal thực hành trực tiếp */}
-            <LivePracticeModal
-                showLivePractice={showLivePractice}
-                setShowLivePractice={setShowLivePractice}
-                scenario={scenario}
             />
         </div>
     );
