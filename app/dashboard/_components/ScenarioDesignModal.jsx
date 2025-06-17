@@ -15,11 +15,12 @@ import { useRouter } from "next/navigation";
 
 // Danh sách các ngành nghề được hỗ trợ
 const industries = [
-  { value: "sales", label: "Sales", icon: "💼" },
-  { value: "customer-service", label: "Customer Service", icon: "🎯" },
-  { value: "business-analysis", label: "Business Analysis", icon: "📊" },
-  { value: "it", label: "IT", icon: "💻" },
-  { value: "healthcare", label: "Healthcare", icon: "🏥" },
+  { value: "Sales", label: "Sales", icon: "💼" },
+  { value: "Customer Service", label: "Customer Service", icon: "🎯" },
+  { value: "Business Analysis", label: "Business Analysis", icon: "📊" },
+  { value: "Tt", label: "IT", icon: "💻" },
+  { value: "Healthcare", label: "Healthcare", icon: "🏥" },
+  { value: "Marketing", label: "Marketing", icon: "💰" },
 ];
 
 // Component modal thiết kế kịch bản phỏng vấn
@@ -34,7 +35,7 @@ const ScenarioDesignModal = ({
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
   const [difficulty, setDifficulty] = React.useState("");
-  const [selectedLanguage, setSelectedLanguage] = React.useState("en");
+  const [selectedLanguage, setSelectedLanguage] = React.useState("vi");
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [generatedScenario, setGeneratedScenario] = React.useState(null);
   const [progress, setProgress] = React.useState(0);
@@ -84,6 +85,7 @@ Requirements:
 - For medium level: Include some complexity and decision-making
 - For hard level: Create challenging, high-pressure scenarios
 - For 'expectedResponse', provide 3-4 concise, numbered key points for the candidate to address. Each numbered point must be on a single line.
+- IMPORTANT: If language is set to 'vi', generate the entire response in Vietnamese. If language is set to 'en', generate in English.
 
 Example (DO NOT COPY, just use as inspiration):
 {
@@ -269,17 +271,17 @@ Generate a realistic interview scenario in this exact JSON format:
                       {/* Situation box */}
                       <div className="bg-[#F9F6ED] rounded-xl p-4 mb-2">
                         <div className="font-semibold text-[#7C5C2A] mb-1">Tình huống</div>
-                        <div className="text-[#7C5C2A] text-base">{generatedScenario.scenario || 'Mô tả tình huống...'}</div>
+                        <div className="text-[#7C5C2A] text-base">{generatedScenario.customerQuery || 'Mô tả tình huống...'}</div>
                       </div>
                       {/* Tasks checklist (expand/collapse) */}
                       {
                         (() => {
                           const tasks = (generatedScenario.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
-                          const showToggle = tasks.length > 4;
-                          const visibleTasks = showToggle && !expanded ? tasks.slice(0, 4) : tasks;
+                          const showToggle = tasks.length > 0;
+                          const visibleTasks = showToggle && !expanded ? tasks.slice(0, 0) : tasks;
                           return (
                             <div>
-                              <div className="font-bold text-[#374151] mb-2">Nhiệm vụ</div>
+                              <div className="font-bold text-[#374151] mb-2">Gợi ý trả lời</div>
                               <ul className="space-y-2">
                                 {visibleTasks.map((task, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
@@ -290,10 +292,10 @@ Generate a realistic interview scenario in this exact JSON format:
                               </ul>
                               {showToggle && (
                                 <button
-                                  className="mt-2 text-[#2563EB] text-sm font-medium focus:outline-none hover:underline"
+                                  className="mt-2 text-[#2563EB] text-base font-semibold focus:outline-none hover:underline"
                                   onClick={() => setExpanded(e => !e)}
                                 >
-                                  {expanded ? 'Thu gọn' : `Xem thêm (${tasks.length - 4})`}
+                                  {expanded ? 'Thu gọn' : `Xem thêm (${tasks.length - 0})`}
                                 </button>
                               )}
                             </div>

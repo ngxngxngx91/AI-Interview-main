@@ -36,7 +36,13 @@ const ConversationBox = ({
     onLanguageChange,
     availableLanguages,
     scenarioData,
-    onStopInterview
+    onStopInterview,
+    scenarioTitle,
+    scenarioIndustry,
+    scenarioDifficulty,
+    onToggleScenarioPanel,
+    showScenarioPanel,
+    hideControlBar
 }) => {
     // Refs và state quản lý UI
     const messagesEndRef = useRef(null);
@@ -148,40 +154,51 @@ const ConversationBox = ({
         </div>
     );
 
+    // Set default language to Vietnamese on mount
+    useEffect(() => {
+        if (availableLanguages && availableLanguages.some(lang => lang.code === 'vi')) {
+            if (selectedLanguage !== 'vi') {
+                onLanguageChange('vi');
+            }
+        }
+    }, [availableLanguages]);
+
     return (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="relative bg-gray-900/90 backdrop-blur-lg rounded-2xl shadow-xl overflow-hidden border border-blue-700/40 hover:border-blue-500/40 transition-all duration-300"
+            className="relative bg-[#F8F6F2] backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden border border-[#E0D6C3] flex flex-col h-full min-w-0 font-sans"
+            style={{ maxHeight: '900px' }}
         >
             {/* Header - Thanh điều khiển */}
-            <div className="flex flex-wrap items-center justify-between gap-3 p-3 border-b border-blue-700/40 bg-gradient-to-r from-blue-900/40 to-purple-900/40 rounded-t-2xl">
-                {/* Phần trái: Tiêu đề và trạng thái */}
-                <div className="flex items-center gap-2 min-w-0">
-                    <div className="p-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20">
-                        <MessageSquare className="w-4 h-4 text-blue-400" />
-                    </div>
+            <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-[#E0D6C3] bg-[#FDFBF7] rounded-t-3xl">
+                {/* Left: Title and status */}
+                <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
-                            <h3 className="text-sm font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent truncate">
-                                Interview Box
+                            <h3 className="text-lg font-bold text-[#5B4636] truncate">
+                                {scenarioTitle || "Interview"}
                             </h3>
-                            {messages.length > 0 && (
-                                <span className="ml-1 px-1.5 py-0.5 rounded-full text-xs font-semibold bg-green-900/60 text-green-300 animate-pulse">Active</span>
+                        </div>
+                        <div className="flex items-center gap-2 mt-1">
+                            {scenarioIndustry && (
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#E6F4EA] text-[#3B7A57] border border-[#B6D9C7]">{scenarioIndustry}</span>
+                            )}
+                            {scenarioDifficulty && (
+                                <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-[#FFF3E0] text-[#B77B2B] border border-[#F5D7A1]">{scenarioDifficulty.charAt(0).toUpperCase() + scenarioDifficulty.slice(1)}</span>
                             )}
                         </div>
                     </div>
                 </div>
-
-                {/* Phần giữa: Bộ đếm thời gian và điều khiển */}
-                <div className="flex items-center gap-2">
-                    <div className="flex items-center gap-2 px-2 py-1 rounded-lg bg-gray-800/50 border border-blue-700/40">
-                        <Clock className="w-3.5 h-3.5 text-blue-400" />
+                {/* Right: Timer and Detail button */}
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F5EDE3] border border-[#E0D6C3] shadow-sm">
+                        <Clock className="w-4 h-4 text-[#B77B2B]" />
                         <motion.span
                             key={timeRemaining}
                             initial={{ scale: 1.2, opacity: 0 }}
                             animate={{ scale: 1, opacity: 1 }}
-                            className={`text-sm font-bold ${getTimerStyles()}`}
+                            className={`text-base font-semibold ${getTimerStyles()} text-[#B77B2B]`}
                         >
                             {formatTime(timeRemaining)}
                         </motion.span>
@@ -192,199 +209,120 @@ const ConversationBox = ({
                                     animate={{ scale: 1 }}
                                     exit={{ scale: 0 }}
                                 >
-                                    <Bell className="w-3.5 h-3.5 text-red-500 animate-bounce" />
+                                    <Bell className="w-4 h-4 text-[#E57373] animate-bounce" />
                                 </motion.div>
                             )}
                         </AnimatePresence>
                     </div>
-                    <div className="flex items-center gap-1">
-                        {/* Nút tạm dừng/tiếp tục */}
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="outline"
-                                        size="sm"
-                                        onClick={onTogglePause}
-                                        disabled={!selectedLanguage}
-                                        className={`gap-1.5 border-2 transition-colors font-semibold h-8 px-2.5 ${!selectedLanguage
-                                                ? 'border-gray-700/40 bg-gray-800/50 text-gray-500 cursor-not-allowed'
-                                                : timeRemaining <= 30 && !isTimeUp
-                                                    ? 'border-red-500/50 hover:border-red-500/80 bg-gray-800 text-gray-100'
-                                                    : 'border-blue-700/40 hover:border-blue-500/50 bg-gray-800 text-gray-100'
-                                            }`}
-                                    >
-                                        {isPaused ? (
-                                            <>
-                                                <PlayCircle className="w-3.5 h-3.5" />
-                                                Start
-                                            </>
-                                        ) : (
-                                            <>
-                                                <PauseCircle className="w-3.5 h-3.5" />
-                                                Pause
-                                            </>
-                                        )}
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>{!selectedLanguage ? 'Please select a language first' : isPaused ? 'Start the interview' : 'Pause the interview'}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                        {/* Nút ghi âm */}
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <div className="relative">
-                                        <Button
-                                            variant={isListening ? "destructive" : "default"}
-                                            size="sm"
-                                            onClick={onToggleListening}
-                                            disabled={isTimeUp || isPaused || !selectedLanguage}
-                                            className={`gap-1.5 transition-all duration-300 font-semibold h-8 px-2.5 ${isListening
-                                                    ? 'bg-red-500 hover:bg-red-600'
-                                                    : 'bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600'
-                                                }`}
-                                        >
-                                            {isListening ? (
-                                                <>
-                                                    <MicOff className="w-3.5 h-3.5" />
-                                                    Stop
-                                                </>
-                                            ) : (
-                                                <>
-                                                    <Mic className="w-3.5 h-3.5" />
-                                                    Record
-                                                </>
-                                            )}
-                                        </Button>
-                                        {isListening && (
-                                            <motion.div
-                                                initial={{ scale: 0 }}
-                                                animate={{ scale: 1 }}
-                                                className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"
-                                            />
-                                        )}
-                                    </div>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>{isListening ? 'Click to stop recording' : 'Click to start recording your answer'}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    </div>
-                </div>
-
-                {/* Phần phải: Nút kết thúc và chọn ngôn ngữ */}
-                <div className="flex items-center gap-2">
-                    {/* Nút kết thúc phỏng vấn */}
-                    {(messages.length > 0 || !isPaused) && (
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button
-                                        variant="destructive"
-                                        size="sm"
-                                        onClick={() => setShowConfirm(true)}
-                                        disabled={isTimeUp}
-                                        className="gap-1.5 font-semibold h-8 px-3 opacity-60 hover:opacity-80 focus:opacity-80 transition-opacity"
-                                    >
-                                        <XCircle className="w-3.5 h-3.5" />
-                                        End Interview
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>End the interview and view feedback</p>
-                                </TooltipContent>
-                            </Tooltip>
-                        </TooltipProvider>
-                    )}
-                    {/* Bộ chọn ngôn ngữ */}
-                    {!selectedLanguage && (
-                        <div className="flex items-center gap-2">
-                            <Select
-                                value={selectedLanguage}
-                                onValueChange={onLanguageChange}
-                            >
-                                <SelectTrigger className="w-[100px] h-8 border-2 border-blue-700/40 hover:border-blue-500/50 transition-colors font-semibold bg-gray-800 text-gray-100">
-                                    <SelectValue placeholder="Language" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    {availableLanguages.map((lang) => (
-                                        <SelectItem key={lang.code} value={lang.code}>
-                                            {lang.name}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-                    )}
+                    <Button
+                        variant={showScenarioPanel ? "secondary" : "outline"}
+                        size="sm"
+                        onClick={onToggleScenarioPanel}
+                        className="gap-1.5 border-2 border-[#E0D6C3] hover:border-[#B77B2B] font-semibold h-8 px-4 text-[#5B4636] bg-[#FFF9F3] rounded-xl shadow-sm"
+                    >
+                        Chi tiết
+                    </Button>
                 </div>
             </div>
 
-            {/* Cảnh báo thời gian */}
+            {/* Time warning */}
             <AnimatePresence>
                 {showWarning && timeRemaining <= 30 && !isTimeUp && (
                     <motion.div
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 10 }}
-                        className="flex items-center gap-2 text-red-300 bg-red-900/30 rounded-lg px-2 py-1.5 mx-3 mt-2"
+                        className="flex items-center gap-2 text-[#E57373] bg-[#FFF3E0] border border-[#F5D7A1] rounded-xl px-3 py-2 mx-4 mt-3 shadow-sm"
                     >
-                        <AlertCircle className="w-3.5 h-3.5" />
-                        <span className="text-xs">Less than 30 seconds remaining!</span>
+                        <AlertCircle className="w-4 h-4" />
+                        <span className="text-xs font-medium">Còn dưới 30 giây!</span>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Khu vực hiển thị tin nhắn */}
+            {/* Message area */}
             <div
                 ref={containerRef}
-                className="h-[calc(100vh-12rem)] overflow-y-auto scroll-smooth relative bg-gradient-to-br from-gray-900/60 to-gray-800/80"
+                className="flex-1 overflow-y-auto scroll-smooth relative"
+                style={{ backgroundImage: "url('/live-practice-arena-background_2.png')", backgroundSize: 'cover', backgroundPosition: 'center', backgroundRepeat: 'no-repeat' }}
             >
                 {messages.length === 0 ? renderEmptyState() : renderMessages()}
             </div>
 
-            {/* Nút cuộn xuống */}
+            {/* Scroll down button */}
             <AnimatePresence>
                 {showScrollButton && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.9 }}
-                        className="absolute bottom-3 right-3"
+                        className="absolute bottom-4 right-4"
                     >
                         <Button
                             size="icon"
                             onClick={scrollToBottom}
-                            className="h-8 w-8 rounded-full shadow-lg bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white"
+                            className="h-9 w-9 rounded-full shadow-lg bg-[#B77B2B] hover:bg-[#A66A1F] text-white"
                         >
-                            <ChevronDown className="w-3.5 h-3.5" />
+                            <ChevronDown className="w-4 h-4" />
                         </Button>
                     </motion.div>
                 )}
             </AnimatePresence>
 
-            {/* Hộp thoại xác nhận kết thúc */}
+            {/* End interview dialog */}
             <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-                <DialogContent className="max-w-sm">
+                <DialogContent className="max-w-sm bg-[#FFF9F3] border border-[#E0D6C3] rounded-2xl">
                     <DialogHeader>
-                        <DialogTitle>End Interview?</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to stop the interview? You will be taken to the feedback page and cannot return to this session.
+                        <DialogTitle className="text-[#B77B2B]">Kết thúc phỏng vấn?</DialogTitle>
+                        <DialogDescription className="text-[#5B4636]">
+                            Bạn có chắc chắn muốn kết thúc? Bạn sẽ được chuyển sang trang đánh giá và không thể quay lại phiên này.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter>
-                        <Button variant="outline" onClick={() => setShowConfirm(false)}>
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={() => { setShowConfirm(false); onStopInterview(); }}>
-                            Yes, End Interview
-                        </Button>
+                        <Button variant="outline" onClick={() => setShowConfirm(false)} className="rounded-xl border-[#E0D6C3] text-[#5B4636] bg-[#F8F6F2]">Huỷ</Button>
+                        <Button variant="destructive" onClick={() => { setShowConfirm(false); onStopInterview(); }} className="rounded-xl bg-[#E57373] text-white">Kết thúc</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+            {/* Control Bar (only if not hidden) */}
+            {!hideControlBar && (
+                <div className="flex flex-row justify-center items-end gap-8 mt-6 mb-4 shrink-0">
+                    {/* Left: Kết thúc */}
+                    <Button
+                        onClick={onStopInterview}
+                        disabled={isTimeUp}
+                        className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold text-lg rounded-full px-10 py-5 shadow-md transition-all duration-150 min-w-[180px] min-h-[64px]"
+                    >
+                        <XCircle className="w-7 h-7 mr-3" />
+                        Kết thúc
+                    </Button>
+                    {/* Center: Ghi âm (biggest, green, round, tooltip) */}
+                    <div className="flex flex-col items-center">
+                        <div className="mb-2">
+                            <div className="bg-[#232B22] text-white text-base px-6 py-2 rounded-2xl shadow-lg relative z-10">
+                                Bấm để ghi âm và trả lời
+                                <span className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}}></span>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={onToggleListening}
+                            disabled={isTimeUp || isPaused || !selectedLanguage}
+                            className={`flex items-center justify-center rounded-full bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22] shadow-xl transition-all duration-150 min-w-[320px] min-h-[120px] text-4xl p-0 border-none ${isListening ? 'ring-4 ring-[#7ED957]' : ''}`}
+                            style={{ fontSize: '2.5rem' }}
+                        >
+                            <Mic className="w-14 h-14" />
+                        </Button>
+                    </div>
+                    {/* Right: Tạm dừng/Bắt đầu */}
+                    <Button
+                        onClick={onTogglePause}
+                        disabled={!selectedLanguage}
+                        className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold text-lg rounded-full px-10 py-5 shadow-md border border-[#E0D6C3] min-w-[180px] min-h-[64px]"
+                    >
+                        {isPaused ? <><PlayCircle className="w-7 h-7 mr-3" />Bắt đầu</> : <><PauseCircle className="w-7 h-7 mr-3" />Tạm dừng</>}
+                    </Button>
+                </div>
+            )}
         </motion.div>
     );
 };

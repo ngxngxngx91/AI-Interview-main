@@ -2,16 +2,16 @@ import {chatSession} from "./GeminiAIModal";
 
 export const analyzeResponse = async (response, scenario) => {
     try {
-        const prompt = `Analyze this interview response in the context of the following scenario. Provide a JSON response with:
+        const prompt = `Phân tích câu trả lời phỏng vấn này trong bối cảnh tình huống sau. Hãy trả về kết quả dưới dạng JSON với cấu trúc:
     {
-      "strengths": ["list of strengths"],
-      "weaknesses": ["list of weaknesses"],
-      "overallScore": number between 0-100,
-      "feedback": "brief feedback"
+      "diem_manh": ["danh sách các điểm mạnh"],
+      "diem_can_cai_thien": ["danh sách các điểm cần cải thiện"],
+      "diem_so": số từ 0-100,
+      "phan_hoi": "nhận xét ngắn gọn"
     }
 
-    Scenario: ${scenario}
-    Response: ${response}`;
+    Tình huống: ${scenario}
+    Câu trả lời: ${response}`;
 
         const result = await chatSession.sendMessage(prompt);
         const analysis = JSON.parse(result.response.text());

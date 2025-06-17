@@ -30,25 +30,26 @@ function LivePracticeArenaContent() {
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showScenarioDetails, setShowScenarioDetails] = useState(true);
+    const [expanded, setExpanded] = React.useState(false);
 
     // Các tùy chọn thời gian cho buổi phỏng vấn (tính bằng phút)
     const timeOptions = [
         {
             value: "3",
             label: "3 phút",
-            description: "Buổi Phỏng Vấn Nhanh",
+            description: "Phỏng vấn nhanh",
             icon: "⚡"
         },
         {
             value: "5",
             label: "5 phút",
-            description: "Độ Dài Phỏng Vấn Tiêu Chuẩn",
+            description: "Phỏng vấn tiêu chuẩn",
             icon: "⏱️"
         },
         {
             value: "10",
             label: "10 phút",
-            description: "Thời Gian Phỏng Vấn Kéo Dài",
+            description: "Phỏng vấn chuyên sâu",
             icon: "🕒"
         },
     ];
@@ -194,228 +195,150 @@ function LivePracticeArenaContent() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-gray-900 via-gray-800 to-black py-8">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-                {/* Header Section - Only show when not in practice mode */}
+        <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
+            {/* Blurred background image */}
+            <img
+                src="/live-practice-arena-background_1.png"
+                alt="background"
+                className="absolute inset-0 w-full h-full object-cover z-0 scale-105"
+                style={{ pointerEvents: 'none', userSelect: 'none' }}
+            />
+            {/* Overlay for darkening */}
+            <div className="absolute inset-0 z-0" />
+            <div className={`relative z-10 w-full ${isPracticeMode ? 'max-w-none' : 'max-w-2xl mx-auto'} flex flex-col gap-6 px-2 py-10`}>
+                {/* Top area: Thoát button */}
                 {!isPracticeMode && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-8"
-                    >
+                    <div className="mb-2">
                         <Button
                             variant="ghost"
                             size="sm"
                             onClick={handleBack}
-                            className="mb-4 hover:bg-gray-800/80 text-gray-200 border border-gray-700/40 rounded-full px-4 py-2 transition-colors"
+                            className="rounded-full px-5 py-2 text-gray-700 bg-white/80 hover:bg-white/90 shadow border border-gray-200 font-semibold text-base"
                         >
                             <ArrowLeft className="w-4 h-4 mr-2" />
-                            Back to Dashboard
+                            Thoát
                         </Button>
-                        <div className="flex items-start justify-between">
+                    </div>
+                )}
+                {/* Second area: Scenario info */}
+                {!isPracticeMode && (
+                    <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-7 flex flex-col gap-6 z-10 relative">
+                        {/* Scenario Title */}
+                        <h2 className="text-2xl font-bold text-[#374151] mb-2">{scenarioData.title || 'Tiêu đề kịch bản'}</h2>
+                        {/* Badges row */}
+                        <div className="flex items-center gap-3 mb-2">
+                            {/* Industry badge */}
+                            {scenarioData.industry && (
+                                <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#F0F6FF] text-[#2563EB] text-sm font-medium">
+                                    <span role="img" aria-label="industry">🛒</span>
+                                    {scenarioData.industry}
+                                </span>
+                            )}
+                            {/* Difficulty badge */}
+                            <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F9E6] text-[#22C55E] text-sm font-medium">
+                                <span role="img" aria-label="difficulty">✔️</span>
+                                {scenarioData.difficulty.charAt(0).toUpperCase() + scenarioData.difficulty.slice(1)}
+                            </span>
+                        </div>
+                        {/* Scenario Description */}
+                        <p className="text-base text-[#374151] mb-2">{scenarioData.description || scenarioData.scenario || 'Mô tả kịch bản...'}</p>
+                        {/* Divider */}
+                        <div className="border-t border-[#E5E7EB] my-2" />
+                        {/* Situation box */}
+                        <div className="bg-[#F9F6ED] rounded-xl p-4 mb-2">
+                            <div className="font-semibold text-[#7C5C2A] mb-1">Tình huống</div>
+                            <div className="text-[#7C5C2A] text-base">{scenarioData.customerQuery || 'Mô tả tình huống...'}</div>
+                        </div>
+                        {/* Gợi ý trả lời checklist */}
+                        {
+                        (() => {
+                          const tasks = (scenarioData.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
+                          const showToggle = tasks.length > 0;
+                          const visibleTasks = showToggle && !expanded ? tasks.slice(0, 0) : tasks;
+                          return (
                             <div>
-                                <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-400 via-purple-400 to-emerald-400 bg-clip-text text-transparent">
-                                    {scenarioData.title || "Interview Practice"}
-                                </h1>
-                                <p className="mt-2 text-gray-400">
-                                    Sẵn Sàng Để Tỏa Sáng? Chọn Giới Hạn Thời Gian Và Bắt Đầu Hành Trình.
-                                </p>
-                            </div>
-                            <div className="flex gap-2 items-center">
-                                <Badge
-                                    variant="outline"
-                                    className={`flex items-center gap-1 px-3 py-1.5 transition-all duration-300
-                                    ${scenarioData.difficulty === 'easy'
-                                            ? 'border-green-500 text-green-200 bg-green-900/20'
-                                            : scenarioData.difficulty === 'medium'
-                                                ? 'border-yellow-500 text-yellow-100 bg-yellow-900/20'
-                                                : 'border-red-500 text-red-100 bg-red-900/20'
-                                        }`}
+                              <div className="font-bold text-[#374151] mb-2">Gợi ý trả lời</div>
+                              <ul className="space-y-2">
+                                {visibleTasks.map((task, idx) => (
+                                  <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
+                                    <span className="mt-1 text-green-500"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#D1FADF"/><path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                                    <span>{task.trim()}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                              {showToggle && (
+                                <button
+                                  className="mt-2 text-[#2563EB] text-sm font-medium focus:outline-none hover:underline"
+                                  onClick={() => setExpanded(e => !e)}
                                 >
-                                    <Target className="w-4 h-4" />
-                                    {scenarioData.difficulty.charAt(0).toUpperCase() + scenarioData.difficulty.slice(1)}
-                                </Badge>
-                                {scenarioData.language && (
-                                    <Badge className="flex items-center gap-1 px-3 py-1.5 bg-emerald-900/20 text-emerald-200 border-emerald-500 uppercase font-semibold">
-                                        {scenarioData.language === 'vi' ? 'VI' : 'EN'}
-                                    </Badge>
-                                )}
-                                {scenarioData.industry && (
-                                    <Badge className="flex items-center gap-1 px-3 py-1.5 bg-blue-900/20 text-blue-200 border-blue-500">
-                                        {scenarioData.industry}
-                                    </Badge>
-                                )}
-                                {scenarioData.role && (
-                                    <Badge className="flex items-center gap-1 px-3 py-1.5 bg-purple-900/20 text-purple-200 border-purple-500">
-                                        {scenarioData.role}
-                                    </Badge>
-                                )}
+                                  {expanded ? 'Thu gọn' : `Xem thêm (${tasks.length - 0})`}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()
+                      }
+                        {/* (Optional) Action buttons or details toggle can be added here if needed */}
+                    </div>
+                )}
+                {/* Third area: Timer selection */}
+                {!isPracticeMode && (
+                    <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-7 flex flex-col z-10 relative">
+                        <div className="mb-4">
+                            <span className="block text-xl font-bold text-[#232E23] mb-4">Thời gian</span>
+                            <div className="flex flex-row gap-2 h-[104px] justify-center">
+                                {timeOptions.map((option) => {
+                                    const isSelected = selectedTime === option.value;
+                                    return (
+                                        <button
+                                            key={option.value}
+                                            onClick={() => setSelectedTime(option.value)}
+                                            className={`flex-1 flex flex-col items-start justify-center px-8 py-4 rounded-[24px] border transition-all duration-200 text-left
+                                                ${isSelected
+                                                    ? 'bg-[#F1FBEF] border-[#7FC241] shadow-sm'
+                                                    : 'bg-white border-[#D1D5DB] hover:border-[#7FC241] hover:bg-[#F6FBF3]'}
+                                            `}
+                                            style={{ height: '100%' }}
+                                        >
+                                            <span className={`text-xl font-bold mb-1 ${isSelected ? 'text-[#232E23]' : 'text-[#232E23]'}`}>{option.label}</span>
+                                            <span className={`text-sm font-normal whitespace-nowrap ${isSelected ? 'text-[#6B7A6B]' : 'text-[#6B7A6B]'}`}>{option.description}</span>
+                                        </button>
+                                    );
+                                })}
                             </div>
                         </div>
-                    </motion.div>
+                    </div>
                 )}
-
-                {/* Minimal Header for Practice Mode */}
-                {isPracticeMode && (
-                    <motion.div
-                        initial={{ opacity: 0, y: -20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="mb-4"
-                    >
+                {/* Fourth area: Start button */}
+                {!isPracticeMode && (
+                    <div>
                         <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={handleBack}
-                            className="hover:bg-gray-800/80 text-gray-200 border border-gray-700/40 rounded-full px-4 py-2 transition-colors"
+                            className={`w-full h-12 rounded-[24px] text-lg transition-all duration-300 
+                                ${!selectedTime
+                                    ? 'bg-gray-200 text-gray-400'
+                                    : 'bg-[#B5ED76] hover:bg-[#2F3C30] text-white shadow-lg hover:shadow-xl'
+                                }`}
+                            disabled={!selectedTime}
+                            onClick={handleStartPractice}
                         >
-                            <ArrowLeft className="w-4 h-4 mr-2" />
-                            End Interview
+                            <span className="flex items-center gap-2 text-black">
+                                <Play className="w-5 h-5" />
+                                Bắt Đầu
+                                <Sparkles className="w-5 h-5" />
+                            </span>
                         </Button>
+                    </div>
+                )}
+                {/* Practice mode content remains unchanged */}
+                {isPracticeMode && (
+                    <motion.div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
+                        <ScenarioContent
+                            scenarioData={scenarioData}
+                            timeLimit={parseInt(selectedTime)}
+                            onInterviewComplete={handleInterviewComplete}
+                        />
                     </motion.div>
                 )}
-
-                {/* Main Content */}
-                <AnimatePresence mode="wait">
-                    {!isPracticeMode ? (
-                        <motion.div
-                            key="setup"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="space-y-6"
-                        >
-                            {/* Scenario Overview */}
-                            <Card className="bg-gray-800/80 backdrop-blur-lg border border-blue-700/40 rounded-2xl shadow-xl hover:border-blue-500/40 transition-all duration-300">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                                            <Brain className="w-5 h-5" />
-                                        </div>
-                                        <h2 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                            Nội Dung Buổi Phỏng Vấn
-                                        </h2>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setShowScenarioDetails((prev) => !prev)}
-                                            className="ml-auto text-blue-400 hover:text-blue-200 px-2 py-1 rounded-full"
-                                        >
-                                            {showScenarioDetails ? "Hide Details" : "Show Details"}
-                                        </Button>
-                                    </div>
-                                    <p className="text-gray-400 mb-4">
-                                        {scenarioData.description}
-                                    </p>
-                                    <div className="pl-4 border-l-2 border-blue-500 mb-2">
-                                        <p className="text-sm font-medium text-gray-100">
-                                            {scenarioData.customerQuery}
-                                        </p>
-                                    </div>
-                                    {showScenarioDetails && (
-                                        <div className="mt-4 space-y-2 bg-gray-900/70 rounded-lg p-4 border border-blue-700/30">
-                                            <div>
-                                                <span className="block text-xs text-blue-400 font-semibold mb-1">Scenario Intro</span>
-                                                <p className="text-sm text-gray-300">
-                                                    {scenarioData.scenario}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span className="block text-xs text-purple-400 font-semibold mb-1">Expected Response</span>
-                                                <p className="text-sm text-gray-300">
-                                                    {scenarioData.expectedResponse}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() => router.push("/dashboard")}
-                                        className="mt-4 text-gray-400 hover:text-white border border-gray-700/40 rounded-full px-4 py-2"
-                                    >
-                                        Restart
-                                    </Button>
-                                </CardContent>
-                            </Card>
-
-                            {/* Time Selection */}
-                            <Card className="bg-gray-800/80 backdrop-blur-lg border border-purple-700/40 rounded-2xl shadow-xl hover:border-purple-500/40 transition-all duration-300">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="p-2 rounded-lg bg-gradient-to-r from-purple-500 to-blue-500 text-white">
-                                            <Clock className="w-5 h-5" />
-                                        </div>
-                                        <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
-                                            Thiết Lập Thời Gian
-                                        </h2>
-                                    </div>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        {timeOptions.map((option) => (
-                                            <motion.button
-                                                key={option.value}
-                                                whileHover={{ scale: 1.02 }}
-                                                whileTap={{ scale: 0.98 }}
-                                                onClick={() => setSelectedTime(option.value)}
-                                                className={`p-4 rounded-lg border transition-all duration-300${selectedTime === option.value
-                                                    ? " border-purple-500 bg-purple-900/20 text-purple-100 shadow"
-                                                    : " border-gray-700 bg-gray-800/60 text-gray-300 hover:border-purple-400 hover:text-purple-100"
-                                                    }`}
-                                            >
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl transform transition-transform group-hover:scale-110">
-                                                        {option.icon}
-                                                    </span>
-                                                    <div className="text-left">
-                                                        <p className="text-sm font-bold">{option.label}</p>
-                                                        <p className="text-xs text-gray-400 mt-0.5">
-                                                            {option.description}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </motion.button>
-                                        ))}
-                                    </div>
-                                </CardContent>
-                            </Card>
-
-                            {/* Start Button */}
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.2 }}
-                            >
-                                <Button
-                                    className={`w-full h-12 rounded-lg transition-all duration-300 
-                    ${!selectedTime
-                                            ? 'bg-gray-800 text-gray-500'
-                                            : 'bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white shadow-lg hover:shadow-xl'
-                                        }`}
-                                    disabled={!selectedTime}
-                                    onClick={handleStartPractice}
-                                >
-                                    <span className="flex items-center gap-2">
-                                        <Play className="w-5 h-5" />
-                                        Bắt Đầu
-                                        <Sparkles className="w-5 h-5" />
-                                    </span>
-                                </Button>
-                            </motion.div>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="practice"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                        >
-                            <ScenarioContent
-                                scenarioData={scenarioData}
-                                timeLimit={parseInt(selectedTime)}
-                                onInterviewComplete={handleInterviewComplete}
-                            />
-                        </motion.div>
-                    )}
-                </AnimatePresence>
             </div>
         </div>
     );
