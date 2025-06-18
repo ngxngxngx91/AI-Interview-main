@@ -206,7 +206,7 @@ Generate a realistic interview scenario in this exact JSON format:
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.97, y: 20 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="relative w-full max-w-xl px-2 sm:px-0 flex flex-col items-center z-10"
+            className="relative w-full max-w-xl px-2 sm:px-0 flex flex-col items-center z-10 max-h-[90vh]"
           >
             {/* X button as a separate area, outside the modal */}
             <Button
@@ -235,8 +235,13 @@ Generate a realistic interview scenario in this exact JSON format:
             <div className="w-full max-w-lg h-full rounded-b-[36px] bg-[#4B372E] px-1 pb-1 flex flex-col items-center relative z-10" style={{ boxShadow: '0 8px 32px 0 rgba(75,55,46,0.12)' }}>
               {/* Front white layer (main content only, inset) */}
               <div
-                className="relative z-20 w-full max-w-lg mx-auto rounded-[28px] bg-white flex flex-col overflow-hidden border border-transparent shadow-2xl max-h-[calc(100vh - 250px)] overflow-y-auto"
-                style={{ top: 0, left: 0 }}
+                className="relative z-20 w-full max-w-lg mx-auto rounded-[28px] bg-white flex flex-col overflow-hidden border border-transparent shadow-2xl"
+                style={{ 
+                  maxHeight: 'calc(90vh - 120px)', // Account for header height
+                  overflowY: 'auto',
+                  scrollbarWidth: 'thin',
+                  scrollbarColor: '#E5D6C6 #FFFFFF'
+                }}
               >
                 {/* Main content area (no header here) */}
                 {generatedScenario ? (
