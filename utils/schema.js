@@ -22,18 +22,15 @@ export const InterviewFeedback = pgTable('interviewFeedback', {
     mockIdRef: varchar('mockId').notNull(),
     userEmail: varchar('userEmail').notNull(),
     createdAt: varchar('createdAt').notNull(),
-    
-    // Overall session data
+
     duration: varchar('duration').notNull(),
     totalMessages: varchar('totalMessages').notNull(),
     averageScore: varchar('averageScore').notNull(),
-    
-    // Detailed feedback
-    conversation: text('conversation').notNull(), // JSON string of all messages
-    strengths: text('strengths').notNull(), // JSON array of strengths
-    weaknesses: text('weaknesses').notNull(), // JSON array of weaknesses
-    detailedFeedback: text('detailedFeedback').notNull(), // JSON array of detailed feedback
-    
-    // Individual message analysis
-    messageAnalysis: text('messageAnalysis').notNull() // JSON array of per-message analysis
+
+    conversation: text('conversation').notNull(),
+    strengths: text('strengths').notNull(),
+    weaknesses: text('weaknesses').notNull(),
+    detailedFeedback: text('detailedFeedback').notNull(),
+
+    messageAnalysis: text('messageAnalysis').notNull()
 })

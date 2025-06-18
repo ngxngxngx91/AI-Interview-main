@@ -18,7 +18,7 @@ const industries = [
   { value: "Sales", label: "Sales", icon: "💼" },
   { value: "Customer Service", label: "Customer Service", icon: "🎯" },
   { value: "Business Analysis", label: "Business Analysis", icon: "📊" },
-  { value: "Tt", label: "IT", icon: "💻" },
+  { value: "It", label: "IT", icon: "💻" },
   { value: "Healthcare", label: "Healthcare", icon: "🏥" },
   { value: "Marketing", label: "Marketing", icon: "💰" },
 ];
@@ -46,9 +46,10 @@ const ScenarioDesignModal = ({
 
   // Danh sách các cấp độ khó dễ
   const difficulties = [
-    { value: "easy", label: "Easy", description: "Phù Hợp Cho Người Mới", color: "bg-green-500" },
-    { value: "medium", label: "Medium", description: "Có Tính Thử Thách", color: "bg-yellow-500" },
-    { value: "hard", label: "Hard", description: "Phỏng Vấn Nâng Cao", color: "bg-red-500" },
+    { value: "Intern", label: "Intern"},
+    { value: "Fresher", label: "Fresher"},
+    { value: "Junior", label: "Junior"},
+    { value: "Senior", label: "Senior"},
   ];
 
   // Danh sách ngôn ngữ được hỗ trợ
