@@ -293,9 +293,9 @@ function ResultFeedbackContent() {
                             const analysis = sessionData.conversation
                                 .filter(msg => msg.type === 'user' && msg.analysis?.feedback)
                                 .map(msg => msg.analysis.feedback);
-                            const analysisPreview = analysis.slice(0, 4);
-                            const undisplayed = analysis.length > 4 ? analysis.length - 4 : 0;
-                            const hasMore = analysis.length > 4;
+                            const analysisPreview = analysis.slice(0, 2);
+                            const undisplayed = analysis.length > 2 ? analysis.length - 2 : 0;
+                            const hasMore = analysis.length > 2;
                             return (
                                 <div className="bg-[#F7F7F2] rounded-2xl p-4 cursor-pointer transition hover:shadow-md relative" onClick={() => openModal('Phân tích chi tiết', analysis.join('\n') || 'Chưa có dữ liệu')}>
                                     <div className="flex items-center mb-2 gap-2">
@@ -510,13 +510,13 @@ function ResultFeedbackContent() {
                         <Home className="w-5 h-5 mr-1" />
                         Về dashboard
                     </Button>
-                        <Button
+                        {/* <Button
                         onClick={() => window.location.reload()}
                         className="flex items-center gap-2 border border-[#C6F6D5] bg-[#F6FFF6] hover:bg-[#E9FCE9] text-[#38423B] font-medium rounded-full px-8 py-3 text-base shadow-none transition-colors"
                         >
                         <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A9 9 0 11 5.582 9M4 9h5m7 4v5h.582m-7.164 2A9 9 0 1118.418 15M20 15h-5" /></svg>
                         Làm lại
-                        </Button>
+                        </Button> */}
                         <Button
                             onClick={handleSavePDF}
                         className="flex items-center gap-2 bg-[#B6E388] hover:bg-[#A0D468] text-[#38423B] font-semibold rounded-full px-8 py-3 text-base border-none shadow-none transition-colors"
