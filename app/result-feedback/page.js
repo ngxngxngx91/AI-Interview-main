@@ -371,7 +371,7 @@ function ResultFeedbackContent() {
                                 const collapsed = collapsedCards[index] || false;
                                 const toggleCollapsed = () => setCollapsedCards(prev => ({ ...prev, [index]: !prev[index] }));
                                 return (
-                                    <div key={index} className="bg-[#FCFAF6] rounded-3xl shadow flex flex-col gap-4 p-6 relative" style={{borderRadius: '32px'}}>
+                                    <div key={index} className="bg-[#FCFAF6] rounded-3xl shadow flex flex-col gap-4 p-6 relative border border-[#E9E5DF] mb-4" style={{borderRadius: '32px'}}>
                                         {/* Top: Message and Score */}
                                         <div className="flex items-start justify-between gap-4">
                                             {/* Collapsed: Only show title and button, right-aligned */}
@@ -402,7 +402,7 @@ function ResultFeedbackContent() {
                                                             <path d="M18 4 a 14 14 0 1 1 0 28 a 14 14 0 1 1 0 -28" fill="none" stroke="#7ED957" strokeWidth="3.5" strokeDasharray={`${msg.analysis.overallScore * 0.88}, 88`} strokeLinecap="round" />
                                                         </svg>
                                                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-[#5B7D2A]">{msg.analysis.overallScore}</span>
-                                                </div>
+                                                    </div>
                                                 </>
                                             )}
                                         </div>
@@ -429,8 +429,8 @@ function ResultFeedbackContent() {
                                                             ) : (
                                                                 <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
                                                             )}
-                                                            </ul>
-                                                        </div>
+                                                        </ul>
+                                                    </div>
                                                     <div className="bg-[#FDEDE7] rounded-2xl p-4">
                                                         <div className="font-bold text-[#38423B] mb-2 text-base">Có thể cải thiện</div>
                                                         <ul className="space-y-2">
@@ -444,7 +444,7 @@ function ResultFeedbackContent() {
                                                             ) : (
                                                                 <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
                                                             )}
-                                                            </ul>
+                                                        </ul>
                                                     </div>
                                                 </div>
                                             </>
@@ -468,13 +468,16 @@ function ResultFeedbackContent() {
                                 return <div className="text-gray-500 text-center py-8">Không có lời khuyên nào.</div>;
                             }
                             return weaknesses.map((weakness, idx) => (
-                                <div key={idx} className="border border-gray-200 rounded-xl bg-white px-6 py-4 mb-2 shadow-sm">
-                                    <h4 className="font-medium text-gray-900 mb-2">
-                                        Tập trung vào: {weakness}
-                                    </h4>
-                                    <p className="text-sm text-gray-600">
-                                        Thực hành khía cạnh này trong buổi phỏng vấn tiếp theo để cải thiện phần thể hiện.
-                                    </p>
+                                <div key={idx} className="flex items-start gap-4 bg-[#E7F3DF] rounded-[2rem] px-6 py-4 w-full border border-[#D1E7C6] mb-4">
+                                    <CheckCircle2 className="w-6 h-6 text-[#6BAA4D] flex-shrink-0 mt-1" />
+                                    <div className="flex flex-col">
+                                        <span className="font-bold text-[#2D332B] text-lg leading-snug">
+                                            Tập trung vào: {weakness}
+                                        </span>
+                                        <span className="text-[#4B5C4A] text-base mt-1">
+                                            Hãy luyện tập điểm này trong buổi phỏng vấn tiếp theo để cải thiện hiệu suất của bạn
+                                        </span>
+                                    </div>
                                 </div>
                             ));
                         })()}
