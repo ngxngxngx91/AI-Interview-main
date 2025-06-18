@@ -248,19 +248,19 @@ function ResultFeedbackContent() {
                                                     <CheckCircle2 className="w-4 h-4 text-[#3BA55D]" />
                                                                 {strength}
                                                             </li>
-                                            ))}
+                                                        ))}
                                             {strengths.length === 0 && (
                                                 <li className="text-[#6B7A6C]">Chưa có dữ liệu</li>
                                             )}
-                                        </ul>
-                                    </div>
+                                                </ul>
+                                            </div>
                                 );
                             })()}
                             {/* Weaknesses Box */}
                             {(() => {
                                 const weaknesses = sessionData.conversation
-                                    .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
-                                    .flatMap(msg => msg.analysis.weaknesses)
+                                                        .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
+                                                        .flatMap(msg => msg.analysis.weaknesses)
                                     .filter((weakness, index, self) => self.indexOf(weakness) === index);
                                 const weaknessesPreview = weaknesses.slice(0, 5);
                                 const undisplayed = weaknesses.length > 5 ? weaknesses.length - 5 : 0;
@@ -277,9 +277,9 @@ function ResultFeedbackContent() {
                                             {weaknessesPreview.map((weakness, index) => (
                                                 <li key={index} className="flex items-center gap-2 text-[#38423B]">
                                                     <XCircle className="w-4 h-4 text-[#E24C4B]" />
-                                                                        {weakness}
-                                                                    </li>
-                                                                ))}
+                                                                {weakness}
+                                                            </li>
+                                                        ))}
                                             {weaknesses.length === 0 && (
                                                 <li className="text-[#6B7A6C]">Chưa có dữ liệu</li>
                                             )}
@@ -311,7 +311,7 @@ function ResultFeedbackContent() {
                                         {analysis.length === 0 && (
                                             <li>Chưa có dữ liệu</li>
                                         )}
-                                    </ul>
+                                                </ul>
                                                         </div>
                             );
                         })()}
@@ -361,7 +361,7 @@ function ResultFeedbackContent() {
                         })}
                         </div>
                     </div>
-                )}
+                        )}
                 {activeTab === "feedback" && (
                     <div className="w-full flex flex-col gap-6 py-2 px-1">
                         <div className="max-h-[400px] overflow-y-auto pr-1">
@@ -402,7 +402,7 @@ function ResultFeedbackContent() {
                                                             <path d="M18 4 a 14 14 0 1 1 0 28 a 14 14 0 1 1 0 -28" fill="none" stroke="#7ED957" strokeWidth="3.5" strokeDasharray={`${msg.analysis.overallScore * 0.88}, 88`} strokeLinecap="round" />
                                                         </svg>
                                                         <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-[#5B7D2A]">{msg.analysis.overallScore}</span>
-                                                    </div>
+                                                </div>
                                                 </>
                                             )}
                                         </div>
@@ -429,8 +429,8 @@ function ResultFeedbackContent() {
                                                             ) : (
                                                                 <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
                                                             )}
-                                                        </ul>
-                                                    </div>
+                                                            </ul>
+                                                        </div>
                                                     <div className="bg-[#FDEDE7] rounded-2xl p-4">
                                                         <div className="font-bold text-[#38423B] mb-2 text-base">Có thể cải thiện</div>
                                                         <ul className="space-y-2">
@@ -444,7 +444,7 @@ function ResultFeedbackContent() {
                                                             ) : (
                                                                 <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
                                                             )}
-                                                        </ul>
+                                                            </ul>
                                                     </div>
                                                 </div>
                                             </>
@@ -454,39 +454,30 @@ function ResultFeedbackContent() {
                             })}
                         </div>
                     </div>
-                )}
-                {activeTab === "recommendations" && (
-                    <div className="w-full flex flex-col gap-6 py-2 px-1">
+                        )}
+                        {activeTab === "recommendations" && (
+                    <div className="w-full flex flex-col gap-4 py-2 px-1">
                         <div className="max-h-[400px] overflow-y-auto pr-1">
-                        {(sessionData.recommendations && sessionData.recommendations.length > 0
-                            ? sessionData.recommendations
-                            : [
-                                {
-                                    focus: "Câu trả lời thiếu mạch lạc",
-                                    detail: "Hãy luyện tập điểm này trong buổi phỏng vấn tiếp theo để cải thiện hiệu suất của bạn."
-                                },
-                                {
-                                    focus: "Thông tin không liên quan",
-                                    detail: "Hãy luyện tập điểm này trong buổi phỏng vấn tiếp theo để cải thiện hiệu suất của bạn."
-                                },
-                                {
-                                    focus: "Thiếu rõ ràng",
-                                    detail: "Hãy luyện tập điểm này trong buổi phỏng vấn tiếp theo để cải thiện hiệu suất của bạn."
-                                }
-                            ]
-                        ).map((rec, idx) => (
-                            <div key={idx} className="flex items-start gap-4 bg-[#E7F3DF] rounded-[2rem] px-6 py-4 w-full">
-                                <CheckCircle2 className="w-7 h-7 text-[#6BAA4D] flex-shrink-0 mt-1" />
-                                <div className="flex flex-col">
-                                    <span className="font-bold text-[#2D332B] text-lg leading-snug">
-                                        Tập trung vào: {rec.focus}
-                                    </span>
-                                    <span className="text-[#4B5C4A] text-base mt-1">
-                                        {rec.detail}
-                                    </span>
+                        {(() => {
+                            // Gather all unique weaknesses from the conversation
+                            const weaknesses = sessionData.conversation
+                                .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
+                                .flatMap(msg => msg.analysis.weaknesses)
+                                .filter((w, i, arr) => arr.indexOf(w) === i);
+                            if (weaknesses.length === 0) {
+                                return <div className="text-gray-500 text-center py-8">Không có lời khuyên nào.</div>;
+                            }
+                            return weaknesses.map((weakness, idx) => (
+                                <div key={idx} className="border border-gray-200 rounded-xl bg-white px-6 py-4 mb-2 shadow-sm">
+                                    <h4 className="font-medium text-gray-900 mb-2">
+                                        Tập trung vào: {weakness}
+                                    </h4>
+                                    <p className="text-sm text-gray-600">
+                                        Thực hành khía cạnh này trong buổi phỏng vấn tiếp theo để cải thiện phần thể hiện.
+                                    </p>
                                 </div>
-                            </div>
-                        ))}
+                            ));
+                        })()}
                         </div>
                     </div>
                 )}
