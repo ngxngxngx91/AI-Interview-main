@@ -35,7 +35,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [selectedLanguage, setSelectedLanguage] = useState('');
     const [hasInitialMessage, setHasInitialMessage] = useState(false);
-    const [isExpanded, setIsExpanded] = useState(true);
+    const [isExpanded, setIsExpanded] = useState(false);
     const [showScenarioPanel, setShowScenarioPanel] = useState(false);
 
     // Refs để lưu trữ transcript tạm thời và cuối cùng
@@ -394,34 +394,204 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
     }, [selectedLanguage, hasInitialMessage, handleLanguageChange]);
 
     return (
-        <div className="w-full h-full flex justify-center items-center">
-            <div className="flex w-full max-w-screen-2xl justify-center items-stretch transition-all duration-300">
-                {/* Main Conversation Area */}
-                <motion.div
-                    className={`flex-1 flex flex-col w-full min-w-[320px] max-w-[1000px] transition-all duration-300 ${showScenarioPanel ? 'md:mr-4' : ''} h-[400px] sm:h-[600px] lg:h-[900px] lg:max-h-[900px] lg:min-h-[900px]`}
-                    style={{ minWidth: 0 }}
-                >
-                    <ConversationBox
-                        messages={messages}
-                        isListening={isListening}
-                        onToggleListening={toggleListening}
-                        isPaused={isPaused}
-                        isTimeUp={isTimeUp}
-                        onTogglePause={togglePause}
-                        timeRemaining={timeRemaining}
-                        selectedLanguage={selectedLanguage}
-                        onLanguageChange={handleLanguageChange}
-                        availableLanguages={availableLanguages}
-                        scenarioData={scenarioData}
-                        onStopInterview={handleStopInterview}
-                        scenarioTitle={scenarioData.title}
-                        scenarioIndustry={scenarioData.industry}
-                        scenarioDifficulty={scenarioData.difficulty}
-                        onToggleScenarioPanel={() => setShowScenarioPanel((v) => !v)}
-                        showScenarioPanel={showScenarioPanel}
-                        hideControlBar
-                    />
-                    {/* Control Bar below ConversationBox */}
+        <div className="w-full h-full flex flex-col justify-center items-center">
+            <div className="flex flex-col w-full max-w-screen-2xl h-full justify-center items-stretch transition-all duration-300">
+                {/* Main content row: ConversationBox + SidePanel */}
+                <div className="flex flex-row flex-1 min-h-0 w-full justify-center items-stretch transition-all duration-300">
+                    {/* Main Conversation Area */}
+                    <motion.div
+                        className={`flex-1 flex flex-col w-full min-w-[320px] max-w-[1000px] transition-all duration-300 ${showScenarioPanel ? 'md:mr-4' : ''} h-[300px] sm:h-[500px] lg:h-[800px] lg:max-h-[800px] lg:min-h-[800px] ${!showScenarioPanel ? 'mx-auto' : ''}`}
+                        style={{ minWidth: 0 }}
+                    >
+                        <ConversationBox
+                            messages={messages}
+                            isListening={isListening}
+                            onToggleListening={toggleListening}
+                            isPaused={isPaused}
+                            isTimeUp={isTimeUp}
+                            onTogglePause={togglePause}
+                            timeRemaining={timeRemaining}
+                            selectedLanguage={selectedLanguage}
+                            onLanguageChange={handleLanguageChange}
+                            availableLanguages={availableLanguages}
+                            scenarioData={scenarioData}
+                            onStopInterview={handleStopInterview}
+                            scenarioTitle={scenarioData.title}
+                            scenarioIndustry={scenarioData.industry}
+                            scenarioDifficulty={scenarioData.difficulty}
+                            onToggleScenarioPanel={() => setShowScenarioPanel((v) => !v)}
+                            showScenarioPanel={showScenarioPanel}
+                            hideControlBar
+                        />
+                    </motion.div>
+                    {/* Scenario Info Side Panel (Desktop) */}
+                    <AnimatePresence>
+                        {showScenarioPanel && (
+                            <motion.div
+                                initial={{ x: 300, opacity: 0 }}
+                                animate={{ x: 0, opacity: 1 }}
+                                exit={{ x: 300, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="md:block w-[450px] max-w-full bg-white rounded-[28px] shadow-lg flex flex-col z-20 h-[300px] sm:h-[500px] lg:h-[800px] lg:max-h-[800px] lg:min-h-[800px] min-h-0"
+                                style={{ minWidth: 0 }}
+                            >
+                                <div className="flex flex-col flex-1 min-h-0 h-full">
+                                    {/* Scenario Title */}
+                                    <h2 className="text-2xl font-bold text-[#374151] mb-2 px-8 pt-8">{scenarioData.title || 'Tiêu đề kịch bản'}</h2>
+                                    {/* Badges row */}
+                                    <div className="flex items-center gap-3 mb-2 px-8">
+                                        {/* Industry badge */}
+                                        {scenarioData.industry && (
+                                            <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#F0F6FF] text-[#2563EB] text-sm font-medium">
+                                                <span role="img" aria-label="industry">🛒</span>
+                                                {scenarioData.industry}
+                                            </span>
+                                        )}
+                                        {/* Difficulty badge */}
+                                        <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F9E6] text-[#22C55E] text-sm font-medium">
+                                            <span role="img" aria-label="difficulty">✔️</span>
+                                            {scenarioData.difficulty.charAt(0).toUpperCase() + scenarioData.difficulty.slice(1)}
+                                        </span>
+                                    </div>
+                                    {/* Scenario Description */}
+                                    <p className="text-base text-[#374151] mb-2 px-8">{scenarioData.description || scenarioData.scenario || 'Mô tả kịch bản...'}</p>
+                                    {/* Divider */}
+                                    <div className="border-t border-[#E5E7EB] my-2 mx-8" />
+                                    {/* Situation box */}
+                                    <div className="bg-[#F9F6ED] rounded-xl p-4 mb-2 mx-8">
+                                        <div className="font-semibold text-[#7C5C2A] mb-1">Tình huống</div>
+                                        <div className="text-[#7C5C2A] text-base">{scenarioData.customerQuery || 'Mô tả tình huống...'}</div>
+                                    </div>
+                                    {/* Checklist and expand/collapse */}
+                                    <div className="flex flex-col flex-1 min-h-0 h-full px-8">
+                                        <div className="font-bold text-[#374151] mb-2">Gợi ý trả lời</div>
+                                        <div className={`transition-all duration-300 ${isExpanded ? 'flex-1 overflow-y-auto' : ''}`} style={{ maxHeight: isExpanded ? '300px' : '0', overflowY: isExpanded ? 'auto' : 'hidden' }}>
+                                            <ul className="space-y-2">
+                                                {(() => {
+                                                    const checklistTasks = (scenarioData.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
+                                                    const visibleChecklistTasks = isExpanded ? checklistTasks : [];
+                                                    return visibleChecklistTasks.map((task, idx) => (
+                                                        <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
+                                                            <span className="mt-1 text-green-500">
+                                                                <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
+                                                                    <circle cx="10" cy="10" r="10" fill="#D1FADF"/>
+                                                                    <path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                </svg>
+                                                            </span>
+                                                            <span>{task.trim()}</span>
+                                                        </li>
+                                                    ));
+                                                })()}
+                                            </ul>
+                                        </div>
+                                        {/* Expand/Collapse Button always at bottom */}
+                                        <div className="mt-2 flex-shrink-0 pb-4">
+                                            {(() => {
+                                                const checklistTasks = (scenarioData.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
+                                                if (checklistTasks.length > 0) {
+                                                    return (
+                                                        <button
+                                                            className="text-[#2563EB] text-sm font-medium focus:outline-none hover:underline"
+                                                            onClick={() => setIsExpanded(e => !e)}
+                                                        >
+                                                            {isExpanded ? 'Thu gọn' : `Xem thêm (${checklistTasks.length})`}
+                                                        </button>
+                                                    );
+                                                }
+                                                return null;
+                                            })()}
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                    {/* Scenario Info Drawer (Mobile) */}
+                    <AnimatePresence>
+                        {showScenarioPanel && (
+                            <motion.div
+                                initial={{ x: '100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '100%' }}
+                                transition={{ duration: 0.25 }}
+                                className="fixed md:hidden top-0 right-0 w-full h-full z-40 bg-black/60 flex justify-end"
+                                style={{ backdropFilter: 'blur(4px)' }}
+                            >
+                                <div className="w-[90vw] max-w-xs h-full bg-white rounded-l-2xl shadow-2xl flex flex-col min-h-0">
+                                    <div className="p-6 flex flex-col flex-1 min-h-0 h-full overflow-hidden">
+                                        {/* Scenario Title */}
+                                        <h2 className="text-2xl font-bold text-[#374151] mb-2">{scenarioData.title || 'Tiêu đề kịch bản'}</h2>
+                                        {/* Badges row */}
+                                        <div className="flex items-center gap-3 mb-2">
+                                            {/* Industry badge */}
+                                            {scenarioData.industry && (
+                                                <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#F0F6FF] text-[#2563EB] text-sm font-medium">
+                                                    <span role="img" aria-label="industry">🛒</span>
+                                                    {scenarioData.industry}
+                                                </span>
+                                            )}
+                                            {/* Difficulty badge */}
+                                            <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F9E6] text-[#22C55E] text-sm font-medium">
+                                                <span role="img" aria-label="difficulty">✔️</span>
+                                                {scenarioData.difficulty.charAt(0).toUpperCase() + scenarioData.difficulty.slice(1)}
+                                            </span>
+                                        </div>
+                                        {/* Scenario Description */}
+                                        <p className="text-base text-[#374151] mb-2">{scenarioData.description || scenarioData.scenario || 'Mô tả kịch bản...'}</p>
+                                        {/* Divider */}
+                                        <div className="border-t border-[#E5E7EB] my-2" />
+                                        {/* Situation box */}
+                                        <div className="bg-[#F9F6ED] rounded-xl p-4 mb-2">
+                                            <div className="font-semibold text-[#7C5C2A] mb-1">Tình huống</div>
+                                            <div className="text-[#7C5C2A] text-base">{scenarioData.customerQuery || 'Mô tả tình huống...'}</div>
+                                        </div>
+                                        {/* Checklist and expand/collapse */}
+                                        <div className="flex flex-col flex-1 min-h-0 h-full">
+                                            <div className="font-bold text-[#374151] mb-2">Gợi ý trả lời</div>
+                                            <div className={`transition-all duration-300 ${isExpanded ? 'flex-1 overflow-y-auto' : ''}`} style={{ maxHeight: isExpanded ? '200px' : '0', overflowY: isExpanded ? 'auto' : 'hidden' }}>
+                                                <ul className="space-y-2">
+                                                    {(() => {
+                                                        const checklistTasks = (scenarioData.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
+                                                        const visibleChecklistTasks = isExpanded ? checklistTasks : [];
+                                                        return visibleChecklistTasks.map((task, idx) => (
+                                                            <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
+                                                                <span className="mt-1 text-green-500">
+                                                                    <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
+                                                                        <circle cx="10" cy="10" r="10" fill="#D1FADF"/>
+                                                                        <path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                    </svg>
+                                                                </span>
+                                                                <span>{task.trim()}</span>
+                                                            </li>
+                                                        ));
+                                                    })()}
+                                                </ul>
+                                            </div>
+                                            {/* Expand/Collapse Button always at bottom */}
+                                            <div className="mt-2 flex-shrink-0 pb-4">
+                                                {(() => {
+                                                    const checklistTasks = (scenarioData.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
+                                                    if (checklistTasks.length > 0) {
+                                                        return (
+                                                            <button
+                                                                className="text-[#2563EB] text-sm font-medium focus:outline-none hover:underline"
+                                                                onClick={() => setIsExpanded(e => !e)}
+                                                            >
+                                                                {isExpanded ? 'Thu gọn' : `Xem thêm (${checklistTasks.length})`}
+                                                            </button>
+                                                        );
+                                                    }
+                                                    return null;
+                                                })()}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </div>
+                {/* Control Bar below ConversationBox and SidePanel */}
                     <div className="flex flex-row justify-center items-center gap-9 mt-4 w-full mx-auto">
                         {/* Left: Kết thúc */}
                         <Button
@@ -446,7 +616,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                             <Button
                                 onClick={toggleListening}
                                 disabled={isTimeUp || isPaused || !selectedLanguage}
-                                className={`flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[216px] min-h-[72px] text-3xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'} `}
+                            className={`flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[216px] min-h-[72px] text-3xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
                                 style={{ fontSize: '2.25rem' }}
                             >
                                 {isListening ? (
@@ -474,122 +644,6 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                             {isPaused ? <><PlayCircle className="w-7 h-7 mr-3" />Bắt đầu</> : <><PauseCircle className="w-7 h-7 mr-3" />Tạm dừng</>}
                         </Button>
                     </div>
-                </motion.div>
-                {/* Scenario Info Side Panel (Desktop) */}
-                <AnimatePresence>
-                    {showScenarioPanel && (
-                        <motion.div
-                            initial={{ x: 300, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            exit={{ x: 300, opacity: 0 }}
-                            transition={{ duration: 0.2 }}
-                            className=" md:block w-[350px] max-w-full bg-gray-900/90 backdrop-blur-lg border border-blue-700/40 rounded-2xl shadow-xl p-0 flex flex-col z-20"
-                        >
-                            <Card className="bg-transparent border-none shadow-none">
-                                <CardContent className="p-6">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
-                                                <Brain className="w-5 h-5 text-white" />
-                                            </div>
-                                            <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                                Interview Scenario
-                                            </h3>
-                                        </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={() => setShowScenarioPanel(false)}
-                                            className="gap-2 font-semibold text-blue-400 hover:text-blue-200"
-                                        >
-                                            <ChevronUp className="w-4 h-4" />
-                                            Đóng
-                                        </Button>
-                                    </div>
-                                    <div className="space-y-4">
-                                        <div>
-                                            <span className="block text-xs text-blue-400 font-semibold mb-1">Question</span>
-                                            <p className="text-gray-300 font-semibold">
-                                                {scenarioData.scenario?.customerQuery || scenarioData.customerQuery || ""}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="block text-xs text-purple-400 font-semibold mb-1">Expected Response</span>
-                                            <p className="text-gray-300 font-semibold">
-                                                {scenarioData.scenario?.expectedResponse || scenarioData.expectedResponse || ""}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <span className="block text-xs text-emerald-400 font-semibold mb-1">Scenario Context</span>
-                                            <p className="text-gray-300 font-semibold">
-                                                {scenarioData.scenario?.scenario || scenarioData.scenario || ""}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
-                {/* Scenario Info Drawer (Mobile) */}
-                <AnimatePresence>
-                    {showScenarioPanel && (
-                        <motion.div
-                            initial={{ x: '100%' }}
-                            animate={{ x: 0 }}
-                            exit={{ x: '100%' }}
-                            transition={{ duration: 0.25 }}
-                            className="fixed md:hidden top-0 right-0 w-full h-full z-40 bg-black/60 flex justify-end"
-                            style={{ backdropFilter: 'blur(4px)' }}
-                        >
-                            <div className="w-[90vw] max-w-xs h-full bg-gray-900/95 border-l border-blue-700/40 rounded-l-2xl shadow-2xl flex flex-col">
-                                <Card className="bg-transparent border-none shadow-none flex-1 flex flex-col">
-                                    <CardContent className="p-6 flex-1 flex flex-col">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
-                                                    <Brain className="w-5 h-5 text-white" />
-                                                </div>
-                                                <h3 className="text-lg font-semibold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
-                                                    Interview Scenario
-                                                </h3>
-                                            </div>
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => setShowScenarioPanel(false)}
-                                                className="gap-2 font-semibold text-blue-400 hover:text-blue-200"
-                                            >
-                                                <ChevronUp className="w-4 h-4" />
-                                                Đóng
-                                            </Button>
-                                        </div>
-                                        <div className="space-y-4 flex-1">
-                                            <div>
-                                                <span className="block text-xs text-blue-400 font-semibold mb-1">Question</span>
-                                                <p className="text-gray-300 font-semibold">
-                                                    {scenarioData.scenario?.customerQuery || scenarioData.customerQuery || ""}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span className="block text-xs text-purple-400 font-semibold mb-1">Expected Response</span>
-                                                <p className="text-gray-300 font-semibold">
-                                                    {scenarioData.scenario?.expectedResponse || scenarioData.expectedResponse || ""}
-                                                </p>
-                                            </div>
-                                            <div>
-                                                <span className="block text-xs text-emerald-400 font-semibold mb-1">Scenario Context</span>
-                                                <p className="text-gray-300 font-semibold">
-                                                    {scenarioData.scenario?.scenario || scenarioData.scenario || ""}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-                            </div>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
                 {/* Overlay hiển thị khi đang phân tích kết quả */}
                 {isAnalyzing && <AnalysisOverlay />}
             </div>

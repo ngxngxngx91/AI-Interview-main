@@ -122,7 +122,7 @@ const ConversationBox = ({
     const getTimerStyles = () => {
         if (isTimeUp) return 'text-red-500';
         if (timeRemaining <= 30) return 'text-red-500 animate-pulse';
-        return 'text-blue-400';
+        return 'text-[#B77B2B]';
     };
 
     // Hiển thị trạng thái trống
