@@ -13,10 +13,13 @@ import {
     Zap,
     Clock,
     Star,
-    TrendingUp
+    TrendingUp,
+    Home
 } from 'lucide-react';
 import {Badge} from "@/components/ui/badge";
 import {Card, CardContent} from "@/components/ui/card";
+import {Button} from "@/components/ui/button";
+import Link from "next/link";
 
 const features = [
     {
@@ -89,6 +92,19 @@ export default function Page() {
                     className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-800 bg-[size:3rem_3rem] opacity-20"/>
                 <div
                     className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 animate-pulse"/>
+            </div>
+
+            {/* Return to Landing Page Button */}
+            <div className="absolute top-6 right-6 z-50">
+                <Link href="/">
+                    <Button
+                        variant="outline"
+                        className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm border-gray-200 dark:border-gray-700 hover:bg-white dark:hover:bg-gray-800 text-gray-700 dark:text-gray-300 transition-all duration-200"
+                    >
+                        <Home className="w-4 h-4 mr-2" />
+                        Về trang chủ
+                    </Button>
+                </Link>
             </div>
 
             <div className="relative container mx-auto flex min-h-screen items-center justify-center p-8">

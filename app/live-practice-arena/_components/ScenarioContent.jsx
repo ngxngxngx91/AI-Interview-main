@@ -5,6 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Brain, ChevronUp, ChevronDown, PlayCircle, PauseCircle, Mic, MicOff, XCircle } from "lucide-react";
 import { chatSession } from "@/utils/GeminiAIModal";
 import { analyzeResponse } from "@/utils/responseAnalyzer";
@@ -179,10 +190,10 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                     };
                 });
 
-            const analyzedMessages = await Promise.all(analysisPromises);
+            const analyzedUserMessages = await Promise.all(analysisPromises);
 
             // Tính điểm trung bình
-            const scores = analyzedMessages
+            const scores = analyzedUserMessages
                 .map(msg => msg.analysis?.overallScore || 0)
                 .filter(score => score > 0);
             
@@ -191,25 +202,26 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 : 0;
 
             // Thu thập tất cả điểm mạnh và điểm yếu
-            const strengths = analyzedMessages
+            const strengths = analyzedUserMessages
                 .flatMap(msg => msg.analysis?.strengths || [])
                 .filter((value, index, self) => self.indexOf(value) === index);
 
-            const weaknesses = analyzedMessages
+            const weaknesses = analyzedUserMessages
                 .flatMap(msg => msg.analysis?.weaknesses || [])
                 .filter((value, index, self) => self.indexOf(value) === index);
 
-            // Chuẩn bị dữ liệu phản hồi
+            // Chuẩn bị dữ liệu phản hồi với toàn bộ cuộc hội thoại
             const feedbackData = {
                 scenario: scenarioData,
-                conversation: analyzedMessages,
+                conversation: messages, // Lưu toàn bộ cuộc hội thoại (cả user và AI)
+                analyzedUserMessages: analyzedUserMessages, // Chỉ các tin nhắn user đã được phân tích
                 duration: timeLimit * 60 - timeRemaining,
                 timestamp: new Date().toISOString(),
                 averageScore,
                 strengths,
                 weaknesses,
-                detailedFeedback: analyzedMessages.map(msg => msg.analysis?.feedback).filter(Boolean),
-                messageAnalysis: analyzedMessages.map(msg => ({
+                detailedFeedback: analyzedUserMessages.map(msg => msg.analysis?.feedback).filter(Boolean),
+                messageAnalysis: analyzedUserMessages.map(msg => ({
                     message: msg.content,
                     analysis: msg.analysis
                 }))
@@ -224,10 +236,25 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
         }
     }, [isAnalyzing, isListening, recognition, scenarioData, messages, timeLimit, timeRemaining, onInterviewComplete]);
 
-    // Tự động kết thúc khi hết thời gian
+    // Hàm xử lý kết thúc phỏng vấn thủ công (từ button)
+    const handleManualStopInterview = useCallback(async () => {
+        // Dừng timer và set trạng thái time up để ngăn chặn các tương tác khác
+        setIsTimeUp(true);
+        setIsPaused(true);
+        if (isListening) {
+            recognition?.stop();
+        }
+        
+        // Gọi hàm xử lý kết thúc
+        await handleStopInterview();
+    }, [isListening, recognition, handleStopInterview]);
+
+    // Tự động kết thúc khi hết thời gian (chỉ khi timer tự động kết thúc)
     useEffect(() => {
-        if (isTimeUp) handleStopInterview();
-    }, [isTimeUp, handleStopInterview]);
+        if (isTimeUp && timeRemaining === 0) {
+            handleStopInterview();
+        }
+    }, [isTimeUp, timeRemaining, handleStopInterview]);
 
     // Xử lý thay đổi ngôn ngữ và tạo câu chào đầu tiên
     const handleLanguageChange = useCallback(async (languageCode) => {
@@ -594,14 +621,34 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 {/* Control Bar below ConversationBox and SidePanel */}
                     <div className="flex flex-row justify-center items-center gap-9 mt-4 w-full mx-auto">
                         {/* Left: Kết thúc */}
-                        <Button
-                            onClick={handleStopInterview}
-                            disabled={isTimeUp}
-                            className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold text-lg rounded-full px-9 py-4 shadow-md transition-all duration-150 min-w-[143px] min-h-[59px]"
-                        >
-                            <XCircle className="w-7 h-7 mr-3" />
-                            Kết thúc
-                        </Button>
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    disabled={isTimeUp}
+                                    className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold text-lg rounded-full px-9 py-4 shadow-md transition-all duration-150 min-w-[143px] min-h-[59px]"
+                                >
+                                    <XCircle className="w-7 h-7 mr-3" />
+                                    Kết thúc
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Hành động này sẽ kết thúc cuộc phỏng vấn và lưu lại kết quả phỏng vấn. Bạn không thể quay lại sau khi kết thúc.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                        onClick={handleManualStopInterview}
+                                        className="bg-[#F37C5A] hover:bg-[#e45a5a] text-white"
+                                    >
+                                        Kết thúc phỏng vấn
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                         {/* Center: Ghi âm (biggest, green, round, tooltip) */}
                         <div className="relative flex flex-col items-center justify-center">
                             {/* Tooltip above (only when not recording) */}
