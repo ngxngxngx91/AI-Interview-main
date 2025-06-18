@@ -147,7 +147,7 @@ function LivePracticeArenaContent() {
             }
 
             // Redirect to feedback page with the session data
-            router.push(`/result-feedback?session=${encodeURIComponent(JSON.stringify(feedbackData))}`);
+            router.push(`/result-feedback?mockId=${scenarioData.mockID}`);
         } catch (error) {
             console.error('Error saving feedback:', error);
             // Handle error appropriately
