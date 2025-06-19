@@ -474,9 +474,6 @@ function ResultFeedbackContent() {
                                         <span className="font-bold text-[#2D332B] text-lg leading-snug">
                                             Tập trung vào: {weakness}
                                         </span>
-                                        <span className="text-[#4B5C4A] text-base mt-1">
-                                            Hãy luyện tập điểm này trong buổi phỏng vấn tiếp theo để cải thiện hiệu suất của bạn
-                                        </span>
                                     </div>
                                 </div>
                             ));
