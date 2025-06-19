@@ -106,49 +106,47 @@ Generate a realistic interview scenario in this exact JSON format:
 
       // Gửi prompt đến AI và xử lý kết quả
       const result = await chatSession.sendMessage(prompt);
-      const responseText = result.response.text();
-
+      const responseText = await result.response.text();
+      // Strict validation and parsing
+      let jsonResponse;
       try {
-        const jsonResponse = JSON.parse(responseText);
-        setGeneratedScenario({
-          customerQuery: typeof jsonResponse.customerQuery === 'string' ? jsonResponse.customerQuery : JSON.stringify(jsonResponse.customerQuery),
-          expectedResponse: typeof jsonResponse.expectedResponse === 'string' ? jsonResponse.expectedResponse : JSON.stringify(jsonResponse.expectedResponse),
-          scenario: typeof jsonResponse.scenario === 'string' ? jsonResponse.scenario : JSON.stringify(jsonResponse.scenario),
-          difficulty,
-          language: selectedLanguage,
-          title,
-          description,
-          industry: selectedIndustryLocal,
-          role: roleDescriptionLocal
-        });
-        setProgress(100);
-      } catch (jsonError) {
-        // Xử lý lỗi parse JSON
+        jsonResponse = JSON.parse(responseText);
+      } catch {
         const cleanedResponse = responseText
           .replace(/```json/g, '')
           .replace(/```/g, '')
           .trim();
         try {
-          const jsonResponse = JSON.parse(cleanedResponse);
-          setGeneratedScenario({
-            customerQuery: typeof jsonResponse.customerQuery === 'string' ? jsonResponse.customerQuery : JSON.stringify(jsonResponse.customerQuery),
-            expectedResponse: typeof jsonResponse.expectedResponse === 'string' ? jsonResponse.expectedResponse : JSON.stringify(jsonResponse.expectedResponse),
-            scenario: typeof jsonResponse.scenario === 'string' ? jsonResponse.scenario : JSON.stringify(jsonResponse.scenario),
-            difficulty,
-            language: selectedLanguage,
-            title,
-            description,
-            industry: selectedIndustryLocal,
-            role: roleDescriptionLocal
-          });
-          setProgress(100);
+          jsonResponse = JSON.parse(cleanedResponse);
         } catch {
-          throw new Error("Failed to parse AI response");
+          throw new Error("AI response is not valid JSON.");
         }
       }
+      // Strict validation
+      if (
+        !jsonResponse.scenario ||
+        !jsonResponse.customerQuery ||
+        !jsonResponse.expectedResponse ||
+        typeof jsonResponse.scenario !== "string" ||
+        typeof jsonResponse.customerQuery !== "string" ||
+        typeof jsonResponse.expectedResponse !== "string"
+      ) {
+        throw new Error("AI response missing required fields. Please try again.");
+      }
+      setGeneratedScenario({
+        customerQuery: jsonResponse.customerQuery,
+        expectedResponse: jsonResponse.expectedResponse,
+        scenario: jsonResponse.scenario,
+        difficulty,
+        language: selectedLanguage,
+        title,
+        description,
+        industry: selectedIndustryLocal,
+        role: roleDescriptionLocal
+      });
+      setProgress(100);
     } catch (error) {
-      console.error("Error generating scenario:", error);
-      setError("Failed to generate scenario. Please try again.");
+      setError(error.message || "Failed to generate scenario. Please try again.");
       setGeneratedScenario(null);
     } finally {
       clearInterval(progressInterval);
@@ -327,6 +325,11 @@ Generate a realistic interview scenario in this exact JSON format:
                         <Button
                           className="flex-1 h-12 rounded-full bg-[#22C55E] hover:bg-[#16A34A] text-white text-lg font-semibold shadow-none"
                           onClick={handleProceed}
+                          disabled={
+                            !generatedScenario?.scenario ||
+                            !generatedScenario?.customerQuery ||
+                            !generatedScenario?.expectedResponse
+                          }
                         >
                           Vào buổi phỏng vấn
                         </Button>
@@ -465,10 +468,22 @@ Generate a realistic interview scenario in this exact JSON format:
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="p-4 bg-red-900/20 border-2 border-red-700 rounded-lg flex items-center gap-3"
+                        className="p-4 bg-red-900/20 border-2 border-red-700 rounded-lg flex flex-col items-center gap-3"
                       >
-                        <AlertCircle className="w-5 h-5 text-red-500" />
-                        <p className="text-sm text-red-400">{error}</p>
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5 text-red-500" />
+                          <p className="text-sm text-red-400">{error}</p>
+                        </div>
+                        <Button
+                          variant="outline"
+                          className="mt-2"
+                          onClick={() => {
+                            setError(null);
+                            generateScenario();
+                          }}
+                        >
+                          Thử lại
+                        </Button>
                       </motion.div>
                     )}
                     {isGenerating && (
