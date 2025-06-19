@@ -46,6 +46,7 @@ const ScenarioDesignModal = ({
   const [roleDescriptionLocal, setRoleDescriptionLocal] = React.useState(roleDescription || "");
   const [expanded, setExpanded] = React.useState(false);
   const [isProceeding, setIsProceeding] = React.useState(false);
+  const [focusArea, setFocusArea] = React.useState("");
 
   // Danh sách các cấp độ khó dễ
   const difficulties = [
@@ -59,6 +60,14 @@ const ScenarioDesignModal = ({
   const languages = [
     { value: "en", label: "English" },
     { value: "vi", label: "Vietnamese" },
+  ];
+
+  // Add focus area options
+  const focusAreas = [
+    { value: "Kiến thức", label: "Kiến thức" },
+    { value: "Hành vi", label: "Hành vi" },
+    { value: "Tình huống", label: "Tình huống" },
+    { value: "Khác", label: "Khác" },
   ];
 
   // Helper function to map difficulty to suggestion config (count and coaching style)
@@ -92,6 +101,18 @@ const ScenarioDesignModal = ({
     }
   }
 
+  // Before the prompt, add focusInstructions logic
+  let focusInstructions = "";
+  if (focusArea === "Kiến thức") {
+    focusInstructions = `\nIMPORTANT: This is a technical knowledge interview. The scenario and customerQuery must directly test the user's knowledge in their field (for example, for a Tester: ask about types of testing, testing strategies, tools, or best practices). The customerQuery should be a direct technical question or challenge, not a soft skill or behavioral situation. The expectedResponse should be coaching prompts that help the user recall, explain, or structure their technical answer.\n\nExample:\n- scenario: Bạn là một Tester thực tập tại một công ty phần mềm. Trong buổi phỏng vấn, bạn được yêu cầu trình bày về các loại kiểm thử phần mềm và khi nào nên sử dụng từng loại.\n- customerQuery: Bạn có thể liệt kê và giải thích các loại kiểm thử phần mềm phổ biến không? Khi nào thì nên sử dụng kiểm thử chức năng so với kiểm thử phi chức năng?`;
+  } else if (focusArea === "Hành vi") {
+    focusInstructions = `\nIMPORTANT: This is a behavioral interview. The scenario and customerQuery must focus on the user's past behaviors, attitudes, or soft skills in the workplace.\n\nExample:\n- scenario: Bạn từng gặp phải xung đột với đồng nghiệp trong một dự án quan trọng. Hãy kể lại cách bạn xử lý tình huống đó.\n- customerQuery: Khi bạn không đồng ý với ý kiến của đồng nghiệp, bạn thường làm gì?`;
+  } else if (focusArea === "Tình huống") {
+    focusInstructions = `\nIMPORTANT: This is a situational interview. The scenario and customerQuery must present a hypothetical situation that tests the user's problem-solving or decision-making skills.\n\nExample:\n- scenario: Bạn là nhân viên chăm sóc khách hàng và nhận được một cuộc gọi từ khách hàng đang rất tức giận vì sản phẩm bị lỗi.\n- customerQuery: Nếu bạn là tôi, bạn sẽ xử lý tình huống này như thế nào?`;
+  } else if (focusArea === "Khác") {
+    focusInstructions = `\nIMPORTANT: Use the context provided to create a relevant scenario and customerQuery.`;
+  }
+
   // Hàm tạo kịch bản phỏng vấn bằng AI
   const generateScenario = async () => {
     setIsGenerating(true);
@@ -106,7 +127,47 @@ const ScenarioDesignModal = ({
     try {
       // Tạo prompt cho AI để tạo kịch bản
       const { count, style } = getSuggestionConfig(difficulty);
-      const prompt = `You are an API that generates interview scenarios.\n\nRespond ONLY with a valid JSON object, and nothing else.\nDO NOT include any explanations, markdown, or extra text.\n\nThe JSON object must have these keys (all values must be strings):\n- scenario\n- customerQuery\n- expectedResponse\n\n- The 'scenario' should describe the situation and context for the user (the interviewee).\n- The 'customerQuery' must be a direct quote or message from the customer, written in the customer's voice (for example: \"I'm extremely disappointed with this software! It keeps crashing and wasting my time. I want a refund now!\"). Do NOT write the customerQuery as if the user is speaking; it must always be from the customer's perspective.\n\nImagine you are a world-class interview coach. For 'expectedResponse', provide a creative, human, and actionable numbered list of exactly ${count} coaching prompts or reflective questions (not instructions) to help the user think through how to handle this situation. Write as if you are speaking directly to the user, using empathetic, conversational, and thought-provoking language. Your prompts should spark curiosity, self-reflection, and deeper thinking, not just checklist questions. Be creative: offer open-ended, sometimes challenging prompts that help the user see the situation from new perspectives. Avoid generic or robotic phrasing—use natural, engaging language that feels like a real coach guiding a real person.\n\n${style}\n\nDo NOT provide a sample answer or script, and do NOT tell the user exactly what to do. Make the suggestions as if you are a real, empathetic, and helpful professional coach, not a robot. Always follow the JSON format.\n\nFor example:\n\n\"expectedResponse\": \"1. If you were in the shoes of a senior team member, what questions would you ask to fully understand this issue?\\n2. How might you approach your colleagues to ensure everyone feels heard and supported?\\n3. What creative solutions could you propose to turn this challenge into an opportunity for growth?\"\n\nIf language is 'vi', generate the entire response in Vietnamese. If 'en', generate in English.\n\nReturn ONLY the JSON object, e.g.\n{\n  \"scenario\": \"...\",\n  \"customerQuery\": \"...\",\n  \"expectedResponse\": \"1. ...\\n2. ...\\n3. ...\"\n}\n\nParameters for this scenario:\nIndustry: ${selectedIndustryLocal}\nRole: ${roleDescriptionLocal}\nDifficulty: ${difficulty}\nContext: ${description}\nLanguage: ${selectedLanguage}`;
+      const prompt = `You are an API that generates interview scenarios.
+${focusInstructions}
+Respond ONLY with a valid JSON object, and nothing else.
+DO NOT include any explanations, markdown, or extra text.
+
+The JSON object must have these keys (all values must be strings):
+- scenario
+- customerQuery
+- expectedResponse
+
+- The 'scenario' should describe the situation and context for the user (the interviewee).
+- The 'customerQuery' must be a direct quote or message from the customer, written in the customer's voice (for example: "I'm extremely disappointed with this software! It keeps crashing and wasting my time. I want a refund now!"). Do NOT write the customerQuery as if the user is speaking; it must always be from the customer's perspective.
+
+IMPORTANT: The entire scenario, customerQuery, and coaching prompts MUST focus specifically on the aspect: '${focusArea}'. Do NOT generate a general scenario. For example, if focusArea is 'Kiến thức', the scenario must test knowledge; if 'Hành vi', it must test behavior; if 'Tình huống', it must be situational; if 'Khác', use the context provided.
+
+Imagine you are a world-class interview coach. For 'expectedResponse', provide a creative, human, and actionable numbered list of exactly ${count} coaching prompts or reflective questions (not instructions) to help the user think through how to handle this situation. Write as if you are speaking directly to the user, using empathetic, conversational, and thought-provoking language. Your prompts should spark curiosity, self-reflection, and deeper thinking, not just checklist questions. Be creative: offer open-ended, sometimes challenging prompts that help the user see the situation from new perspectives. Avoid generic or robotic phrasing—use natural, engaging language that feels like a real coach guiding a real person.
+
+${style}
+
+Do NOT provide a sample answer or script, and do NOT tell the user exactly what to do. Make the suggestions as if you are a real, empathetic, and helpful professional coach, not a robot. Always follow the JSON format.
+
+For example:
+
+"expectedResponse": "1. If you were in the shoes of a senior team member, what questions would you ask to fully understand this issue?\n2. How might you approach your colleagues to ensure everyone feels heard and supported?\n3. What creative solutions could you propose to turn this challenge into an opportunity for growth?"
+
+If language is 'vi', generate the entire response in Vietnamese. If 'en', generate in English.
+
+Return ONLY the JSON object, e.g.
+{
+  "scenario": "...",
+  "customerQuery": "...",
+  "expectedResponse": "1. ...\n2. ...\n3. ..."
+}
+
+Parameters for this scenario:
+Industry: ${selectedIndustryLocal}
+Role: ${roleDescriptionLocal}
+Difficulty: ${difficulty}
+Focus: ${focusArea}
+Context: ${description}
+Language: ${selectedLanguage}`;
 
       // Gửi prompt đến AI và xử lý kết quả với retry
       const responseText = await generateWithRetry(prompt);
@@ -149,7 +210,8 @@ const ScenarioDesignModal = ({
         title,
         description,
         industry: selectedIndustryLocal,
-        role: roleDescriptionLocal
+        role: roleDescriptionLocal,
+        focusArea
       });
       setProgress(100);
     } catch (error) {
@@ -194,6 +256,7 @@ const ScenarioDesignModal = ({
         language: selectedLanguage,
         industry: selectedIndustryLocal.trim(),
         role: roleDescriptionLocal.trim(),
+        focusArea: focusArea,
         createdBy: "user", // Sẽ được thay thế bằng ID/email người dùng thực tế
         createdAt: new Date().toISOString(),
         mockID: mockID
@@ -301,6 +364,11 @@ const ScenarioDesignModal = ({
                           {/* Placeholder for difficulty icon */}
                           <span role="img" aria-label="difficulty">✔️</span>
                           {generatedScenario.difficulty || 'Độ khó'}
+                        </span>
+                        {/* Focus area badge */}
+                        <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#FFF7ED] text-[#F59E42] text-sm font-medium">
+                          <span role="img" aria-label="focus">🎯</span>
+                          {generatedScenario.focusArea || 'Loại phỏng vấn'}
                         </span>
                       </div>
                       {/* Scenario Description (fix: show scenario.description or scenario.scenario if missing) */}
@@ -430,6 +498,25 @@ const ScenarioDesignModal = ({
                             </SelectContent>
                           </Select>
                         </div>
+                        {/* Focus Area field */}
+                        <div className="col-span-2">
+                          <label className="block text-xs text-[#6B5B4A] mb-1.5 font-medium">Loại phỏng vấn<span className="text-red-500">*</span></label>
+                          <Select
+                            value={focusArea}
+                            onValueChange={setFocusArea}
+                          >
+                            <SelectTrigger className="w-full border border-[#E5E5E5] bg-white text-[#2D221B] focus:border-[#B6F09C] focus:ring-[#B6F09C]/20 rounded-xl h-12">
+                              <SelectValue placeholder="Chọn loại phỏng vấn" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-white text-[#2D221B]">
+                              {focusAreas.map((area) => (
+                                <SelectItem key={area.value} value={area.value}>
+                                  {area.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
                       <div>
                         <label className="block text-xs text-[#6B5B4A] mb-1.5 font-medium">Mô tả về vị trí công việc<span className="text-red-500">*</span></label>
@@ -539,7 +626,7 @@ const ScenarioDesignModal = ({
                     <div className="mt-2">
                       <Button
                         className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${
-                          !difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !user?.primaryEmailAddress?.emailAddress
+                          !difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !focusArea || !user?.primaryEmailAddress?.emailAddress
                             ? 'bg-[#E5D6C6] text-[#B0A08F]'
                             : 'bg-[#B6F09C] text-[#2D221B] hover:bg-[#A0E07C]'
                         } shadow-none`}
@@ -548,6 +635,7 @@ const ScenarioDesignModal = ({
                           !selectedIndustryLocal ||
                           !roleDescriptionLocal ||
                           !title ||
+                          !focusArea ||
                           !user?.primaryEmailAddress?.emailAddress ||
                           isGenerating
                         }
