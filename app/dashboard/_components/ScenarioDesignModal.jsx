@@ -45,6 +45,7 @@ const ScenarioDesignModal = ({
   const [selectedIndustryLocal, setSelectedIndustryLocal] = React.useState(selectedIndustry || "");
   const [roleDescriptionLocal, setRoleDescriptionLocal] = React.useState(roleDescription || "");
   const [expanded, setExpanded] = React.useState(false);
+  const [isProceeding, setIsProceeding] = React.useState(false);
 
   // Danh sách các cấp độ khó dễ
   const difficulties = [
@@ -155,9 +156,20 @@ Example:
 
   // Xử lý khi người dùng muốn tiếp tục với kịch bản đã tạo
   const handleProceed = async () => {
+    console.log("handleProceed called");
+    setIsProceeding(true);
     try {
+      // Generate mockID with fallback
+      let mockID;
+      try {
+        mockID = crypto.randomUUID();
+      } catch (e) {
+        mockID = Math.random().toString(36).substring(2, 15);
+        console.warn("crypto.randomUUID() not available, using fallback mockID:", mockID);
+      }
+      console.log("mockID:", mockID);
       // Chuẩn bị dữ liệu kịch bản phỏng vấn
-      const mockID = crypto.randomUUID(); // Tạo ID duy nhất cho buổi phỏng vấn
+      console.log("Preparing scenarioData...");
       const scenarioData = {
         title: title.trim(),
         description: description.trim(),
@@ -172,8 +184,10 @@ Example:
         createdAt: new Date().toISOString(),
         mockID: mockID
       };
+      console.log("Scenario data to save:", scenarioData);
 
       // Lưu vào database
+      console.log("Sending fetch to /api/mock-interview...");
       const response = await fetch('/api/mock-interview', {
         method: 'POST',
         headers: {
@@ -182,15 +196,21 @@ Example:
         body: JSON.stringify(scenarioData),
       });
 
+      console.log("API response status:", response.status);
       if (!response.ok) {
-        throw new Error('Failed to save scenario');
+        setError("Không thể lưu kịch bản. Vui lòng thử lại.");
+        setIsProceeding(false);
+        return;
       }
 
-      // Chuyển hướng đến trang thực hành với mockId
+      console.log("Redirecting to:", `/live-practice-arena?mockId=${mockID}`);
+      // Chỉ chuyển hướng nếu lưu thành công
       router.push(`/live-practice-arena?mockId=${mockID}`);
     } catch (error) {
       console.error('Error saving scenario:', error);
-      // Xử lý lỗi phù hợp
+      setError("Đã xảy ra lỗi khi lưu kịch bản. Vui lòng thử lại.");
+      setIsProceeding(false);
+      // Không chuyển hướng nếu có lỗi
     }
   };
 
@@ -535,6 +555,19 @@ Example:
               </div>
             </div>
           </motion.div>
+          {/* Loading overlay when proceeding to interview room */}
+          {isProceeding && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+              <div className="flex flex-col items-center gap-4 bg-white/90 rounded-2xl px-8 py-10 shadow-2xl border border-gray-200">
+                <svg className="animate-spin h-10 w-10 text-green-500 mb-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                </svg>
+                <div className="text-lg font-semibold text-[#2D221B]">Đang chuyển sang phòng phỏng vấn...</div>
+                <div className="text-sm text-gray-500">Vui lòng chờ trong giây lát</div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </AnimatePresence>

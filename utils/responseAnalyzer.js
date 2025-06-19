@@ -1,4 +1,4 @@
-import {chatSession} from "./GeminiAIModal";
+import { generateWithRetry } from "./GeminiAIModal";
 
 export const analyzeResponse = async (response, scenario) => {
     try {
@@ -15,8 +15,8 @@ export const analyzeResponse = async (response, scenario) => {
     Tình huống: ${scenario}
     Câu trả lời: ${response}`;
 
-        const result = await chatSession.sendMessage(prompt);
-        const analysis = JSON.parse(result.response.text());
+        const resultText = await generateWithRetry(prompt);
+        const analysis = JSON.parse(resultText);
 
         return {
             ...analysis,

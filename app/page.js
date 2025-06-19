@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
-import { chatSession } from "@/utils/GeminiAIModal";
+import { generateWithRetry } from "@/utils/GeminiAIModal";
 import { LoaderCircle } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -72,7 +72,7 @@ export default function Home() {
       Question: ${currentQuestion}
       Answer: ${answer}`;
 
-            const result = await chatSession.sendMessage(feedbackPrompt);
+            const result = await generateWithRetry(feedbackPrompt);
             const responseText = result.response.text();
 
             try {

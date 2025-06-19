@@ -17,7 +17,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Brain, ChevronUp, ChevronDown, PlayCircle, PauseCircle, Mic, MicOff, XCircle } from "lucide-react";
-import { chatSession } from "@/utils/GeminiAIModal";
+import { generateWithRetry } from "@/utils/GeminiAIModal";
 import { analyzeResponse } from "@/utils/responseAnalyzer";
 import ConversationBox from "./ConversationBox";
 import AnalysisOverlay from "./AnalysisOverlay";
@@ -261,21 +261,37 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
         setSelectedLanguage(languageCode);
         if (hasInitialMessage) return;
 
+        // Defensive check for scenarioData and required fields
+        if (!scenarioData || !scenarioData.role) {
+            console.error('Invalid scenarioData:', scenarioData);
+            setMessages([{
+                id: Date.now(),
+                type: 'ai',
+                content: 'Xin lỗi, dữ liệu kịch bản phỏng vấn không hợp lệ. Vui lòng thử lại hoặc chọn kịch bản khác.',
+                timestamp: new Date()
+            }]);
+            setHasInitialMessage(true);
+            return;
+        }
+
         try {
-            const rolePrompt = `You are conducting an interview for a ${scenarioData.role || 'position'}. 
-            Start the interview with a natural greeting and opening question in ${availableLanguages.find(lang => lang.code === languageCode)?.name}.
+            const rolePrompt = `You are conducting an interview for a ${scenarioData.role || 'position'}.
+Start the interview with a natural greeting and opening question in ${availableLanguages.find(lang => lang.code === languageCode)?.name}.
 
-            CRITICAL: 
-            - You must respond with ONLY the interview greeting and question
-            - DO NOT include any scenario data, context, or metadata
-            - DO NOT include any JSON formatting
-            - DO NOT mention that you are an AI or interviewer
-            - DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse"
-            - Just write your response directly as if in a natural conversation
-            - Keep your response concise and focused`;
+CRITICAL:
+- Respond ONLY with the interview greeting and question as a single, natural sentence or two.
+- DO NOT include any JSON, curly braces, brackets, or code block formatting.
+- DO NOT include any scenario data, context, or metadata.
+- DO NOT mention that you are an AI or interviewer.
+- DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse".
+- Just write your response directly as if in a natural conversation.
+- Do not use any curly braces or brackets in your response.
+- Keep your response concise and focused.`;
 
-            const result = await chatSession.sendMessage(rolePrompt);
-            let initialMessage = result.response.text();
+            console.log('Prompt to AI:', rolePrompt);
+            const resultText = await generateWithRetry(rolePrompt);
+            let initialMessage = resultText;
+            console.log('AI initialMessage:', initialMessage);
 
             initialMessage = cleanResponse(initialMessage);
 
@@ -294,15 +310,60 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 }
             }
 
-            setMessages([{
-                id: Date.now(),
-                type: 'ai',
-                content: initialMessage,
-                timestamp: new Date()
-            }]);
+            // If the response is just '{' or only curly braces, treat as invalid and try fallback
+            if (initialMessage.trim() === '{' || initialMessage.trim() === '}' || initialMessage.trim() === '' || initialMessage.trim() === '{}') {
+                // Try fallback: call AI again with a simpler English prompt
+                try {
+                    const fallbackPrompt = `You are conducting an interview for a ${scenarioData.role || 'position'}.
+Start the interview with a natural greeting and opening question in English.
+Respond ONLY with the greeting and question, no JSON, no curly braces, no code formatting.`;
+                    console.log('Fallback prompt to AI:', fallbackPrompt);
+                    const fallbackResultText = await generateWithRetry(fallbackPrompt);
+                    let fallbackMessage = fallbackResultText;
+                    console.log('AI fallbackMessage:', fallbackMessage);
+                    fallbackMessage = cleanResponse(fallbackMessage);
+                    if (fallbackMessage.trim() === '{' || fallbackMessage.trim() === '}' || fallbackMessage.trim() === '' || fallbackMessage.trim() === '{}') {
+                        setMessages([{
+                            id: Date.now(),
+                            type: 'ai',
+                            content: 'Hello! Let\'s start the interview. Can you introduce yourself?',
+                            timestamp: new Date()
+                        }]);
+                    } else {
+                        setMessages([{
+                            id: Date.now(),
+                            type: 'ai',
+                            content: fallbackMessage,
+                            timestamp: new Date()
+                        }]);
+                    }
+                } catch (fallbackError) {
+                    console.error('AI fallback error:', fallbackError);
+                    setMessages([{
+                        id: Date.now(),
+                        type: 'ai',
+                        content: 'Hello! Let\'s start the interview. Can you introduce yourself?',
+                        timestamp: new Date()
+                    }]);
+                }
+            } else {
+                setMessages([{
+                    id: Date.now(),
+                    type: 'ai',
+                    content: initialMessage,
+                    timestamp: new Date()
+                }]);
+            }
             setHasInitialMessage(true);
         } catch (error) {
             console.error('Error generating initial response:', error);
+            setMessages([{
+                id: Date.now(),
+                type: 'ai',
+                content: 'Xin lỗi, đã xảy ra lỗi khi tạo câu hỏi phỏng vấn. Vui lòng thử lại.',
+                timestamp: new Date()
+            }]);
+            setHasInitialMessage(true);
         }
     }, [hasInitialMessage, scenarioData]);
 
@@ -320,7 +381,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
         setMessages(prev => [...prev, userMessage]);
 
         try {
-            const result = await chatSession.sendMessage(
+            const result = await generateWithRetry(
                 `You are conducting an interview for a ${scenarioData.role || 'position'}. 
                 The candidate just said: "${transcript}"
 
@@ -341,7 +402,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 - Just write your response directly as if in a natural conversation
                 - Keep your response concise and focused`
             );
-            let aiResponse = result.response.text();
+            let aiResponse = result;
 
             aiResponse = cleanResponse(aiResponse);
 
@@ -427,7 +488,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                 <div className="flex flex-row flex-1 min-h-0 w-full justify-center items-stretch transition-all duration-300">
                     {/* Main Conversation Area */}
                     <motion.div
-                        className={`flex-1 flex flex-col w-full min-w-[320px] max-w-[1000px] transition-all duration-300 ${showScenarioPanel ? 'md:mr-4' : ''} h-[300px] sm:h-[500px] lg:h-[800px] lg:max-h-[800px] lg:min-h-[800px] ${!showScenarioPanel ? 'mx-auto' : ''}`}
+                        className={`flex-1 flex flex-col w-full min-w-[220px] max-w-[1000px] transition-all duration-300 ${showScenarioPanel ? 'md:mr-4' : ''} h-[60vh] min-h-[300px] sm:h-[500px] sm:min-h-[400px] lg:h-[800px] lg:max-h-[800px] lg:min-h-[800px] ${!showScenarioPanel ? 'mx-auto' : ''}`}
                         style={{ minWidth: 0 }}
                     >
                         <ConversationBox
@@ -544,7 +605,15 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                                 className="fixed md:hidden top-0 right-0 w-full h-full z-40 bg-black/60 flex justify-end"
                                 style={{ backdropFilter: 'blur(4px)' }}
                             >
-                                <div className="w-[90vw] max-w-xs h-full bg-white rounded-l-2xl shadow-2xl flex flex-col min-h-0">
+                                <div className="w-[90vw] max-w-xs h-full bg-white rounded-l-2xl shadow-2xl flex flex-col min-h-0 relative">
+                                    {/* Close button */}
+                                    <button
+                                        className="absolute top-3 right-3 z-50 p-2 rounded-full hover:bg-gray-100 focus:outline-none"
+                                        aria-label="Đóng"
+                                        onClick={() => setShowScenarioPanel(false)}
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                                    </button>
                                     <div className="p-6 flex flex-col flex-1 min-h-0 h-full overflow-hidden">
                                         {/* Scenario Title */}
                                         <h2 className="text-2xl font-bold text-[#374151] mb-2">{scenarioData.title || 'Tiêu đề kịch bản'}</h2>
@@ -618,79 +687,87 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
                         )}
                     </AnimatePresence>
                 </div>
-                {/* Control Bar below ConversationBox and SidePanel */}
-                    <div className="flex flex-row justify-center items-center gap-9 mt-4 w-full mx-auto">
-                        {/* Left: Kết thúc */}
-                        <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                                <Button
-                                    disabled={isTimeUp}
-                                    className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold text-lg rounded-full px-9 py-4 shadow-md transition-all duration-150 min-w-[143px] min-h-[59px]"
-                                >
-                                    <XCircle className="w-7 h-7 mr-3" />
-                                    Kết thúc
-                                </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent>
-                                <AlertDialogHeader>
-                                    <AlertDialogTitle>Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                        Hành động này sẽ kết thúc cuộc phỏng vấn và lưu lại kết quả phỏng vấn. Bạn không thể quay lại sau khi kết thúc.
-                                    </AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
-                                    <AlertDialogAction 
-                                        onClick={handleManualStopInterview}
-                                        className="bg-[#F37C5A] hover:bg-[#e45a5a] text-white"
-                                    >
-                                        Kết thúc phỏng vấn
-                                    </AlertDialogAction>
-                                </AlertDialogFooter>
-                            </AlertDialogContent>
-                        </AlertDialog>
-                        {/* Center: Ghi âm (biggest, green, round, tooltip) */}
-                        <div className="relative flex flex-col items-center justify-center">
-                            {/* Tooltip above (only when not recording) */}
-                            {!isListening && (
-                                <div className="mt-3 flex items-center justify-center">
-                                    <div className="bg-[#232B22] text-white text-base px-6 py-2 rounded-2xl shadow-lg relative z-10 flex items-center justify-center">
-                                        Bấm để xác nhận câu trả lời
-                                        <span className="absolute left-1/2 top-8 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '16px', height: '16px'}}></span>
-                                    </div>
-                                </div>
-                            )}
-                            <Button
-                                onClick={toggleListening}
-                                disabled={isTimeUp || isPaused || !selectedLanguage}
-                            className={`flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[216px] min-h-[72px] text-3xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
-                                style={{ fontSize: '2.25rem' }}
-                            >
-                                {isListening ? (
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="w-20 h-20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="3" fill="currentColor" /></svg>
-                                ) : (
-                                    <Mic className="w-20 h-20" />
-                                )}
-                            </Button>
-                            {/* Tooltip below (only when recording) */}
-                            {isListening && (
-                                <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 z-20">
-                                    <div className="bg-[#232B22] text-white text-sm px-4 py-1.5 rounded-2xl shadow-lg flex items-center justify-center">
-                                        Bấm để xác nhận câu trả lời
-                                        <span className="absolute left-1/2 -top-2 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '12px', height: '12px'}}></span>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                        {/* Right: Tạm dừng/Bắt đầu */}
+                {/* Overlay Control Bar: fixed at bottom center, overlays ConversationBox */}
+                <div className="fixed left-1/2 bottom-8 z-50 transform -translate-x-1/2 flex flex-row flex-wrap justify-center items-center gap-2 rounded-2xl shadow-lg px-4 py-2"
+                     style={{ pointerEvents: 'auto' }}>
+                  {/* End Button */}
+                  <div className="flex-shrink-0">
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
                         <Button
-                            onClick={togglePause}
-                            disabled={!selectedLanguage}
-                            className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold text-lg rounded-full px-9 py-4 shadow-md border border-[#E0D6C3] min-w-[143px] min-h-[59px]"
+                          disabled={isTimeUp}
+                          title="Kết thúc phỏng vấn"
+                          className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md min-w-[32px] min-h-[32px] text-xs sm:text-sm md:text-base"
                         >
-                            {isPaused ? <><PlayCircle className="w-7 h-7 mr-3" />Bắt đầu</> : <><PauseCircle className="w-7 h-7 mr-3" />Tạm dừng</>}
+                          <XCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" />
+                          <span className="hidden sm:inline">Kết thúc</span>
                         </Button>
-                    </div>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Hành động này sẽ kết thúc cuộc phỏng vấn và lưu lại kết quả phỏng vấn. Bạn không thể quay lại sau khi kết thúc.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Hủy</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={handleManualStopInterview}
+                            className="bg-[#F37C5A] hover:bg-[#e45a5a] text-white"
+                          >
+                            Kết thúc phỏng vấn
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                  {/* Record Button */}
+                  <div className="relative flex flex-col items-center justify-center flex-shrink-0">
+                    {/* Tooltip above (only when not recording) */}
+                    {!isListening && (
+                      <div className="mb-1 flex items-center justify-center">
+                        <div className="bg-[#232B22] text-white text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
+                          Bấm để xác nhận câu trả lời
+                          <span className="absolute left-1/2 top-5 sm:top-6 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px'}}></span>
+                        </div>
+                      </div>
+                    )}
+                    <Button
+                      onClick={toggleListening}
+                      disabled={isTimeUp || isPaused || !selectedLanguage}
+                      title={isListening ? 'Xác nhận câu trả lời' : 'Bắt đầu ghi âm'}
+                      className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[36px] min-h-[36px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
+                      style={{ fontSize: undefined }}
+                    >
+                      {isListening ? (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="3" fill="currentColor" /></svg>
+                      ) : (
+                        <Mic className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" />
+                      )}
+                    </Button>
+                    {/* Tooltip below (only when recording) */}
+                    {isListening && (
+                      <div className="absolute -bottom-7 sm:-bottom-10 left-1/2 -translate-x-1/2 z-20">
+                        <div className="bg-[#232B22] text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-2xl shadow-lg flex items-center justify-center max-w-[80vw] break-words text-center">
+                          Bấm để xác nhận câu trả lời
+                          <span className="absolute left-1/2 -top-2 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px'}}></span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  {/* Pause/Start Button */}
+                  <div className="flex-shrink-0">
+                    <Button
+                      onClick={togglePause}
+                      disabled={!selectedLanguage}
+                      title={isPaused ? 'Bắt đầu' : 'Tạm dừng'}
+                      className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md border border-[#E0D6C3] min-w-[32px] min-h-[32px] sm:min-w-[60px] sm:min-h-[40px] md:min-w-[100px] md:min-h-[48px] text-xs sm:text-sm md:text-base"
+                    >
+                      {isPaused ? <><PlayCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Bắt đầu</span></> : <><PauseCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Tạm dừng</span></>}
+                    </Button>
+                  </div>
+                </div>
                 {/* Overlay hiển thị khi đang phân tích kết quả */}
                 {isAnalyzing && <AnalysisOverlay />}
             </div>
