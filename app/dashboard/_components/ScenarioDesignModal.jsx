@@ -61,6 +61,37 @@ const ScenarioDesignModal = ({
     { value: "vi", label: "Vietnamese" },
   ];
 
+  // Helper function to map difficulty to suggestion config (count and coaching style)
+  function getSuggestionConfig(difficulty) {
+    switch (difficulty) {
+      case "Intern":
+        return {
+          count: 5,
+          style: "Frame each suggestion as a reflective question or prompt to help the user think through the situation step by step. Avoid giving direct instructions; instead, encourage the user to consider what actions they might take and why."
+        };
+      case "Fresher":
+        return {
+          count: 4,
+          style: "Provide clear coaching prompts or questions that encourage the user to consider their options and possible consequences, with some gentle guidance. Avoid direct instructions."
+        };
+      case "Junior":
+        return {
+          count: 3,
+          style: "Offer concise, open-ended prompts that encourage independent analysis and decision-making. Focus on helping the user reflect on their approach."
+        };
+      case "Senior":
+        return {
+          count: 2,
+          style: "Give high-level, strategic coaching prompts or challenging questions that stimulate critical thinking and autonomy. Do not provide direct instructions or step-by-step guidance."
+        };
+      default:
+        return {
+          count: 4,
+          style: "Provide coaching prompts or reflective questions that help the user think through the situation."
+        };
+    }
+  }
+
   // Hàm tạo kịch bản phỏng vấn bằng AI
   const generateScenario = async () => {
     setIsGenerating(true);
@@ -74,7 +105,8 @@ const ScenarioDesignModal = ({
 
     try {
       // Tạo prompt cho AI để tạo kịch bản
-      const prompt = `You are an API that generates interview scenarios.\n\nRespond ONLY with a valid JSON object, and nothing else.\nDO NOT include any explanations, markdown, or extra text.\n\nThe JSON object must have these keys (all values must be strings):\n- scenario\n- customerQuery\n- expectedResponse\n\nIf language is 'vi', generate the entire response in Vietnamese. If 'en', generate in English.\n\nReturn ONLY the JSON object, e.g.\n{\n  "scenario": "...",\n  "customerQuery": "...",\n  "expectedResponse": "..."\n}\n\nParameters for this scenario:\nIndustry: ${selectedIndustryLocal}\nRole: ${roleDescriptionLocal}\nDifficulty: ${difficulty}\nContext: ${description}\nLanguage: ${selectedLanguage}`;
+      const { count, style } = getSuggestionConfig(difficulty);
+      const prompt = `You are an API that generates interview scenarios.\n\nRespond ONLY with a valid JSON object, and nothing else.\nDO NOT include any explanations, markdown, or extra text.\n\nThe JSON object must have these keys (all values must be strings):\n- scenario\n- customerQuery\n- expectedResponse\n\nFor 'expectedResponse', provide a creative, human-like, and actionable numbered list of exactly ${count} coaching prompts or reflective questions (not instructions) to help the user think through how to handle this situation. ${style} Do NOT provide a sample answer or script, and do NOT tell the user exactly what to do. Make the suggestions as if you are a real, empathetic, and helpful professional coach, not a robot. Be as creative and natural as possible, but always follow the JSON format.\nFor example:\n\n\"expectedResponse\": \"1. What information do you need to fully understand the customer's issue?\\n2. How might you approach the situation to ensure the customer feels heard and supported?\\n3. What company policies or resources could help you decide on the best solution?\"\n\nIf language is 'vi', generate the entire response in Vietnamese. If 'en', generate in English.\n\nReturn ONLY the JSON object, e.g.\n{\n  \"scenario\": \"...\",\n  \"customerQuery\": \"...\",\n  \"expectedResponse\": \"1. ...\\n2. ...\\n3. ...\"\n}\n\nParameters for this scenario:\nIndustry: ${selectedIndustryLocal}\nRole: ${roleDescriptionLocal}\nDifficulty: ${difficulty}\nContext: ${description}\nLanguage: ${selectedLanguage}`;
 
       // Gửi prompt đến AI và xử lý kết quả với retry
       const responseText = await generateWithRetry(prompt);
