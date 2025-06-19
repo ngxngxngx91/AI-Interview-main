@@ -12,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
+import { useUser } from '@clerk/nextjs';
 
 // Danh sách các ngành nghề được hỗ trợ
 const industries = [
@@ -31,6 +32,7 @@ const ScenarioDesignModal = ({
   roleDescription,
 }) => {
   const router = useRouter();
+  const { user, isLoaded } = useUser();
   // State quản lý thông tin kịch bản phỏng vấn
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -334,6 +336,12 @@ Generate a realistic interview scenario in this exact JSON format:
                 ) : (
                   <div className="flex-1 bg-white px-7 py-6 flex flex-col gap-7">
                     {/* Section: Thông tin chung */}
+                    {/* Show message if not authenticated */}
+                    {!user?.primaryEmailAddress?.emailAddress && isLoaded && (
+                      <div className="text-red-500 text-center mb-4">
+                        Vui lòng đăng nhập để tạo kịch bản phỏng vấn.
+                      </div>
+                    )}
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg"><Target className="w-5 h-5 text-[#3A2921]" /></span>
@@ -482,8 +490,19 @@ Generate a realistic interview scenario in this exact JSON format:
                     {/* Action button at the bottom */}
                     <div className="mt-2">
                       <Button
-                        className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${!difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title ? 'bg-[#E5D6C6] text-[#B0A08F]' : 'bg-[#B6F09C] text-[#2D221B] hover:bg-[#A0E07C]'} shadow-none`}
-                        disabled={!difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || isGenerating}
+                        className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${
+                          !difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !user?.primaryEmailAddress?.emailAddress
+                            ? 'bg-[#E5D6C6] text-[#B0A08F]'
+                            : 'bg-[#B6F09C] text-[#2D221B] hover:bg-[#A0E07C]'
+                        } shadow-none`}
+                        disabled={
+                          !difficulty ||
+                          !selectedIndustryLocal ||
+                          !roleDescriptionLocal ||
+                          !title ||
+                          !user?.primaryEmailAddress?.emailAddress ||
+                          isGenerating
+                        }
                         onClick={() => {
                           setIsGenerating(true);
                           setTimeout(() => {
