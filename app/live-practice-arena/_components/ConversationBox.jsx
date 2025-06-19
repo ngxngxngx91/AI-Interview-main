@@ -135,24 +135,28 @@ const ConversationBox = ({
     );
 
     // Hiển thị danh sách tin nhắn
-    const renderMessages = () => (
-        <div className="space-y-4 p-4">
-            <AnimatePresence mode="popLayout">
-                {messages.map((message, index) => (
-                    <motion.div
-                        key={message.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ delay: index * 0.05, type: "spring", stiffness: 100, damping: 15 }}
-                    >
-                        <Message message={message} />
-                    </motion.div>
-                ))}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
-        </div>
-    );
+    const renderMessages = () => {
+        // Find the index of the first user message
+        const firstUserMsgIndex = messages.findIndex(msg => msg.type === 'user');
+        return (
+            <div className="space-y-4 p-4">
+                <AnimatePresence mode="popLayout">
+                    {messages.map((message, index) => (
+                        <motion.div
+                            key={message.id}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -20 }}
+                            transition={{ delay: index * 0.05, type: "spring", stiffness: 100, damping: 15 }}
+                        >
+                            <Message message={message} isFirstUserMessage={message.type === 'user' && index === firstUserMsgIndex} />
+                        </motion.div>
+                    ))}
+                </AnimatePresence>
+                <div ref={messagesEndRef} />
+            </div>
+        );
+    };
 
     // Set default language to Vietnamese on mount
     useEffect(() => {

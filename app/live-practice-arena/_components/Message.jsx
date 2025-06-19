@@ -21,7 +21,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 
 // Component hiển thị tin nhắn trong cuộc phỏng vấn
-const Message = ({ message }) => {
+const Message = ({ message, isFirstUserMessage }) => {
     const isUser = message.type === 'user';
     const hasAnalysis = message.analysis && message.type === 'user';
     const [showAnalysis, setShowAnalysis] = useState(false);
@@ -133,24 +133,34 @@ const Message = ({ message }) => {
                     </p>
                     {/* Nút mở/đóng phân tích cho tin nhắn của người dùng */}
                     {isUser && (
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 relative">
                             {message.analysis === null ? (
                                 <Loader2 className="w-4 h-4 animate-spin text-white/80" />
                             ) : message.analysis.error ? (
                                 <AlertCircle className="w-4 h-4 text-red-200" />
                             ) : (
-                                <motion.button
-                                    whileHover={{ scale: 1.1 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    onClick={() => setShowAnalysis(!showAnalysis)}
-                                    className={`p-1.5 rounded-full transition-colors ${showAnalysis ? 'bg-[#A97B5D]' : 'hover:bg-[#A97B5D]/80'}`}
-                                >
-                                    {showAnalysis ? (
-                                        <ChevronUp className="w-4 h-4 text-white" />
-                                    ) : (
-                                        <ChevronDown className="w-4 h-4 text-white" />
+                                <>
+                                    {isFirstUserMessage && !showAnalysis && (
+                                        <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center">
+                                            <div className="bg-[#232B22] text-white text-xs px-3 py-1 rounded-2xl shadow-lg text-center whitespace-nowrap">
+                                                Nhấn để xem phân tích câu trả lời
+                                            </div>
+                                            <div className="w-3 h-3 bg-[#232B22] rotate-45 -mt-1" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}}></div>
+                                        </div>
                                     )}
-                                </motion.button>
+                                    <motion.button
+                                        whileHover={{ scale: 1.1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        onClick={() => setShowAnalysis(!showAnalysis)}
+                                        className={`p-1.5 rounded-full transition-colors ${showAnalysis ? 'bg-[#A97B5D]' : 'hover:bg-[#A97B5D]/80'}`}
+                                    >
+                                        {showAnalysis ? (
+                                            <ChevronUp className="w-4 h-4 text-white" />
+                                        ) : (
+                                            <ChevronDown className="w-4 h-4 text-white" />
+                                        )}
+                                    </motion.button>
+                                </>
                             )}
                         </div>
                     )}
