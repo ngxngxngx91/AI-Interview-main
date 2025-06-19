@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { X, Wand2, Loader2, Sparkles, Target, Clock, AlertCircle, ArrowRight, RefreshCw, Globe2 } from "lucide-react";
-import { chatSession } from "@/utils/GeminiAIModal";
+import { generateWithRetry } from "@/utils/GeminiAIModal";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -81,44 +81,36 @@ Context: ${description}
 Language: ${selectedLanguage}
 
 Requirements:
-- Create a realistic interview scenario specific to the ${selectedIndustryLocal} industry
-- Include a relevant question or situation for the ${roleDescriptionLocal} role
-- Make it appropriate for ${difficulty} level
-- For easy level: Focus on basic skills and straightforward situations
-- For medium level: Include some complexity and decision-making
-- For hard level: Create challenging, high-pressure scenarios
-- For 'expectedResponse', provide 3-4 concise, numbered key points for the candidate to address. Each numbered point must be on a single line.
-- IMPORTANT: If language is set to 'vi', generate the entire response in Vietnamese. If language is set to 'en', generate in English.
+- Respond ONLY with a valid JSON object with the following keys: scenario, customerQuery, expectedResponse.
+- Do not include any extra text, explanation, or markdown/code block formatting.
+- Each value must be a string.
+- If language is set to 'vi', generate the entire response in Vietnamese. If language is set to 'en', generate in English.
 
-Example (DO NOT COPY, just use as inspiration):
+Example:
 {
   "scenario": "You are interviewing for a Software Engineer position in the IT industry. The interviewer wants to understand your problem-solving approach and technical skills.",
   "customerQuery": "Can you walk me through how you would approach debugging a critical production issue that's affecting multiple users?",
   "expectedResponse": "1. Outline your systematic debugging process. 2. Describe your communication strategy. 3. Explain preventive measures. 4. Mention tools and resources used."
-}
-
-Generate a realistic interview scenario in this exact JSON format:
-{
-  "scenario": "Initial situation description",
-  "customerQuery": "What the interviewer says",
-  "expectedResponse": "Key points to address"
 }`;
 
-      // Gửi prompt đến AI và xử lý kết quả
-      const result = await chatSession.sendMessage(prompt);
-      const responseText = await result.response.text();
+      // Gửi prompt đến AI và xử lý kết quả với retry
+      const responseText = await generateWithRetry(prompt);
       // Strict validation and parsing
       let jsonResponse;
+      let cleanedResponse;
       try {
         jsonResponse = JSON.parse(responseText);
-      } catch {
-        const cleanedResponse = responseText
+      } catch (err) {
+        cleanedResponse = responseText
           .replace(/```json/g, '')
           .replace(/```/g, '')
           .trim();
         try {
           jsonResponse = JSON.parse(cleanedResponse);
-        } catch {
+        } catch (parseErr) {
+          console.error('AI response JSON parse error:', parseErr);
+          console.log('Raw AI response:', responseText); // Debug log
+          console.log('Cleaned AI response:', cleanedResponse); // Debug log
           throw new Error("AI response is not valid JSON.");
         }
       }
@@ -148,6 +140,13 @@ Generate a realistic interview scenario in this exact JSON format:
     } catch (error) {
       setError(error.message || "Failed to generate scenario. Please try again.");
       setGeneratedScenario(null);
+      if (typeof responseText !== 'undefined') {
+        console.error('Scenario generation error:', error);
+        console.log('Raw AI response:', responseText); // Debug log
+        if (typeof cleanedResponse !== 'undefined') {
+          console.log('Cleaned AI response:', cleanedResponse); // Debug log
+        }
+      }
     } finally {
       clearInterval(progressInterval);
       setIsGenerating(false);

@@ -12,10 +12,10 @@ const model = genAI.getGenerativeModel({
 });
 
 const generationConfig = {
-    temperature: 2,
-    topP: 0.95,
-    topK: 40,
-    maxOutputTokens: 8192,
+    temperature: 0.5,
+    topP: 0.9,
+    topK: 20,
+    maxOutputTokens: 1024,
     responseMimeType: "application/json",
 };
 
@@ -23,4 +23,19 @@ const generationConfig = {
 export const chatSession = model.startChat({
     generationConfig,
 });
+
+// Retry wrapper for scenario generation
+export async function generateWithRetry(prompt, maxRetries = 3) {
+    let lastError;
+    for (let i = 0; i < maxRetries; i++) {
+        try {
+            const result = await chatSession.sendMessage(prompt);
+            const responseText = await result.response.text();
+            return responseText;
+        } catch (err) {
+            lastError = err;
+        }
+    }
+    throw lastError;
+}
   
