@@ -48,6 +48,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
     const [hasInitialMessage, setHasInitialMessage] = useState(false);
     const [isExpanded, setIsExpanded] = useState(false);
     const [showScenarioPanel, setShowScenarioPanel] = useState(false);
+    const [previousGreetings, setPreviousGreetings] = useState([]);
 
     // Refs để lưu trữ transcript tạm thời và cuối cùng
     const finalTranscriptRef = useRef('');
@@ -274,98 +275,74 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
             return;
         }
 
-        try {
-            const rolePrompt = `You are conducting an interview for a ${scenarioData.role || 'position'}.
-Start the interview with a natural greeting and opening question in ${availableLanguages.find(lang => lang.code === languageCode)?.name}.
+        const scenarioText = scenarioData.description || scenarioData.scenario || '';
+        const customerQuery = scenarioData.customerQuery || '';
+        let greeting = '';
+        let tries = 0;
+        let newGreetingFound = false;
+        let lastPrompt = '';
+        let lastResultText = '';
+        while (!newGreetingFound && tries < 3) {
+            const rolePrompt = `You are the interviewer. The user is the candidate interviewing for the role of ${scenarioData.role}.
 
-CRITICAL:
-- Respond ONLY with the interview greeting and question as a single, natural sentence or two.
+SCENARIO CONTEXT:
+${scenarioText ? '- ' + scenarioText : ''}
+${customerQuery ? '- Situation: ' + customerQuery : ''}
+
+Your task:
+- Begin the interview with a warm, welcoming, and natural greeting and opening question in ${availableLanguages.find(lang => lang.code === languageCode)?.name}.
+- Your greeting and question MUST be directly relevant to the scenario context and situation above, not just the role.
+- Use the scenario context as background for your questions, but do NOT role-play as the customer or scenario character. Always speak as the interviewer.
+- Do NOT use or mention a candidate name. You do NOT know the candidate's name.
+- Make your greeting and opening question feel unique, human, and not overly formal or repetitive.
+- Avoid using the same template as before.
+- Do not use the phrase 'Rất vui được gặp bạn hôm nay' or any direct translation of 'Nice to meet you today.'
+- Do not repeat any of these previous greetings: ${previousGreetings.map(g => `"${g}"`).join(', ')}
+- Use a conversational, friendly tone as if you are a real interviewer meeting the candidate for the first time.
+- You may reference the candidate's role or the scenario context if appropriate, but do not invent personal details.
+- Respond ONLY with the interview greeting and opening question as a single, natural sentence or two.
 - DO NOT include any JSON, curly braces, brackets, or code block formatting.
-- DO NOT include any scenario data, context, or metadata.
+- DO NOT include any scenario data, context, or metadata in your output.
 - DO NOT mention that you are an AI or interviewer.
 - DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse".
 - Just write your response directly as if in a natural conversation.
 - Do not use any curly braces or brackets in your response.
 - Keep your response concise and focused.`;
-
-            console.log('Prompt to AI:', rolePrompt);
-            const resultText = await generateWithRetry(rolePrompt);
-            let initialMessage = resultText;
-            console.log('AI initialMessage:', initialMessage);
-
-            initialMessage = cleanResponse(initialMessage);
-
-            if (initialMessage.includes('scenario') ||
-                initialMessage.includes('customerQuery') ||
-                initialMessage.includes('expectedResponse')) {
-                const lines = initialMessage.split('\n');
-                const validResponse = lines.find(line =>
-                    !line.includes('scenario') &&
-                    !line.includes('customerQuery') &&
-                    !line.includes('expectedResponse') &&
-                    line.trim().length > 0
-                );
-                if (validResponse) {
-                    initialMessage = validResponse.trim();
+            lastPrompt = rolePrompt;
+            try {
+                const resultText = await generateWithRetry(rolePrompt);
+                lastResultText = resultText;
+                let initialMessage = cleanResponse(resultText);
+                // Remove common formal phrase manually as a last resort
+                if (initialMessage.includes('Rất vui được gặp bạn hôm nay')) {
+                    initialMessage = initialMessage.replace(/Rất vui được gặp bạn hôm nay[.,!\s]*/gi, '').trim();
                 }
-            }
-
-            // If the response is just '{' or only curly braces, treat as invalid and try fallback
-            if (initialMessage.trim() === '{' || initialMessage.trim() === '}' || initialMessage.trim() === '' || initialMessage.trim() === '{}') {
-                // Try fallback: call AI again with a simpler English prompt
-                try {
-                    const fallbackPrompt = `You are conducting an interview for a ${scenarioData.role || 'position'}.
-Start the interview with a natural greeting and opening question in English.
-Respond ONLY with the greeting and question, no JSON, no curly braces, no code formatting.`;
-                    console.log('Fallback prompt to AI:', fallbackPrompt);
-                    const fallbackResultText = await generateWithRetry(fallbackPrompt);
-                    let fallbackMessage = fallbackResultText;
-                    console.log('AI fallbackMessage:', fallbackMessage);
-                    fallbackMessage = cleanResponse(fallbackMessage);
-                    if (fallbackMessage.trim() === '{' || fallbackMessage.trim() === '}' || fallbackMessage.trim() === '' || fallbackMessage.trim() === '{}') {
-                        setMessages([{
-                            id: Date.now(),
-                            type: 'ai',
-                            content: 'Hello! Let\'s start the interview. Can you introduce yourself?',
-                            timestamp: new Date()
-                        }]);
-                    } else {
-                        setMessages([{
-                            id: Date.now(),
-                            type: 'ai',
-                            content: fallbackMessage,
-                            timestamp: new Date()
-                        }]);
-                    }
-                } catch (fallbackError) {
-                    console.error('AI fallback error:', fallbackError);
-                    setMessages([{
-                        id: Date.now(),
-                        type: 'ai',
-                        content: 'Hello! Let\'s start the interview. Can you introduce yourself?',
-                        timestamp: new Date()
-                    }]);
+                // Check for forbidden phrase or previous greetings
+                const isRepeat = previousGreetings.some(g => initialMessage.trim().toLowerCase() === g.trim().toLowerCase());
+                const isForbidden = initialMessage.includes('Rất vui được gặp bạn hôm nay');
+                if (!isRepeat && !isForbidden && initialMessage.trim() !== '') {
+                    greeting = initialMessage;
+                    newGreetingFound = true;
+                } else {
+                    tries++;
                 }
-            } else {
-                setMessages([{
-                    id: Date.now(),
-                    type: 'ai',
-                    content: initialMessage,
-                    timestamp: new Date()
-                }]);
+            } catch (error) {
+                console.error('Error generating greeting (try', tries, '):', error, '\nPrompt:', lastPrompt, '\nResult:', lastResultText);
+                tries++;
             }
-            setHasInitialMessage(true);
-        } catch (error) {
-            console.error('Error generating initial response:', error);
-            setMessages([{
-                id: Date.now(),
-                type: 'ai',
-                content: 'Xin lỗi, đã xảy ra lỗi khi tạo câu hỏi phỏng vấn. Vui lòng thử lại.',
-                timestamp: new Date()
-            }]);
-            setHasInitialMessage(true);
         }
-    }, [hasInitialMessage, scenarioData]);
+        if (!newGreetingFound) {
+            greeting = 'Chào bạn! Chúng ta hãy bắt đầu buổi phỏng vấn. Bạn có thể chia sẻ về lý do bạn quan tâm đến vị trí này không?';
+        }
+        setMessages([{
+            id: Date.now(),
+            type: 'ai',
+            content: greeting,
+            timestamp: new Date()
+        }]);
+        setPreviousGreetings(prev => [...prev, greeting]);
+        setHasInitialMessage(true);
+    }, [hasInitialMessage, scenarioData, previousGreetings]);
 
     // Xử lý tin nhắn từ người dùng và phản hồi từ AI
     const handleUserMessage = useCallback(async (transcript) => {
@@ -381,30 +358,38 @@ Respond ONLY with the greeting and question, no JSON, no curly braces, no code f
         setMessages(prev => [...prev, userMessage]);
 
         try {
-            const result = await generateWithRetry(
-                `You are conducting an interview for a ${scenarioData.role || 'position'}. 
-                The candidate just said: "${transcript}"
+            const scenarioText = scenarioData.description || scenarioData.scenario || '';
+            const customerQuery = scenarioData.customerQuery || '';
+            const responsePrompt = `You are the interviewer. The user is the candidate interviewing for the role of ${scenarioData.role}.
 
-                As a professional interviewer:
-                1. Respond naturally as if you are the interviewer
-                2. Stay focused on the interview topic
-                3. If the response is off-topic, politely redirect the conversation back to the interview context
-                4. Ask relevant follow-up questions
-                5. Maintain a professional but conversational tone
-                6. Respond in ${availableLanguages.find(lang => lang.code === selectedLanguage)?.name || 'English'}
+SCENARIO CONTEXT:
+${scenarioText ? '- ' + scenarioText : ''}
+${customerQuery ? '- Situation: ' + customerQuery : ''}
 
-                CRITICAL: 
-                - You must respond with ONLY the interview question or statement
-                - DO NOT include any scenario data, context, or metadata
-                - DO NOT include any JSON formatting
-                - DO NOT mention that you are an AI or interviewer
-                - DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse"
-                - Just write your response directly as if in a natural conversation
-                - Keep your response concise and focused`
-            );
-            let aiResponse = result;
+Your task:
+- Respond to the candidate's answer below as a real, professional interviewer.
+- The candidate just said: "${transcript}"
+- Your response should be warm, human, and directly relevant to the scenario context and situation above.
+- If the candidate's answer is off-topic, out-of-scope, or unclear, gently redirect the conversation, ask for clarification, or help them get back on track in a supportive way.
+- Always act as the interviewer, not the customer or scenario character. Use the scenario context as background for your questions, but do NOT role-play as the customer or scenario character.
+- Do NOT use or mention a candidate name. You do NOT know the candidate's name.
+- Make your response unique, human, and not overly formal or repetitive.
+- Avoid using the same template as before.
+- Do not use the phrase 'Rất vui được gặp bạn hôm nay' or any direct translation of 'Nice to meet you today.'
+- Use a conversational, friendly tone as if you are a real interviewer.
+- You may reference the candidate's role or the scenario context if appropriate, but do not invent personal details.
+- Respond ONLY with a single, natural interviewer response (question, comment, or follow-up) as if in a real conversation.
+- Your response must be in ${availableLanguages.find(lang => lang.code === selectedLanguage)?.name || 'English'}.
+- DO NOT include any JSON, curly braces, brackets, or code block formatting.
+- DO NOT include any scenario data, context, or metadata in your output.
+- DO NOT mention that you are an AI or interviewer.
+- DO NOT include any fields like "scenario", "customerQuery", or "expectedResponse".
+- Just write your response directly as if in a natural conversation.
+- Do not use any curly braces or brackets in your response.
+- Keep your response concise and focused.`;
 
-            aiResponse = cleanResponse(aiResponse);
+            const result = await generateWithRetry(responsePrompt);
+            let aiResponse = cleanResponse(result);
 
             if (aiResponse.includes('scenario') ||
                 aiResponse.includes('customerQuery') ||
@@ -724,19 +709,17 @@ Respond ONLY with the greeting and question, no JSON, no curly braces, no code f
                   </div>
                   {/* Record Button */}
                   <div className="relative flex flex-col items-center justify-center flex-shrink-0">
-                    {/* Tooltip above (only when not recording) */}
-                    {!isListening && (
-                      <div className="mb-1 flex items-center justify-center">
-                        <div className="bg-[#232B22] text-white text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
-                          Bấm để xác nhận câu trả lời
-                          <span className="absolute left-1/2 top-5 sm:top-6 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px'}}></span>
-                        </div>
+                    {/* Tooltip above (always, label changes by state) */}
+                    <div className="mb-1 flex items-center justify-center">
+                      <div className="bg-[#232B22] text-white text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
+                        {isListening ? 'Bấm để xác nhận câu trả lời' : 'Bấm để ghi âm câu trả lời'}
+                        <span className="absolute left-1/2 top-5 sm:top-6 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px'}}></span>
                       </div>
-                    )}
+                    </div>
                     <Button
                       onClick={toggleListening}
                       disabled={isTimeUp || isPaused || !selectedLanguage}
-                      title={isListening ? 'Xác nhận câu trả lời' : 'Bắt đầu ghi âm'}
+                      title={isListening ? 'Gửi câu trả lời' : 'Bắt đầu ghi âm'}
                       className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[36px] min-h-[36px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
                       style={{ fontSize: undefined }}
                     >
@@ -746,15 +729,6 @@ Respond ONLY with the greeting and question, no JSON, no curly braces, no code f
                         <Mic className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" />
                       )}
                     </Button>
-                    {/* Tooltip below (only when recording) */}
-                    {isListening && (
-                      <div className="absolute -bottom-7 sm:-bottom-10 left-1/2 -translate-x-1/2 z-20">
-                        <div className="bg-[#232B22] text-white text-[10px] sm:text-xs px-2 sm:px-3 py-1 rounded-2xl shadow-lg flex items-center justify-center max-w-[80vw] break-words text-center">
-                          Bấm để xác nhận câu trả lời
-                          <span className="absolute left-1/2 -top-2 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px'}}></span>
-                        </div>
-                      </div>
-                    )}
                   </div>
                   {/* Pause/Start Button */}
                   <div className="flex-shrink-0">
