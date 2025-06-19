@@ -74,25 +74,7 @@ const ScenarioDesignModal = ({
 
     try {
       // Tạo prompt cho AI để tạo kịch bản
-      const prompt = `Create an interview scenario with these parameters:
-Industry: ${selectedIndustryLocal}
-Role: ${roleDescriptionLocal}
-Difficulty: ${difficulty}
-Context: ${description}
-Language: ${selectedLanguage}
-
-Requirements:
-- Respond ONLY with a valid JSON object with the following keys: scenario, customerQuery, expectedResponse.
-- Do not include any extra text, explanation, or markdown/code block formatting.
-- Each value must be a string.
-- If language is set to 'vi', generate the entire response in Vietnamese. If language is set to 'en', generate in English.
-
-Example:
-{
-  "scenario": "You are interviewing for a Software Engineer position in the IT industry. The interviewer wants to understand your problem-solving approach and technical skills.",
-  "customerQuery": "Can you walk me through how you would approach debugging a critical production issue that's affecting multiple users?",
-  "expectedResponse": "1. Outline your systematic debugging process. 2. Describe your communication strategy. 3. Explain preventive measures. 4. Mention tools and resources used."
-}`;
+      const prompt = `You are an API that generates interview scenarios.\n\nRespond ONLY with a valid JSON object, and nothing else.\nDO NOT include any explanations, markdown, or extra text.\n\nThe JSON object must have these keys (all values must be strings):\n- scenario\n- customerQuery\n- expectedResponse\n\nIf language is 'vi', generate the entire response in Vietnamese. If 'en', generate in English.\n\nReturn ONLY the JSON object, e.g.\n{\n  "scenario": "...",\n  "customerQuery": "...",\n  "expectedResponse": "..."\n}\n\nParameters for this scenario:\nIndustry: ${selectedIndustryLocal}\nRole: ${roleDescriptionLocal}\nDifficulty: ${difficulty}\nContext: ${description}\nLanguage: ${selectedLanguage}`;
 
       // Gửi prompt đến AI và xử lý kết quả với retry
       const responseText = await generateWithRetry(prompt);
