@@ -6,15 +6,15 @@ import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
+    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Brain, ChevronUp, ChevronDown, PlayCircle, PauseCircle, Mic, MicOff, XCircle } from "lucide-react";
 import { generateWithRetry } from "@/utils/GeminiAIModal";
@@ -197,8 +197,8 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
             const scores = analyzedUserMessages
                 .map(msg => msg.analysis?.overallScore || 0)
                 .filter(score => score > 0);
-            
-            const averageScore = scores.length > 0 
+
+            const averageScore = scores.length > 0
                 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
                 : 0;
 
@@ -245,7 +245,7 @@ const ScenarioContent = ({ scenarioData, timeLimit, onInterviewComplete }) => {
         if (isListening) {
             recognition?.stop();
         }
-        
+
         // Gọi hàm xử lý kết thúc
         await handleStopInterview();
     }, [isListening, recognition, handleStopInterview]);
@@ -548,8 +548,8 @@ Your task:
                                                         <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
                                                             <span className="mt-1 text-green-500">
                                                                 <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                                                                    <circle cx="10" cy="10" r="10" fill="#D1FADF"/>
-                                                                    <path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                    <circle cx="10" cy="10" r="10" fill="#D1FADF" />
+                                                                    <path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                                 </svg>
                                                             </span>
                                                             <span>{task.trim()}</span>
@@ -639,8 +639,8 @@ Your task:
                                                             <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
                                                                 <span className="mt-1 text-green-500">
                                                                     <svg width="20" height="20" fill="none" viewBox="0 0 20 20">
-                                                                        <circle cx="10" cy="10" r="10" fill="#D1FADF"/>
-                                                                        <path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                                                                        <circle cx="10" cy="10" r="10" fill="#D1FADF" />
+                                                                        <path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
                                                                     </svg>
                                                                 </span>
                                                                 <span>{task.trim()}</span>
@@ -675,73 +675,73 @@ Your task:
                 </div>
                 {/* Overlay Control Bar: fixed at bottom center, overlays ConversationBox */}
                 <div className="fixed left-1/2 bottom-8 z-50 transform -translate-x-1/2 flex flex-row flex-wrap justify-center items-center gap-2 rounded-2xl shadow-lg px-4 py-2"
-                     style={{ pointerEvents: 'auto' }}>
-                  {/* End Button */}
-                  <div className="flex-shrink-0">
-                    <AlertDialog>
-                      <AlertDialogTrigger asChild>
-                        <Button
-                          disabled={isTimeUp}
-                          title="Kết thúc phỏng vấn"
-                          className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md min-w-[32px] min-h-[32px] text-xs sm:text-sm md:text-base"
-                        >
-                          <XCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" />
-                          <span className="hidden sm:inline">Kết thúc</span>
-                        </Button>
-                      </AlertDialogTrigger>
-                      <AlertDialogContent>
-                        <AlertDialogHeader>
-                          <AlertDialogTitle>Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
-                          <AlertDialogDescription>
-                            Hành động này sẽ kết thúc cuộc phỏng vấn và lưu lại kết quả phỏng vấn. Bạn không thể quay lại sau khi kết thúc.
-                          </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter>
-                          <AlertDialogCancel>Hủy</AlertDialogCancel>
-                          <AlertDialogAction 
-                            onClick={handleManualStopInterview}
-                            className="bg-[#F37C5A] hover:bg-[#e45a5a] text-white"
-                          >
-                            Kết thúc phỏng vấn
-                          </AlertDialogAction>
-                        </AlertDialogFooter>
-                      </AlertDialogContent>
-                    </AlertDialog>
-                  </div>
-                  {/* Record Button */}
-                  <div className="relative flex flex-col items-center justify-center flex-shrink-0">
-                    {/* Tooltip above (always, label changes by state) */}
-                    <div className="mb-1 flex items-center justify-center">
-                      <div className="bg-[#232B22] text-white text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
-                        {isListening ? 'Bấm để xác nhận câu trả lời' : 'Bấm để ghi âm câu trả lời'}
-                        <span className="absolute left-1/2 top-5 sm:top-6 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px'}}></span>
-                      </div>
+                    style={{ pointerEvents: 'auto' }}>
+                    {/* End Button */}
+                    <div className="flex-shrink-0">
+                        <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                                <Button
+                                    disabled={isTimeUp}
+                                    title="Kết thúc phỏng vấn"
+                                    className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md min-w-[32px] min-h-[32px] text-xs sm:text-sm md:text-base"
+                                >
+                                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" />
+                                    <span className="hidden sm:inline">Kết thúc</span>
+                                </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                                <AlertDialogHeader>
+                                    <AlertDialogTitle>Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                        Hành động này sẽ kết thúc cuộc phỏng vấn và lưu lại kết quả phỏng vấn. Bạn không thể quay lại sau khi kết thúc.
+                                    </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                    <AlertDialogAction
+                                        onClick={handleManualStopInterview}
+                                        className="bg-[#F37C5A] hover:bg-[#e45a5a] text-white"
+                                    >
+                                        Kết thúc phỏng vấn
+                                    </AlertDialogAction>
+                                </AlertDialogFooter>
+                            </AlertDialogContent>
+                        </AlertDialog>
                     </div>
-                    <Button
-                      onClick={toggleListening}
-                      disabled={isTimeUp || isPaused || !selectedLanguage}
-                      title={isListening ? 'Gửi câu trả lời' : 'Bắt đầu ghi âm'}
-                      className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[36px] min-h-[36px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
-                      style={{ fontSize: undefined }}
-                    >
-                      {isListening ? (
-                        <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="3" fill="currentColor" /></svg>
-                      ) : (
-                        <Mic className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" />
-                      )}
-                    </Button>
-                  </div>
-                  {/* Pause/Start Button */}
-                  <div className="flex-shrink-0">
-                    <Button
-                      onClick={togglePause}
-                      disabled={!selectedLanguage}
-                      title={isPaused ? 'Bắt đầu' : 'Tạm dừng'}
-                      className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md border border-[#E0D6C3] min-w-[32px] min-h-[32px] sm:min-w-[60px] sm:min-h-[40px] md:min-w-[100px] md:min-h-[48px] text-xs sm:text-sm md:text-base"
-                    >
-                      {isPaused ? <><PlayCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Bắt đầu</span></> : <><PauseCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Tạm dừng</span></>}
-                    </Button>
-                  </div>
+                    {/* Record Button */}
+                    <div className="relative flex flex-col items-center justify-center flex-shrink-0">
+                        {/* Tooltip above (always, label changes by state) */}
+                        <div className="mb-1 flex items-center justify-center">
+                            <div className="bg-[#232B22] text-white text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
+                                {isListening ? 'Bấm để xác nhận câu trả lời' : 'Bấm để ghi âm câu trả lời'}
+                                <span className="absolute left-1/2 top-5 sm:top-6 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px' }}></span>
+                            </div>
+                        </div>
+                        <Button
+                            onClick={toggleListening}
+                            disabled={isTimeUp || isPaused || !selectedLanguage}
+                            title={isListening ? 'Gửi câu trả lời' : 'Bắt đầu ghi âm'}
+                            className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[36px] min-h-[36px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
+                            style={{ fontSize: undefined }}
+                        >
+                            {isListening ? (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="3" fill="currentColor" /></svg>
+                            ) : (
+                                <Mic className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" />
+                            )}
+                        </Button>
+                    </div>
+                    {/* Pause/Start Button */}
+                    <div className="flex-shrink-0">
+                        <Button
+                            onClick={togglePause}
+                            disabled={!selectedLanguage}
+                            title={isPaused ? 'Bắt đầu' : 'Tạm dừng'}
+                            className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md border border-[#E0D6C3] min-w-[32px] min-h-[32px] sm:min-w-[60px] sm:min-h-[40px] md:min-w-[100px] md:min-h-[48px] text-xs sm:text-sm md:text-base"
+                        >
+                            {isPaused ? <><PlayCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Bắt đầu</span></> : <><PauseCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Tạm dừng</span></>}
+                        </Button>
+                    </div>
                 </div>
                 {/* Overlay hiển thị khi đang phân tích kết quả */}
                 {isAnalyzing && <AnalysisOverlay />}

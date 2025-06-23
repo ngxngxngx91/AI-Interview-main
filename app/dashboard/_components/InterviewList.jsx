@@ -19,6 +19,7 @@ const InterviewList = ({ setShowDesignModal }) => {
     fetchHighestScore();
   }, []);
 
+  // Hàm lấy danh sách phỏng vấn từ API
   const fetchInterviews = async () => {
     try {
       const response = await fetch('/api/interview-list');
@@ -32,6 +33,7 @@ const InterviewList = ({ setShowDesignModal }) => {
     }
   };
 
+  // Hàm lấy điểm cao nhất từ API
   const fetchHighestScore = async () => {
     try {
       const response = await fetch('/api/highest-score');
@@ -138,7 +140,7 @@ const InterviewList = ({ setShowDesignModal }) => {
           {/* Ô tìm kiếm với icon */}
           <div className="relative w-[440px] max-w-full">
             <span className="absolute left-5 top-1/2 -translate-y-1/2 text-[#6b6f6a]">
-              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#6b6f6a" strokeWidth="2"/><path stroke="#6b6f6a" strokeWidth="2" strokeLinecap="round" d="M20 20l-3-3"/></svg>
+              <svg width="20" height="20" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" stroke="#6b6f6a" strokeWidth="2" /><path stroke="#6b6f6a" strokeWidth="2" strokeLinecap="round" d="M20 20l-3-3" /></svg>
             </span>
             <input
               type="text"
@@ -171,9 +173,9 @@ const InterviewList = ({ setShowDesignModal }) => {
         className="grid grid-cols-1 md:grid-cols-2 gap-6"
       >
         {filteredInterviews.map((interview) => (
-          <InterviewCard 
-            key={interview.id} 
-            interview={interview} 
+          <InterviewCard
+            key={interview.id}
+            interview={interview}
             onDelete={handleDeleteInterview}
           />
         ))}

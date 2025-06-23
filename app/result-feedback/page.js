@@ -29,6 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
+// Hàm lấy và hiển thị kết quả phản hồi phỏng vấn
 function ResultFeedbackContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -46,17 +47,17 @@ function ResultFeedbackContent() {
     const [modalOpen, setModalOpen] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
     const [modalContent, setModalContent] = useState("");
-    // Collapsed state for feedback cards (keyed by index)
+    // State quản lý trạng thái thu gọn của từng card đánh giá (theo index)
     const [collapsedCards, setCollapsedCards] = useState({});
 
     useEffect(() => {
         const mockId = searchParams.get("mockId");
         if (mockId) {
-            // Lấy dữ liệu phản hồi từ database
+            // Lấy dữ liệu phản hồi từ database dựa trên mockId
             fetch(`/api/interview-feedback?mockId=${mockId}`)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to fetch feedback data');
+                        throw new Error('Không thể lấy dữ liệu phản hồi');
                     }
                     return response.json();
                 })
@@ -76,25 +77,28 @@ function ResultFeedbackContent() {
                     setIsLoading(false);
                 })
                 .catch(error => {
-                    console.error("Error fetching feedback data:", error);
+                    console.error("Lỗi khi lấy dữ liệu phản hồi:", error);
                     router.push("/dashboard");
                 });
         } else {
+            // Nếu không có mockId, chuyển hướng về dashboard
             router.push("/dashboard");
         }
     }, [searchParams, router]);
 
+    // Hàm xử lý lưu file PDF
     const handleSavePDF = () => {
         generateSessionPDF(sessionData);
     };
 
-    // Helper to open modal with content
+    // Hàm mở modal hiển thị nội dung chi tiết
     const openModal = (title, content) => {
         setModalTitle(title);
         setModalContent(content);
         setModalOpen(true);
     };
 
+    // Hiển thị loading khi đang tải dữ liệu
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-50 to-white">
@@ -122,6 +126,7 @@ function ResultFeedbackContent() {
         sessionData.conversation.filter(msg => msg.type === 'user' && msg.analysis?.overallScore).length
     );
 
+    // Giao diện chính của trang kết quả phản hồi
     return (
         <div
             className="min-h-screen w-full flex flex-col items-center justify-center relative"
@@ -132,7 +137,7 @@ function ResultFeedbackContent() {
                 backgroundRepeat: 'no-repeat',
             }}
         >
-            {/* Floating Score Circle */}
+            {/* Vòng tròn điểm số nổi bật */}
             <div className="w-full flex justify-center relative z-20" style={{ pointerEvents: 'none', minHeight: 0 }}>
                 <div
                     className="bg-white rounded-full shadow-xl flex items-center justify-center"
@@ -163,7 +168,7 @@ function ResultFeedbackContent() {
                 </div>
             </div>
 
-            {/* Congratulation & Info Card */}
+            {/* Thông báo chúc mừng & thông tin tổng quan */}
             <div
                 className="bg-white rounded-3xl shadow-2xl flex flex-col items-center px-4 md:px-8 pt-8 pb-4 relative"
                 style={{
@@ -175,6 +180,7 @@ function ResultFeedbackContent() {
                 <h2 className="text-lg md:text-xl font-bold text-[#38423B] text-center mb-2">Chúc mừng bạn đã hoàn thành buổi phỏng vấn!</h2>
                 <p className="text-[#6B7A6C] text-center text-xs md:text-sm mb-6 max-w-xl">Đừng lo nếu kết quả chưa như mong đợi. Điều quan trọng là bạn đã dũng cảm bước vào thử thách và hoàn thành nó.</p>
                 <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+                    {/* Thời gian, độ khó, số câu trả lời */}
                     <div className="flex flex-col items-center bg-[#F7F7F2] rounded-2xl py-4 cursor-pointer transition hover:shadow-md" onClick={() => openModal('Thời gian', `${Math.floor(sessionData.duration / 60)}m ${sessionData.duration % 60}s`)}>
                         <Clock className="w-5 h-5 text-[#6B7A6C] mb-1" />
                         <span className="text-[#6B7A6C] text-xs">Thời gian</span>
@@ -193,7 +199,7 @@ function ResultFeedbackContent() {
                 </div>
             </div>
 
-            {/* Details & Tabs Card */}
+            {/* Thẻ chi tiết & Tabs */}
             <div
                 className="bg-white rounded-3xl shadow-2xl flex flex-col items-center px-4 md:px-8 pt-4 pb-6 mt-6 relative z-10"
                 style={{
@@ -201,32 +207,33 @@ function ResultFeedbackContent() {
                     minWidth: 0,
                 }}
             >
-                {/* Tab Header */}
+                {/* Tabs chuyển đổi giữa các phần: Tổng quan, hội thoại, đánh giá, lời khuyên */}
                 <div className="flex gap-2 w-full font-semibold border-b border-[#E9E5DF] mb-4 overflow-x-auto">
-                        {["overview", "conversation", "feedback", "recommendations"].map((tab) => (
-                            <Button
-                                key={tab}
-                                variant={activeTab === tab ? "default" : "outline"}
-                                onClick={() => setActiveTab(tab)}
+                    {['overview', 'conversation', 'feedback', 'recommendations'].map((tab) => (
+                        <Button
+                            key={tab}
+                            variant={activeTab === tab ? "default" : "outline"}
+                            onClick={() => setActiveTab(tab)}
                             className={`capitalize transition-all duration-300 font-semibold rounded-none px-4 py-2 text-base shadow-none border-b-2 whitespace-nowrap
                                     ${activeTab === tab
                                     ? 'bg-transparent text-[#38423B] border-[#38423B] border-b-4'
                                     : 'bg-transparent text-[#6B7A6C] border-transparent hover:text-[#38423B]'}
                                 `}
-                            >
+                        >
                             {tab === "overview" ? "Tổng quan" :
                                 tab === "conversation" ? "Hội thoại" :
-                                tab === "feedback" ? "Đánh giá" :
-                                tab === "recommendations" ? "Lời khuyên" : tab}
-                            </Button>
-                        ))}
-                    </div>
-                {/* Tab Content: Only Performance Overview for now */}
-                        {activeTab === "overview" && (
+                                    tab === "feedback" ? "Đánh giá" :
+                                        tab === "recommendations" ? "Lời khuyên" : tab}
+                        </Button>
+                    ))}
+                </div>
+                {/* Nội dung từng tab */}
+                {activeTab === "overview" && (
                     <div className="w-full flex flex-col gap-4">
                         <div className="flex flex-col md:flex-row gap-4">
-                            {/* Strengths Box */}
+                            {/* Box điểm mạnh */}
                             {(() => {
+                                // Lấy danh sách điểm mạnh duy nhất từ các tin nhắn của người dùng
                                 const strengths = sessionData.conversation
                                     .filter(msg => msg.type === 'user' && msg.analysis?.strengths)
                                     .flatMap(msg => msg.analysis.strengths)
@@ -246,21 +253,22 @@ function ResultFeedbackContent() {
                                             {strengthsPreview.map((strength, index) => (
                                                 <li key={index} className="flex items-center gap-2 text-[#38423B]">
                                                     <CheckCircle2 className="w-4 h-4 text-[#3BA55D]" />
-                                                                {strength}
-                                                            </li>
-                                                        ))}
+                                                    {strength}
+                                                </li>
+                                            ))}
                                             {strengths.length === 0 && (
                                                 <li className="text-[#6B7A6C]">Chưa có dữ liệu</li>
                                             )}
-                                                </ul>
-                                            </div>
+                                        </ul>
+                                    </div>
                                 );
                             })()}
-                            {/* Weaknesses Box */}
+                            {/* Box điểm cần cải thiện */}
                             {(() => {
+                                // Lấy danh sách điểm yếu duy nhất từ các tin nhắn của người dùng
                                 const weaknesses = sessionData.conversation
-                                                        .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
-                                                        .flatMap(msg => msg.analysis.weaknesses)
+                                    .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
+                                    .flatMap(msg => msg.analysis.weaknesses)
                                     .filter((weakness, index, self) => self.indexOf(weakness) === index);
                                 const weaknessesPreview = weaknesses.slice(0, 5);
                                 const undisplayed = weaknesses.length > 5 ? weaknesses.length - 5 : 0;
@@ -277,19 +285,20 @@ function ResultFeedbackContent() {
                                             {weaknessesPreview.map((weakness, index) => (
                                                 <li key={index} className="flex items-center gap-2 text-[#38423B]">
                                                     <XCircle className="w-4 h-4 text-[#E24C4B]" />
-                                                                {weakness}
-                                                            </li>
-                                                        ))}
+                                                    {weakness}
+                                                </li>
+                                            ))}
                                             {weaknesses.length === 0 && (
                                                 <li className="text-[#6B7A6C]">Chưa có dữ liệu</li>
                                             )}
-                                                            </ul>
-                                                        </div>
+                                        </ul>
+                                    </div>
                                 );
                             })()}
-                                                    </div>
-                        {/* Detailed Analysis Box */}
+                        </div>
+                        {/* Box phân tích chi tiết */}
                         {(() => {
+                            // Lấy danh sách phân tích chi tiết từ các tin nhắn của người dùng
                             const analysis = sessionData.conversation
                                 .filter(msg => msg.type === 'user' && msg.analysis?.feedback)
                                 .map(msg => msg.analysis.feedback);
@@ -311,179 +320,179 @@ function ResultFeedbackContent() {
                                         {analysis.length === 0 && (
                                             <li>Chưa có dữ liệu</li>
                                         )}
-                                                </ul>
-                                                        </div>
+                                    </ul>
+                                </div>
                             );
                         })()}
-                                                        </div>
+                    </div>
                 )}
                 {activeTab === "conversation" && (
                     <div className="w-full flex flex-col gap-4 py-2 px-1">
                         <div className="max-h-[400px] overflow-y-auto pr-1">
-                        {sessionData.conversation.map((message, index) => {
-                            const isUser = message.type === "user";
-                            const score = message.analysis?.overallScore;
-                            if (isUser) {
-                                return (
-                                    <div key={message.id || index} className="flex flex-col items-end w-full">
-                                        <div className="max-w-[80%] rounded-2xl bg-[#5B3A1B] text-white border border-white shadow-sm overflow-hidden">
-                                            {/* Top: Message with scroll if too long */}
-                                            <div className="px-6 pt-4 pb-2 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-[#B89B2B]/30 scrollbar-track-[#5B3A1B]/10">
-                                                <span className="text-base leading-relaxed break-words block">{message.content}</span>
-                                            </div>
-                                            {/* Divider */}
-                                            <div className="w-full h-px bg-white/30" />
-                                            {/* Bottom: Mark */}
-                                            <div className="flex justify-center items-center px-6 py-2">
-                                                <span className="text-sm font-medium mr-1 text-white">Đánh giá:</span>
-                                                <span className="text-[#FFD166] font-bold">{score}</span>
-                                                <span className="text-[#FFD166] ml-0.5">/100</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                );
-                            } else {
-                                return (
-                                    <div key={message.id || index} className="flex flex-col items-start w-full">
-                                        <div className="relative max-w-[80%] rounded-2xl px-6 py-4 mb-1 bg-[#F7F3ED] text-[#5B3A1B] border border-[#E9E5DF] shadow-sm">
-                                            <span className="text-base leading-relaxed break-words block">{message.content}</span>
-                                            {typeof score === 'number' && (
-                                                <div className="absolute left-4 bottom-3 flex items-center bg-white/10 rounded-xl px-3 py-1 mt-3" style={{backdropFilter: 'blur(2px)'}}>
-                                                    <span className="text-sm font-medium mr-1" style={{color: '#5B3A1B'}}>Đánh giá:</span>
-                                                    <span className="text-[#B89B2B] font-bold">{score}</span>
-                                                    <span className="text-[#B89B2B] ml-0.5">/100</span>
+                            {sessionData.conversation.map((message, index) => {
+                                const isUser = message.type === "user";
+                                const score = message.analysis?.overallScore;
+                                if (isUser) {
+                                    return (
+                                        <div key={message.id || index} className="flex flex-col items-end w-full">
+                                            <div className="max-w-[80%] rounded-2xl bg-[#5B3A1B] text-white border border-white shadow-sm overflow-hidden">
+                                                {/* Top: Message with scroll if too long */}
+                                                <div className="px-6 pt-4 pb-2 max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-[#B89B2B]/30 scrollbar-track-[#5B3A1B]/10">
+                                                    <span className="text-base leading-relaxed break-words block">{message.content}</span>
                                                 </div>
-                                            )}
+                                                {/* Divider */}
+                                                <div className="w-full h-px bg-white/30" />
+                                                {/* Bottom: Mark */}
+                                                <div className="flex justify-center items-center px-6 py-2">
+                                                    <span className="text-sm font-medium mr-1 text-white">Đánh giá:</span>
+                                                    <span className="text-[#FFD166] font-bold">{score}</span>
+                                                    <span className="text-[#FFD166] ml-0.5">/100</span>
+                                                </div>
+                                            </div>
                                         </div>
-                                    </div>
-                                );
-                            }
-                        })}
+                                    );
+                                } else {
+                                    return (
+                                        <div key={message.id || index} className="flex flex-col items-start w-full">
+                                            <div className="relative max-w-[80%] rounded-2xl px-6 py-4 mb-1 bg-[#F7F3ED] text-[#5B3A1B] border border-[#E9E5DF] shadow-sm">
+                                                <span className="text-base leading-relaxed break-words block">{message.content}</span>
+                                                {typeof score === 'number' && (
+                                                    <div className="absolute left-4 bottom-3 flex items-center bg-white/10 rounded-xl px-3 py-1 mt-3" style={{ backdropFilter: 'blur(2px)' }}>
+                                                        <span className="text-sm font-medium mr-1" style={{ color: '#5B3A1B' }}>Đánh giá:</span>
+                                                        <span className="text-[#B89B2B] font-bold">{score}</span>
+                                                        <span className="text-[#B89B2B] ml-0.5">/100</span>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                            })}
                         </div>
                     </div>
-                        )}
+                )}
                 {activeTab === "feedback" && (
                     <div className="w-full flex flex-col gap-6 py-2 px-1">
                         <div className="max-h-[400px] overflow-y-auto pr-1">
-                        {sessionData.conversation
-                            .filter(msg => msg.type === 'user' && msg.analysis)
-                            .map((msg, index) => {
-                                const collapsed = collapsedCards[index] || false;
-                                const toggleCollapsed = () => setCollapsedCards(prev => ({ ...prev, [index]: !prev[index] }));
-                                return (
-                                    <div key={index} className="bg-[#FCFAF6] rounded-3xl shadow flex flex-col gap-4 p-6 relative border border-[#E9E5DF] mb-4" style={{borderRadius: '32px'}}>
-                                        {/* Top: Message and Score */}
-                                        <div className="flex items-start justify-between gap-4">
-                                            {/* Collapsed: Only show title and button, right-aligned */}
-                                            {collapsed ? (
-                                                <div className="flex flex-1 items-center justify-end w-full">
-                                                    <div className="font-bold text-base text-[#38423B]">Tin nhắn thứ {index + 1}</div>
-                                                    <button
-                                                        className="ml-2 px-3 py-1 text-xs rounded bg-[#F7F7F2] text-[#38423B] border border-[#E9E5DF] hover:bg-[#E9E5DF] transition"
-                                                        onClick={toggleCollapsed}
-                                                    >
-                                                        Mở rộng
-                                                    </button>
-                                                </div>
-                                            ) : (
-                                                <>
-                                                    <div className="flex-1 flex items-center">
-                                                        <div className="font-bold text-base text-[#38423B]">Câu trả lời {index + 1}</div>
+                            {sessionData.conversation
+                                .filter(msg => msg.type === 'user' && msg.analysis)
+                                .map((msg, index) => {
+                                    const collapsed = collapsedCards[index] || false;
+                                    const toggleCollapsed = () => setCollapsedCards(prev => ({ ...prev, [index]: !prev[index] }));
+                                    return (
+                                        <div key={index} className="bg-[#FCFAF6] rounded-3xl shadow flex flex-col gap-4 p-6 relative border border-[#E9E5DF] mb-4" style={{ borderRadius: '32px' }}>
+                                            {/* Top: Message and Score */}
+                                            <div className="flex items-start justify-between gap-4">
+                                                {/* Collapsed: Only show title and button, right-aligned */}
+                                                {collapsed ? (
+                                                    <div className="flex flex-1 items-center justify-end w-full">
+                                                        <div className="font-bold text-base text-[#38423B]">Tin nhắn thứ {index + 1}</div>
                                                         <button
                                                             className="ml-2 px-3 py-1 text-xs rounded bg-[#F7F7F2] text-[#38423B] border border-[#E9E5DF] hover:bg-[#E9E5DF] transition"
                                                             onClick={toggleCollapsed}
                                                         >
-                                                            Thu Nhỏ
+                                                            Mở rộng
                                                         </button>
                                                     </div>
-                                                    <div className="flex-shrink-0 flex items-center justify-center relative" style={{width: 72, height: 72}}>
-                                                        <svg width="72" height="72" viewBox="0 0 36 36">
-                                                            <circle cx="18" cy="18" r="16" fill="#F6F7F2" />
-                                                            <path d="M18 4 a 14 14 0 1 1 0 28 a 14 14 0 1 1 0 -28" fill="none" stroke="#7ED957" strokeWidth="3.5" strokeDasharray={`${msg.analysis.overallScore * 0.88}, 88`} strokeLinecap="round" />
-                                                        </svg>
-                                                        <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-[#5B7D2A]">{msg.analysis.overallScore}</span>
+                                                ) : (
+                                                    <>
+                                                        <div className="flex-1 flex items-center">
+                                                            <div className="font-bold text-base text-[#38423B]">Câu trả lời {index + 1}</div>
+                                                            <button
+                                                                className="ml-2 px-3 py-1 text-xs rounded bg-[#F7F7F2] text-[#38423B] border border-[#E9E5DF] hover:bg-[#E9E5DF] transition"
+                                                                onClick={toggleCollapsed}
+                                                            >
+                                                                Thu Nhỏ
+                                                            </button>
+                                                        </div>
+                                                        <div className="flex-shrink-0 flex items-center justify-center relative" style={{ width: 72, height: 72 }}>
+                                                            <svg width="72" height="72" viewBox="0 0 36 36">
+                                                                <circle cx="18" cy="18" r="16" fill="#F6F7F2" />
+                                                                <path d="M18 4 a 14 14 0 1 1 0 28 a 14 14 0 1 1 0 -28" fill="none" stroke="#7ED957" strokeWidth="3.5" strokeDasharray={`${msg.analysis.overallScore * 0.88}, 88`} strokeLinecap="round" />
+                                                            </svg>
+                                                            <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-xl font-bold text-[#5B7D2A]">{msg.analysis.overallScore}</span>
+                                                        </div>
+                                                    </>
+                                                )}
+                                            </div>
+                                            {/* Bottom: Strengths and Weaknesses (collapsible) */}
+                                            {!collapsed && (
+                                                <>
+                                                    {/* Message content with scroll if too long */}
+                                                    <div className="bg-transparent px-0 pt-0 pb-0">
+                                                        <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-[#B89B2B]/30 scrollbar-track-[#F6F7F2]/10 px-1">
+                                                            <div className="text-base text-[#38423B] leading-relaxed break-words">{msg.content}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col gap-4 mt-2">
+                                                        <div className="bg-[#EAF7E6] rounded-2xl p-4">
+                                                            <div className="font-bold text-[#38423B] mb-2 text-base">Điểm mạnh</div>
+                                                            <ul className="space-y-2">
+                                                                {msg.analysis.strengths && msg.analysis.strengths.length > 0 ? (
+                                                                    msg.analysis.strengths.map((strength, idx) => (
+                                                                        <li key={idx} className="flex items-center gap-2 text-[#38423B] text-base">
+                                                                            <span className="inline-block w-2 h-2 rounded-full bg-[#7ED957]" />
+                                                                            {strength}
+                                                                        </li>
+                                                                    ))
+                                                                ) : (
+                                                                    <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
+                                                                )}
+                                                            </ul>
+                                                        </div>
+                                                        <div className="bg-[#FDEDE7] rounded-2xl p-4">
+                                                            <div className="font-bold text-[#38423B] mb-2 text-base">Có thể cải thiện</div>
+                                                            <ul className="space-y-2">
+                                                                {msg.analysis.weaknesses && msg.analysis.weaknesses.length > 0 ? (
+                                                                    msg.analysis.weaknesses.map((weakness, idx) => (
+                                                                        <li key={idx} className="flex items-center gap-2 text-[#38423B] text-base">
+                                                                            <span className="inline-block w-2 h-2 rounded-full bg-[#FF7F50]" />
+                                                                            {weakness}
+                                                                        </li>
+                                                                    ))
+                                                                ) : (
+                                                                    <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
+                                                                )}
+                                                            </ul>
+                                                        </div>
                                                     </div>
                                                 </>
                                             )}
                                         </div>
-                                        {/* Bottom: Strengths and Weaknesses (collapsible) */}
-                                        {!collapsed && (
-                                            <>
-                                                {/* Message content with scroll if too long */}
-                                                <div className="bg-transparent px-0 pt-0 pb-0">
-                                                    <div className="max-h-32 overflow-y-auto scrollbar-thin scrollbar-thumb-[#B89B2B]/30 scrollbar-track-[#F6F7F2]/10 px-1">
-                                                        <div className="text-base text-[#38423B] leading-relaxed break-words">{msg.content}</div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex flex-col gap-4 mt-2">
-                                                    <div className="bg-[#EAF7E6] rounded-2xl p-4">
-                                                        <div className="font-bold text-[#38423B] mb-2 text-base">Điểm mạnh</div>
-                                                        <ul className="space-y-2">
-                                                            {msg.analysis.strengths && msg.analysis.strengths.length > 0 ? (
-                                                                msg.analysis.strengths.map((strength, idx) => (
-                                                                    <li key={idx} className="flex items-center gap-2 text-[#38423B] text-base">
-                                                                        <span className="inline-block w-2 h-2 rounded-full bg-[#7ED957]" />
-                                                                        {strength}
-                                                                    </li>
-                                                                ))
-                                                            ) : (
-                                                                <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
-                                                            )}
-                                                        </ul>
-                                                    </div>
-                                                    <div className="bg-[#FDEDE7] rounded-2xl p-4">
-                                                        <div className="font-bold text-[#38423B] mb-2 text-base">Có thể cải thiện</div>
-                                                        <ul className="space-y-2">
-                                                            {msg.analysis.weaknesses && msg.analysis.weaknesses.length > 0 ? (
-                                                                msg.analysis.weaknesses.map((weakness, idx) => (
-                                                                    <li key={idx} className="flex items-center gap-2 text-[#38423B] text-base">
-                                                                        <span className="inline-block w-2 h-2 rounded-full bg-[#FF7F50]" />
-                                                                        {weakness}
-                                                                    </li>
-                                                                ))
-                                                            ) : (
-                                                                <li className="text-[#6B7A6C] text-base">Chưa có dữ liệu</li>
-                                                            )}
-                                                        </ul>
-                                                    </div>
-                                                </div>
-                                            </>
-                                        )}
-                                    </div>
-                                );
-                            })}
+                                    );
+                                })}
                         </div>
                     </div>
-                        )}
-                        {activeTab === "recommendations" && (
+                )}
+                {activeTab === "recommendations" && (
                     <div className="w-full flex flex-col gap-4 py-2 px-1">
                         <div className="max-h-[400px] overflow-y-auto pr-1">
-                        {(() => {
-                            // Gather all unique weaknesses from the conversation
-                            const weaknesses = sessionData.conversation
-                                .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
-                                .flatMap(msg => msg.analysis.weaknesses)
-                                .filter((w, i, arr) => arr.indexOf(w) === i);
-                            if (weaknesses.length === 0) {
-                                return <div className="text-gray-500 text-center py-8">Không có lời khuyên nào.</div>;
-                            }
-                            return weaknesses.map((weakness, idx) => (
-                                <div key={idx} className="flex items-start gap-4 bg-[#E7F3DF] rounded-[2rem] px-6 py-4 w-full border border-[#D1E7C6] mb-4">
-                                    <CheckCircle2 className="w-6 h-6 text-[#6BAA4D] flex-shrink-0 mt-1" />
-                                    <div className="flex flex-col">
-                                        <span className="font-bold text-[#2D332B] text-lg leading-snug">
-                                            Tập trung vào: {weakness}
-                                        </span>
+                            {(() => {
+                                // Lấy tất cả điểm yếu duy nhất từ hội thoại để đưa ra lời khuyên
+                                const weaknesses = sessionData.conversation
+                                    .filter(msg => msg.type === 'user' && msg.analysis?.weaknesses)
+                                    .flatMap(msg => msg.analysis.weaknesses)
+                                    .filter((w, i, arr) => arr.indexOf(w) === i);
+                                if (weaknesses.length === 0) {
+                                    return <div className="text-gray-500 text-center py-8">Không có lời khuyên nào.</div>;
+                                }
+                                return weaknesses.map((weakness, idx) => (
+                                    <div key={idx} className="flex items-start gap-4 bg-[#E7F3DF] rounded-[2rem] px-6 py-4 w-full border border-[#D1E7C6] mb-4">
+                                        <CheckCircle2 className="w-6 h-6 text-[#6BAA4D] flex-shrink-0 mt-1" />
+                                        <div className="flex flex-col">
+                                            <span className="font-bold text-[#2D332B] text-lg leading-snug">
+                                                Tập trung vào: {weakness}
+                                            </span>
+                                        </div>
                                     </div>
-                                </div>
-                            ));
-                        })()}
+                                ));
+                            })()}
                         </div>
                     </div>
                 )}
             </div>
 
-            {/* Modal for full content */}
+            {/* Modal hiển thị nội dung đầy đủ */}
             <Dialog open={modalOpen} onOpenChange={setModalOpen}>
                 <DialogContent className="max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border-none" style={{ boxShadow: '0 8px 32px 0 rgba(60,60,60,0.10)' }}>
                     <div className="bg-[#FFF9E3] rounded-2xl p-6 shadow-lg border border-[#F7E6A2]">
@@ -497,7 +506,7 @@ function ResultFeedbackContent() {
                 </DialogContent>
             </Dialog>
 
-            {/* White Footer with Action Buttons */}
+            {/* Footer trắng với các nút hành động */}
             <footer className="w-full fixed bottom-0 left-0 z-50 flex justify-center items-center" style={{ pointerEvents: 'auto' }}>
                 <div className="w-full max-w-full bg-white flex justify-center items-center gap-6 py-4 px-2 md:px-0" style={{ borderTopLeftRadius: '2.5rem', borderTopRightRadius: '2.5rem', borderBottomLeftRadius: 0, borderBottomRightRadius: 0, boxShadow: '0 0 0 0 transparent' }}>
                     <Button
@@ -507,20 +516,13 @@ function ResultFeedbackContent() {
                         <Home className="w-5 h-5 mr-1" />
                         Về dashboard
                     </Button>
-                        {/* <Button
-                        onClick={() => window.location.reload()}
-                        className="flex items-center gap-2 border border-[#C6F6D5] bg-[#F6FFF6] hover:bg-[#E9FCE9] text-[#38423B] font-medium rounded-full px-8 py-3 text-base shadow-none transition-colors"
-                        >
-                        <svg className="w-5 h-5 mr-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A9 9 0 11 5.582 9M4 9h5m7 4v5h.582m-7.164 2A9 9 0 1118.418 15M20 15h-5" /></svg>
-                        Làm lại
-                        </Button> */}
-                        <Button
-                            onClick={handleSavePDF}
+                    <Button
+                        onClick={handleSavePDF}
                         className="flex items-center gap-2 bg-[#B6E388] hover:bg-[#A0D468] text-[#38423B] font-semibold rounded-full px-8 py-3 text-base border-none shadow-none transition-colors"
-                        >
+                    >
                         <Download className="w-5 h-5 mr-1" />
                         Tải PDF
-                        </Button>
+                    </Button>
                 </div>
             </footer>
         </div>

@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import { useUser } from '@clerk/nextjs';
+import { toast } from 'sonner';
 
 // Danh sách các ngành nghề được hỗ trợ
 const industries = [
@@ -47,13 +48,14 @@ const ScenarioDesignModal = ({
   const [expanded, setExpanded] = React.useState(false);
   const [isProceeding, setIsProceeding] = React.useState(false);
   const [focusArea, setFocusArea] = React.useState("");
+  const [retryCount, setRetryCount] = React.useState(0);
 
   // Danh sách các cấp độ khó dễ
   const difficulties = [
-    { value: "Intern", label: "Intern"},
-    { value: "Fresher", label: "Fresher"},
-    { value: "Junior", label: "Junior"},
-    { value: "Senior", label: "Senior"},
+    { value: "Intern", label: "Intern" },
+    { value: "Fresher", label: "Fresher" },
+    { value: "Junior", label: "Junior" },
+    { value: "Senior", label: "Senior" },
   ];
 
   // Danh sách ngôn ngữ được hỗ trợ
@@ -62,7 +64,7 @@ const ScenarioDesignModal = ({
     { value: "vi", label: "Vietnamese" },
   ];
 
-  // Add focus area options
+  // Danh sách loại phỏng vấn (focus area)
   const focusAreas = [
     { value: "Kiến thức", label: "Kiến thức" },
     { value: "Hành vi", label: "Hành vi" },
@@ -70,7 +72,7 @@ const ScenarioDesignModal = ({
     { value: "Khác", label: "Khác" },
   ];
 
-  // Helper function to map difficulty to suggestion config (count and coaching style)
+  // Hàm ánh xạ độ khó sang cấu hình gợi ý (số lượng và phong cách)
   function getSuggestionConfig(difficulty) {
     switch (difficulty) {
       case "Intern":
@@ -101,7 +103,7 @@ const ScenarioDesignModal = ({
     }
   }
 
-  // Before the prompt, add focusInstructions logic
+  // Xây dựng focusInstructions dựa trên loại phỏng vấn
   let focusInstructions = "";
   if (focusArea === "Kiến thức") {
     focusInstructions = `\nIMPORTANT: This is a technical knowledge interview. The scenario and customerQuery must directly test the user's knowledge in their field (for example, for a Tester: ask about types of testing, testing strategies, tools, or best practices). The customerQuery should be a direct technical question or challenge, not a soft skill or behavioral situation. The expectedResponse should be coaching prompts that help the user recall, explain, or structure their technical answer.\n\nExample:\n- scenario: Bạn là một Tester thực tập tại một công ty phần mềm. Trong buổi phỏng vấn, bạn được yêu cầu trình bày về các loại kiểm thử phần mềm và khi nào nên sử dụng từng loại.\n- customerQuery: Bạn có thể liệt kê và giải thích các loại kiểm thử phần mềm phổ biến không? Khi nào thì nên sử dụng kiểm thử chức năng so với kiểm thử phi chức năng?`;
@@ -114,7 +116,7 @@ const ScenarioDesignModal = ({
   }
 
   // Hàm tạo kịch bản phỏng vấn bằng AI
-  const generateScenario = async () => {
+  const generateScenario = async (autoRetry = false) => {
     setIsGenerating(true);
     setError(null);
     setProgress(0);
@@ -184,13 +186,25 @@ Language: ${selectedLanguage}`;
         try {
           jsonResponse = JSON.parse(cleanedResponse);
         } catch (parseErr) {
-          console.error('AI response JSON parse error:', parseErr);
-          console.log('Raw AI response:', responseText); // Debug log
-          console.log('Cleaned AI response:', cleanedResponse); // Debug log
-          throw new Error("AI response is not valid JSON.");
+          // Nếu lỗi, thử lại tối đa 2 lần
+          if (retryCount < 2) {
+            if (!autoRetry) {
+              toast(
+                'Đã xảy ra lỗi khi tạo kịch bản. Hệ thống đang tự động tạo lại kịch bản mới, vui lòng chờ...',
+                { style: { color: '#000' } }
+              );
+            }
+            setRetryCount(retryCount + 1);
+            clearInterval(progressInterval);
+            setTimeout(() => generateScenario(true), 500);
+            return;
+          } else {
+            setRetryCount(0);
+            throw new Error("AI response is not valid JSON."); // Nếu vượt quá số lần thử, báo lỗi dữ liệu AI trả về không hợp lệ
+          }
         }
       }
-      // Strict validation
+      // Kiểm tra dữ liệu trả về từ AI có hợp lệ không (phải có đủ các trường cần thiết)
       if (
         !jsonResponse.scenario ||
         !jsonResponse.customerQuery ||
@@ -199,7 +213,22 @@ Language: ${selectedLanguage}`;
         typeof jsonResponse.customerQuery !== "string" ||
         typeof jsonResponse.expectedResponse !== "string"
       ) {
-        throw new Error("AI response missing required fields. Please try again.");
+        // Nếu dữ liệu không hợp lệ, thử lại tối đa 2 lần
+        if (retryCount < 2) {
+          if (!autoRetry) {
+            toast(
+              'Đã xảy ra lỗi khi tạo kịch bản. Hệ thống đang tự động tạo lại kịch bản mới, vui lòng chờ...',
+              { style: { color: '#000' } }
+            );
+          }
+          setRetryCount(retryCount + 1);
+          clearInterval(progressInterval);
+          setTimeout(() => generateScenario(true), 500);
+          return;
+        } else {
+          setRetryCount(0);
+          throw new Error("AI response missing required fields. Please try again.");
+        }
       }
       setGeneratedScenario({
         customerQuery: jsonResponse.customerQuery,
@@ -214,6 +243,7 @@ Language: ${selectedLanguage}`;
         focusArea
       });
       setProgress(100);
+      setRetryCount(0);
     } catch (error) {
       setError(error.message || "Failed to generate scenario. Please try again.");
       setGeneratedScenario(null);
@@ -295,9 +325,9 @@ Language: ${selectedLanguage}`;
     <AnimatePresence>
       {show && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
-          {/* Static blur background */}
+          {/* Nền mờ và hiệu ứng blur */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm z-0" />
-          {/* Modal container for stacking context, animated */}
+          {/* Modal chính, có hiệu ứng động */}
           <motion.div
             initial={{ opacity: 0, scale: 0.97, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -305,7 +335,7 @@ Language: ${selectedLanguage}`;
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="relative w-full max-w-xl px-2 sm:px-0 flex flex-col items-center z-10 max-h-[90vh]"
           >
-            {/* X button as a separate area, outside the modal */}
+            {/* Nút đóng modal */}
             <Button
               variant="ghost"
               size="icon"
@@ -316,11 +346,11 @@ Language: ${selectedLanguage}`;
             >
               <X className="w-12 h-12 text-[#2D221B]" />
             </Button>
-            {/* Header area (brown, rounded top) */}
+            {/* Header của modal */}
             <div className="w-full max-w-lg rounded-t-[36px] bg-[#4B372E] pt-7 pb-4 px-8 flex flex-col relative z-20 overflow-hidden">
-              {/* Background image for header */}
+              {/* Ảnh nền header */}
               <div className="absolute inset-0 w-full h-full bg-no-repeat bg-top-right bg-cover pointer-events-none" style={{ backgroundImage: 'url(/scenario_background_1.png)' }} />
-              {/* Title and subtitle only */}
+              {/* Tiêu đề và mô tả ngắn */}
               <div className="relative z-20 flex flex-row items-start justify-between">
                 <div className="flex flex-col gap-1">
                   <h2 className="text-2xl font-bold text-white">Tạo buổi phòng vấn mới</h2>
@@ -328,59 +358,59 @@ Language: ${selectedLanguage}`;
                 </div>
               </div>
             </div>
-            {/* Brown border effect (bottom, left, right) */}
+            {/* Viền nâu phía dưới, trái, phải */}
             <div className="w-full max-w-lg h-full rounded-b-[36px] bg-[#4B372E] px-1 pb-1 flex flex-col items-center relative z-10" style={{ boxShadow: '0 8px 32px 0 rgba(75,55,46,0.12)' }}>
-              {/* Front white layer (main content only, inset) */}
+              {/* Lớp trắng phía trước (nội dung chính) */}
               <div
                 className="relative z-20 w-full max-w-lg mx-auto rounded-[28px] bg-white flex flex-col overflow-hidden border border-transparent shadow-2xl"
-                style={{ 
-                  maxHeight: 'calc(90vh - 120px)', // Account for header height
+                style={{
+                  maxHeight: 'calc(90vh - 120px)', // Trừ chiều cao header
                   overflowY: 'auto',
                   scrollbarWidth: 'thin',
                   scrollbarColor: '#E5D6C6 #FFFFFF'
                 }}
               >
-                {/* Main content area (no header here) */}
+                {/* Nội dung chính của modal */}
                 {generatedScenario ? (
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     className="flex flex-col items-center w-full"
                   >
-                    {/* Scenario card (no white header, just content) */}
+                    {/* Thẻ kịch bản đã tạo */}
                     <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-7 flex flex-col gap-6 z-10 relative">
-                      {/* Scenario Title */}
+                      {/* Tiêu đề kịch bản */}
                       <h2 className="text-2xl font-bold text-[#374151] mb-2">{generatedScenario.title || 'Tiêu đề kịch bản'}</h2>
-                      {/* Badges row */}
+                      {/* Dòng badge */}
                       <div className="flex items-center gap-3 mb-2">
-                        {/* Industry badge */}
+                        {/* Badge ngành nghề */}
                         <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#F0F6FF] text-[#2563EB] text-sm font-medium">
-                          {/* Placeholder for industry icon */}
+                          {/* Icon ngành nghề */}
                           <span role="img" aria-label="industry">🛒</span>
                           {generatedScenario.industry || 'Ngành'}
                         </span>
-                        {/* Difficulty badge */}
+                        {/* Badge độ khó */}
                         <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F9E6] text-[#22C55E] text-sm font-medium">
-                          {/* Placeholder for difficulty icon */}
+                          {/* Icon độ khó */}
                           <span role="img" aria-label="difficulty">✔️</span>
                           {generatedScenario.difficulty || 'Độ khó'}
                         </span>
-                        {/* Focus area badge */}
+                        {/* Badge loại phỏng vấn */}
                         <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#FFF7ED] text-[#F59E42] text-sm font-medium">
                           <span role="img" aria-label="focus">🎯</span>
                           {generatedScenario.focusArea || 'Loại phỏng vấn'}
                         </span>
                       </div>
-                      {/* Scenario Description (fix: show scenario.description or scenario.scenario if missing) */}
+                      {/* Mô tả kịch bản */}
                       <p className="text-base text-[#374151] mb-2">{generatedScenario.description || generatedScenario.scenario || 'Mô tả kịch bản...'}</p>
-                      {/* Divider */}
+                      {/* Đường kẻ phân cách */}
                       <div className="border-t border-[#E5E7EB] my-2" />
-                      {/* Situation box */}
+                      {/* Hộp tình huống từ khách hàng */}
                       <div className="bg-[#F9F6ED] rounded-xl p-4 mb-2">
                         <div className="font-semibold text-[#7C5C2A] mb-1">Tình huống từ khách hàng</div>
                         <div className="text-[#7C5C2A] text-base">{generatedScenario.customerQuery || 'Mô tả tình huống...'}</div>
                       </div>
-                      {/* Tasks checklist (expand/collapse) */}
+                      {/* Gợi ý trả lời checklist (có thể thu gọn/mở rộng) */}
                       {
                         (() => {
                           const tasks = (generatedScenario.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
@@ -392,7 +422,7 @@ Language: ${selectedLanguage}`;
                               <ul className="space-y-2">
                                 {visibleTasks.map((task, idx) => (
                                   <li key={idx} className="flex items-start gap-2 text-[#374151] text-base">
-                                    <span className="mt-1 text-green-500"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#D1FADF"/><path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg></span>
+                                    <span className="mt-1 text-green-500"><svg width="20" height="20" fill="none" viewBox="0 0 20 20"><circle cx="10" cy="10" r="10" fill="#D1FADF" /><path d="M6 10.5l2.5 2.5L14 8.5" stroke="#22C55E" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg></span>
                                     <span>{task.trim()}</span>
                                   </li>
                                 ))}
@@ -409,7 +439,7 @@ Language: ${selectedLanguage}`;
                           );
                         })()
                       }
-                      {/* Action buttons */}
+                      {/* Nút hành động: Đổi kịch bản, Vào buổi phỏng vấn */}
                       <div className="flex gap-3 mt-6">
                         <Button
                           variant="outline"
@@ -440,7 +470,7 @@ Language: ${selectedLanguage}`;
                 ) : (
                   <div className="flex-1 bg-white px-7 py-6 flex flex-col gap-7">
                     {/* Section: Thông tin chung */}
-                    {/* Show message if not authenticated */}
+                    {/* Hiển thị thông báo nếu chưa đăng nhập */}
                     {!user?.primaryEmailAddress?.emailAddress && isLoaded && (
                       <div className="text-red-500 text-center mb-4">
                         Vui lòng đăng nhập để tạo kịch bản phỏng vấn.
@@ -528,7 +558,7 @@ Language: ${selectedLanguage}`;
                         />
                       </div>
                     </div>
-                    {/* Divider */}
+                    {/* Đường kẻ phân cách */}
                     <div className="border-t border-[#E5D6C6] my-2" />
                     {/* Section: Thông tin khác */}
                     <div>
@@ -583,7 +613,7 @@ Language: ${selectedLanguage}`;
                         />
                       </div>
                     </div>
-                    {/* Error and loading states remain unchanged */}
+                    {/* Hiển thị lỗi và trạng thái loading */}
                     {error && (
                       <motion.div
                         initial={{ opacity: 0, y: -10 }}
@@ -622,14 +652,13 @@ Language: ${selectedLanguage}`;
                         <Progress value={progress} className="h-2 bg-gray-800" />
                       </motion.div>
                     )}
-                    {/* Action button at the bottom */}
+                    {/* Nút khởi tạo cuộc phỏng vấn */}
                     <div className="mt-2">
                       <Button
-                        className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${
-                          !difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !focusArea || !user?.primaryEmailAddress?.emailAddress
+                        className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${!difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !focusArea || !user?.primaryEmailAddress?.emailAddress
                             ? 'bg-[#E5D6C6] text-[#B0A08F]'
                             : 'bg-[#B6F09C] text-[#2D221B] hover:bg-[#A0E07C]'
-                        } shadow-none`}
+                          } shadow-none`}
                         disabled={
                           !difficulty ||
                           !selectedIndustryLocal ||
@@ -657,7 +686,7 @@ Language: ${selectedLanguage}`;
               </div>
             </div>
           </motion.div>
-          {/* Loading overlay when proceeding to interview room */}
+          {/* Loading overlay khi chuyển sang phòng phỏng vấn */}
           {isProceeding && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
               <div className="flex flex-col items-center gap-4 bg-white/90 rounded-2xl px-8 py-10 shadow-2xl border border-gray-200">

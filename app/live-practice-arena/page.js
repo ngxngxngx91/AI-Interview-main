@@ -58,11 +58,11 @@ function LivePracticeArenaContent() {
         // Lấy mockId từ URL
         const mockId = searchParams.get("mockId");
         if (mockId) {
-            // Lấy dữ liệu kịch bản từ database
+            // Gọi API để lấy dữ liệu kịch bản từ database dựa trên mockId
             fetch(`/api/mock-interview?mockId=${mockId}`)
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Failed to fetch scenario data');
+                        throw new Error('Không thể lấy dữ liệu kịch bản');
                     }
                     return response.json();
                 })
@@ -82,21 +82,24 @@ function LivePracticeArenaContent() {
                     setIsLoading(false);
                 })
                 .catch(error => {
-                    console.error("Error fetching scenario data:", error);
-                    setError("Failed to load scenario. Please try again.");
+                    console.error("Lỗi khi lấy dữ liệu kịch bản:", error);
+                    setError("Không thể tải kịch bản. Vui lòng thử lại.");
                     setIsLoading(false);
                 });
         } else {
+            // Nếu không có mockId, chuyển hướng về dashboard
             router.push("/dashboard");
         }
     }, [searchParams, router]);
 
+    // Xử lý khi người dùng nhấn nút bắt đầu luyện tập
     const handleStartPractice = () => {
         if (selectedTime) {
             setIsPracticeMode(true);
         }
     };
 
+    // Xử lý khi người dùng nhấn nút quay lại
     const handleBack = () => {
         if (isPracticeMode) {
             setIsPracticeMode(false);
@@ -105,24 +108,25 @@ function LivePracticeArenaContent() {
         }
     };
 
+    // Xử lý khi hoàn thành buổi phỏng vấn (nhận feedbackData từ ScenarioContent)
     const handleInterviewComplete = async (feedbackData) => {
         try {
-            // Nếu là phiên làm lại (có mockID), xóa phản hồi trước đó
+            // Nếu là phiên làm lại (có mockID), xóa phản hồi trước đó để tránh trùng lặp
             if (scenarioData.mockID) {
                 const deleteResponse = await fetch(`/api/interview-feedback?mockId=${scenarioData.mockID}`, {
                     method: 'DELETE',
                 });
 
                 if (!deleteResponse.ok) {
-                    console.error('Failed to delete previous feedback', await deleteResponse.text());
-                    // Optionally, handle this error more gracefully
+                    console.error('Không thể xóa phản hồi trước đó', await deleteResponse.text());
+                    // Có thể xử lý lỗi này nếu cần
                 }
             }
 
-            // Chuẩn bị dữ liệu phản hồi để lưu
+            // Chuẩn bị dữ liệu phản hồi để lưu vào database
             const dataToSave = {
                 mockIdRef: scenarioData.mockID,
-                userEmail: "user@example.com", // Thay thế bằng email người dùng thực tế từ auth
+                userEmail: "user@example.com",
                 duration: feedbackData.duration,
                 totalMessages: feedbackData.conversation.length,
                 averageScore: feedbackData.averageScore,
@@ -133,7 +137,7 @@ function LivePracticeArenaContent() {
                 messageAnalysis: feedbackData.messageAnalysis
             };
 
-            // Save to database (this will now save as a new record with the same mockIdRef)
+            // Lưu phản hồi vào database qua API
             const response = await fetch('/api/interview-feedback', {
                 method: 'POST',
                 headers: {
@@ -143,20 +147,21 @@ function LivePracticeArenaContent() {
             });
 
             if (!response.ok) {
-                throw new Error('Failed to save feedback');
+                throw new Error('Không thể lưu phản hồi');
             }
 
-            // Redirect to feedback page with the session data
+            // Chuyển hướng sang trang kết quả sau khi lưu thành công
             router.push(`/result-feedback?mockId=${scenarioData.mockID}`);
         } catch (error) {
-            console.error('Error saving feedback:', error);
-            // Handle error appropriately
+            console.error('Lỗi khi lưu phản hồi:', error);
+            // Xử lý lỗi nếu có
         }
     };
 
-    // Debug print for scenarioData
+    // Debug: In ra dữ liệu kịch bản để kiểm tra
     console.log("scenarioData", scenarioData);
 
+    // Hiển thị màn hình loading khi đang tải dữ liệu
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-gray-800 to-black">
@@ -172,6 +177,7 @@ function LivePracticeArenaContent() {
         );
     }
 
+    // Hiển thị thông báo lỗi nếu có lỗi khi tải dữ liệu
     if (error) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-gray-900 via-gray-800 to-black">
@@ -194,19 +200,20 @@ function LivePracticeArenaContent() {
         );
     }
 
+    // Giao diện chính của trang luyện tập phỏng vấn
     return (
         <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
-            {/* Blurred background image */}
+            {/* Nền mờ phía sau */}
             <img
                 src="/live-practice-arena-background_1.png"
                 alt="background"
                 className="absolute inset-0 w-full h-full object-cover z-0 scale-105"
                 style={{ pointerEvents: 'none', userSelect: 'none' }}
             />
-            {/* Overlay for darkening */}
+            {/* Lớp phủ làm tối */}
             <div className="absolute inset-0 z-0" />
             <div className={`relative z-10 w-full ${isPracticeMode ? 'max-w-none' : 'max-w-2xl mx-auto'} flex flex-col gap-6 px-2 py-10`}>
-                {/* Top area: Thoát button */}
+                {/* Khu vực trên cùng: Nút Thoát */}
                 {!isPracticeMode && (
                     <div className="mb-2">
                         <Button
@@ -220,31 +227,31 @@ function LivePracticeArenaContent() {
                         </Button>
                     </div>
                 )}
-                {/* Second area: Scenario info */}
+                {/* Khu vực thứ hai: Thông tin kịch bản */}
                 {!isPracticeMode && (
                     <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-7 flex flex-col gap-6 z-10 relative">
-                        {/* Scenario Title */}
+                        {/* Tiêu đề kịch bản */}
                         <h2 className="text-2xl font-bold text-[#374151] mb-2">{scenarioData.title || 'Tiêu đề kịch bản'}</h2>
-                        {/* Badges row */}
+                        {/* Dòng badge */}
                         <div className="flex items-center gap-3 mb-2">
-                            {/* Industry badge */}
+                            {/* Badge ngành nghề */}
                             {scenarioData.industry && (
                                 <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#F0F6FF] text-[#2563EB] text-sm font-medium">
                                     <span role="img" aria-label="industry">🛒</span>
                                     {scenarioData.industry}
                                 </span>
                             )}
-                            {/* Difficulty badge */}
+                            {/* Badge độ khó */}
                             <span className="flex items-center gap-1 px-3 py-1 rounded-full bg-[#E6F9E6] text-[#22C55E] text-sm font-medium">
                                 <span role="img" aria-label="difficulty">✔️</span>
                                 {scenarioData.difficulty.charAt(0).toUpperCase() + scenarioData.difficulty.slice(1)}
                             </span>
                         </div>
-                        {/* Scenario Description */}
+                        {/* Mô tả kịch bản */}
                         <p className="text-base text-[#374151] mb-2">{scenarioData.description || scenarioData.scenario || 'Mô tả kịch bản...'}</p>
-                        {/* Divider */}
+                        {/* Đường kẻ phân cách */}
                         <div className="border-t border-[#E5E7EB] my-2" />
-                        {/* Situation box */}
+                        {/* Hộp tình huống */}
                         <div className="bg-[#F9F6ED] rounded-xl p-4 mb-2">
                             <div className="font-semibold text-[#7C5C2A] mb-1">Tình huống</div>
                             <div className="text-[#7C5C2A] text-base">{scenarioData.customerQuery || 'Mô tả tình huống...'}</div>
@@ -252,6 +259,7 @@ function LivePracticeArenaContent() {
                         {/* Gợi ý trả lời checklist */}
                         {
                         (() => {
+                          // Tách các gợi ý trả lời thành checklist dựa trên số thứ tự
                           const tasks = (scenarioData.expectedResponse || '').split(/\s*\d+\.\s*/).filter(Boolean);
                           const showToggle = tasks.length > 0;
                           const visibleTasks = showToggle && !expanded ? tasks.slice(0, 0) : tasks;
@@ -278,10 +286,10 @@ function LivePracticeArenaContent() {
                           );
                         })()
                       }
-                        {/* (Optional) Action buttons or details toggle can be added here if needed */}
+                        {/* (Có thể thêm các nút hành động hoặc toggle chi tiết ở đây nếu cần) */}
                     </div>
                 )}
-                {/* Third area: Timer selection */}
+                {/* Khu vực thứ ba: Chọn thời gian */}
                 {!isPracticeMode && (
                     <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-7 flex flex-col z-10 relative">
                         <div className="mb-4">
@@ -309,7 +317,7 @@ function LivePracticeArenaContent() {
                         </div>
                     </div>
                 )}
-                {/* Fourth area: Start button */}
+                {/* Khu vực thứ tư: Nút bắt đầu */}
                 {!isPracticeMode && (
                     <div>
                         <Button
@@ -329,7 +337,7 @@ function LivePracticeArenaContent() {
                         </Button>
                     </div>
                 )}
-                {/* Practice mode content remains unchanged */}
+                {/* Chế độ luyện tập: Hiển thị giao diện luyện tập khi đã chọn thời gian */}
                 {isPracticeMode && (
                     <motion.div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
                         <ScenarioContent

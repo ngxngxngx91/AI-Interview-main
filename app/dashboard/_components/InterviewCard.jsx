@@ -20,8 +20,8 @@ const InterviewCard = ({ interview, onDelete }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   // Lấy điểm số từ dữ liệu phỏng vấn
   const overallScore = interview.averageScore || 0;
-  const router = useRouter(); // Get router instance
-  
+  const router = useRouter(); // Lấy instance router
+
   // Hàm xác định màu sắc badge dựa trên độ khó
   const getDifficultyColor = (difficulty) => {
     switch (difficulty?.toLowerCase()) {
@@ -70,7 +70,7 @@ const InterviewCard = ({ interview, onDelete }) => {
   return (
     <>
       <div className="bg-white rounded-[1.5rem] shadow-md p-6 flex flex-col justify-between min-h-[170px] border border-[#e0d8ce] transition-colors duration-200 hover:text-[#2d332b] group relative">
-        {/* Delete button */}
+        {/* Nút xóa phỏng vấn */}
         <button
           onClick={() => setShowDeleteDialog(true)}
           className="
@@ -156,7 +156,7 @@ const InterviewCard = ({ interview, onDelete }) => {
         </div>
       </div>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Hộp xác nhận xóa phỏng vấn */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>

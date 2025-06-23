@@ -164,7 +164,7 @@ export default function Home() {
                     <div className="flex justify-between items-center w-full" style={{ minHeight: '80px' }}>
                         {/* Logo và tên ứng dụng */}
                         <div className="flex items-center gap-3">
-                            <Image src="/Logo.png" alt="AI.Interview Logo" width={40} height={40} quality={100} priority/>
+                            <Image src="/Logo.png" alt="AI.Interview Logo" width={40} height={40} quality={100} priority />
                             <span className="font-bold text-2xl text-[#22372B]" style={{ fontFamily: 'Inter, sans-serif' }}>AI.Interview</span>
                         </div>
                         {/* Menu điều hướng chính */}
@@ -493,7 +493,7 @@ export default function Home() {
                     {/* Left: Logo and Description */}
                     <div className="flex-1 min-w-[220px] flex flex-col gap-3 items-start justify-start">
                         <div className="flex items-center gap-2 mb-2">
-                            <Image src="/Logo.png" alt="AI.Interview Logo" width={88} height={88} quality={100} priority/>
+                            <Image src="/Logo.png" alt="AI.Interview Logo" width={88} height={88} quality={100} priority />
                             <span className="font-bold text-2xl text-[#22372B]">AI.Interview</span>
                         </div>
                         <p className="text-[#4B6358] text-base">

@@ -176,7 +176,7 @@ const ConversationBox = ({
         >
             {/* Header - Thanh điều khiển */}
             <div className="flex flex-wrap items-center justify-between gap-3 p-4 border-b border-[#E0D6C3] bg-[#FDFBF7] rounded-t-3xl">
-                {/* Left: Title and status */}
+                {/* Bên trái: Tiêu đề và trạng thái */}
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                     <div className="flex flex-col min-w-0">
                         <div className="flex items-center gap-2 min-w-0">
@@ -194,7 +194,7 @@ const ConversationBox = ({
                         </div>
                     </div>
                 </div>
-                {/* Right: Timer and Detail button */}
+                {/* Bên phải: Bộ đếm thời gian và nút chi tiết */}
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2 px-3 py-1 rounded-xl bg-[#F5EDE3] border border-[#E0D6C3] shadow-sm">
                         <Clock className="w-4 h-4 text-[#B77B2B]" />
@@ -229,7 +229,7 @@ const ConversationBox = ({
                 </div>
             </div>
 
-            {/* Time warning */}
+            {/* Cảnh báo thời gian sắp hết */}
             <AnimatePresence>
                 {showWarning && timeRemaining <= 30 && !isTimeUp && (
                     <motion.div
@@ -244,7 +244,7 @@ const ConversationBox = ({
                 )}
             </AnimatePresence>
 
-            {/* Message area */}
+            {/* Khu vực hiển thị tin nhắn */}
             <div
                 ref={containerRef}
                 className="flex-1 overflow-y-auto scroll-smooth relative"
@@ -253,7 +253,7 @@ const ConversationBox = ({
                 {messages.length === 0 ? renderEmptyState() : renderMessages()}
             </div>
 
-            {/* Scroll down button */}
+            {/* Nút cuộn xuống dưới cùng */}
             <AnimatePresence>
                 {showScrollButton && (
                     <motion.div
@@ -273,7 +273,7 @@ const ConversationBox = ({
                 )}
             </AnimatePresence>
 
-            {/* End interview dialog */}
+            {/* Hộp thoại xác nhận kết thúc phỏng vấn */}
             <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
                 <DialogContent className="max-w-sm bg-[#FFF9F3] border border-[#E0D6C3] rounded-2xl">
                     <DialogHeader>
@@ -288,10 +288,10 @@ const ConversationBox = ({
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-            {/* Control Bar (only if not hidden) */}
+            {/* Thanh điều khiển dưới cùng (nếu không ẩn) */}
             {!hideControlBar && (
                 <div className="flex flex-row justify-center items-end gap-8 mt-6 mb-4 shrink-0">
-                    {/* Left: Kết thúc */}
+                    {/* Bên trái: Kết thúc */}
                     <Button
                         onClick={onStopInterview}
                         disabled={isTimeUp}
@@ -300,12 +300,12 @@ const ConversationBox = ({
                         <XCircle className="w-7 h-7 mr-3" />
                         Kết thúc
                     </Button>
-                    {/* Center: Ghi âm (biggest, green, round, tooltip) */}
+                    {/* Ở giữa: Ghi âm (nút lớn, xanh, tròn, tooltip) */}
                     <div className="flex flex-col items-center">
                         <div className="mb-2">
                             <div className="bg-[#232B22] text-white text-base px-6 py-2 rounded-2xl shadow-lg relative z-10">
                                 Bấm để ghi âm và trả lời
-                                <span className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 bg-[#232B22] rotate-45 z-0" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}}></span>
+                                <span className="absolute left-1/2 -bottom-2 -translate-x-1/2 w-4 h-4 bg-[#232B22] rotate-45 z-0" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)' }}></span>
                             </div>
                         </div>
                         <Button
@@ -317,7 +317,7 @@ const ConversationBox = ({
                             <Mic className="w-14 h-14" />
                         </Button>
                     </div>
-                    {/* Right: Tạm dừng/Bắt đầu */}
+                    {/* Bên phải: Tạm dừng/Bắt đầu */}
                     <Button
                         onClick={onTogglePause}
                         disabled={!selectedLanguage}

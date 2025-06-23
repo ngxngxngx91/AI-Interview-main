@@ -1,7 +1,7 @@
 "use client";
 
-import {SignIn} from '@clerk/nextjs';
-import {motion} from 'framer-motion';
+import { SignIn } from '@clerk/nextjs';
+import { motion } from 'framer-motion';
 import {
     Brain,
     Target,
@@ -16,11 +16,12 @@ import {
     TrendingUp,
     Home
 } from 'lucide-react';
-import {Badge} from "@/components/ui/badge";
-import {Card, CardContent} from "@/components/ui/card";
-import {Button} from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+// Định nghĩa các tính năng nổi bật hiển thị bên trái màn hình đăng nhập
 const features = [
     {
         icon: Brain,
@@ -48,6 +49,7 @@ const features = [
     },
 ];
 
+// Định nghĩa các chỉ số thống kê nổi bật
 const stats = [
     {
         icon: Shield,
@@ -69,6 +71,7 @@ const stats = [
     }
 ];
 
+// Định nghĩa các lợi ích khi sử dụng sản phẩm
 const benefits = [
     {
         icon: Star,
@@ -86,15 +89,15 @@ export default function Page() {
     return (
         <div
             className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-950 dark:via-gray-900 dark:to-gray-900">
-            {/* Enhanced Background Pattern */}
+            {/* Nền hiệu ứng động cho trang đăng nhập */}
             <div className="absolute inset-0">
                 <div
-                    className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-800 bg-[size:3rem_3rem] opacity-20"/>
+                    className="absolute inset-0 bg-grid-slate-100 dark:bg-grid-slate-800 bg-[size:3rem_3rem] opacity-20" />
                 <div
-                    className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 animate-pulse"/>
+                    className="absolute inset-0 bg-gradient-to-br from-blue-500/5 via-purple-500/5 to-pink-500/5 animate-pulse" />
             </div>
 
-            {/* Return to Landing Page Button */}
+            {/* Nút quay về trang chủ */}
             <div className="absolute top-6 right-6 z-50">
                 <Link href="/">
                     <Button
@@ -109,35 +112,37 @@ export default function Page() {
 
             <div className="relative container mx-auto flex min-h-screen items-center justify-center p-8">
                 <div className="w-full max-w-5xl grid lg:grid-cols-2 gap-8 items-center">
-                    {/* Left Side - Enhanced Features */}
+                    {/* Bên trái: Thông tin, tính năng, lợi ích */}
                     <div className="space-y-8 text-slate-900 dark:text-white lg:pr-8">
+                        {/* Tiêu đề chào mừng */}
                         <motion.div
-                            initial={{scale: 0.8}}
-                            animate={{scale: 1}}
-                            transition={{duration: 0.5}}
+                            initial={{ scale: 0.8 }}
+                            animate={{ scale: 1 }}
+                            transition={{ duration: 0.5 }}
                         >
                             <Badge
                                 variant="secondary"
                                 className="bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 border-black"
                             >
-                                <Sparkles className="w-4 h-4 mr-2 text-blue-500"/>
+                                <Sparkles className="w-4 h-4 mr-2 text-blue-500" />
                                 Chào Mừng Trở Lại Hành Trình Chinh Phục Phỏng Vấn
                             </Badge>
                         </motion.div>
 
+                        {/* Tiêu đề lớn và mô tả phụ */}
                         <div className="space-y-4">
                             <motion.h1
-                                initial={{opacity: 0, y: 20}}
-                                animate={{opacity: 1, y: 0}}
-                                transition={{duration: 0.5, delay: 0.1}}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.1 }}
                                 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
                             >
                                 Tiếp Tục Chạm Đến Ước Mơ Thành Công Của Bạn
                             </motion.h1>
                             <motion.p
-                                initial={{opacity: 0, y: 20}}
-                                animate={{opacity: 1, y: 0}}
-                                transition={{duration: 0.5, delay: 0.2}}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.5, delay: 0.2 }}
                                 className="text-lg text-slate-600 dark:text-slate-400"
                             >
                                 Khởi động lại hành trình cũ với sự đồng hành của AI cá nhân hóa và chia sẻ từ chuyên
@@ -145,11 +150,11 @@ export default function Page() {
                             </motion.p>
                         </div>
 
-                        {/* Enhanced Stats */}
+                        {/* Các chỉ số thống kê nổi bật */}
                         <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5, delay: 0.3}}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
                             className="grid grid-cols-3 gap-4"
                         >
                             {stats.map((stat, index) => (
@@ -158,7 +163,7 @@ export default function Page() {
                                     className="relative group overflow-hidden rounded-lg bg-white dark:bg-gray-800 p-4 shadow-lg transition-all duration-300 hover:shadow-xl"
                                 >
                                     <div
-                                        className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
+                                        className="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-purple-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                                     <div className="relative">
                                         <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
                                         <div
@@ -168,11 +173,11 @@ export default function Page() {
                             ))}
                         </motion.div>
 
-                        {/* Enhanced Features Grid */}
+                        {/* Lưới các tính năng nổi bật */}
                         <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5, delay: 0.4}}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.4 }}
                             className="grid grid-cols-2 gap-4"
                         >
                             {features.map((feature, index) => (
@@ -185,7 +190,7 @@ export default function Page() {
                                         <CardContent className="p-6">
                                             <div
                                                 className="p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 w-fit mb-4">
-                                                <feature.icon className="w-6 h-6 text-blue-600 dark:text-blue-400"/>
+                                                <feature.icon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
                                             </div>
                                             <h3 className="font-bold text-slate-900 dark:text-white">{feature.title}</h3>
                                             <p className="text-sm text-slate-600 dark:text-slate-400 mt-1">{feature.description}</p>
@@ -195,18 +200,18 @@ export default function Page() {
                             ))}
                         </motion.div>
 
-                        {/* Benefits */}
+                        {/* Lợi ích khi sử dụng sản phẩm */}
                         <motion.div
-                            initial={{opacity: 0, y: 20}}
-                            animate={{opacity: 1, y: 0}}
-                            transition={{duration: 0.5, delay: 0.5}}
+                            initial={{ opacity: 0, y: 20 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.5 }}
                             className="space-y-4"
                         >
                             <h2 className="text-xl font-semibold text-slate-900">Tại Sao Nên Chọn AI-Interview?</h2>
                             <div className="grid grid-cols-2 gap-4">
                                 {benefits.map((benefit, index) => (
                                     <div key={benefit.title} className="flex items-center gap-2 text-slate-700">
-                                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0"/>
+                                        <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
                                         <span>{benefit.title}</span>
                                     </div>
                                 ))}
@@ -214,18 +219,19 @@ export default function Page() {
                         </motion.div>
                     </div>
 
-                    {/* Right Side - Enhanced Sign In Form */}
+                    {/* Bên phải: Form đăng nhập sử dụng Clerk */}
                     <motion.div
-                        initial={{opacity: 0, x: 20}}
-                        animate={{opacity: 1, x: 0}}
-                        transition={{duration: 0.6}}
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.6 }}
                         className="lg:pl-8"
                     >
                         <Card
                             className="relative overflow-hidden border-transparent bg-white/70 dark:bg-gray-800/70 backdrop-blur-sm shadow-xl">
-                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5"/>
+                            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-purple-500/5" />
                             <div className="relative p-6">
                                 <div className="space-y-6">
+                                    {/* Tiêu đề và mô tả form đăng nhập */}
                                     <div className="space-y-2 text-center">
                                         <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
                                             Chào Mừng Trở Lại
@@ -234,6 +240,7 @@ export default function Page() {
                                             Cùng tiếp tục hành trình biến giấc mơ phỏng vấn thành hiện thực!
                                         </p>
                                     </div>
+                                    {/* Form đăng nhập Clerk với tuỳ chỉnh giao diện */}
                                     <SignIn
                                         appearance={{
                                             elements: {

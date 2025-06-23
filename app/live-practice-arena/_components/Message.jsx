@@ -56,7 +56,7 @@ const Message = ({ message, isFirstUserMessage }) => {
             >
                 {/* Top: Score circle + Feedback */}
                 <div className="flex items-center gap-6 mb-6">
-                    {/* Score Circle */}
+                    {/* Vòng tròn điểm số */}
                     <div className="flex-shrink-0 flex flex-col items-center justify-center">
                         <svg width="64" height="64" viewBox="0 0 64 64">
                             <circle cx="32" cy="32" r="28" fill="none" stroke="#e5e5e5" strokeWidth="6" />
@@ -76,7 +76,7 @@ const Message = ({ message, isFirstUserMessage }) => {
                         </svg>
                         <span className="text-xs text-[#E5D6C6] mt-1">Điểm</span>
                     </div>
-                    {/* Feedback content */}
+                    {/* Nội dung phản hồi */}
                     <div className="flex-1">
                         <p className="text-sm text-[#F5E9DD] leading-relaxed">{phanHoi}</p>
                     </div>
@@ -145,7 +145,7 @@ const Message = ({ message, isFirstUserMessage }) => {
                                             <div className="bg-[#232B22] text-white text-xs px-3 py-1 rounded-2xl shadow-lg text-center whitespace-nowrap">
                                                 Nhấn để xem phân tích câu trả lời
                                             </div>
-                                            <div className="w-3 h-3 bg-[#232B22] rotate-45 -mt-1" style={{clipPath:'polygon(0 0, 100% 0, 100% 100%, 0 100%)'}}></div>
+                                            <div className="w-3 h-3 bg-[#232B22] rotate-45 -mt-1" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)' }}></div>
                                         </div>
                                     )}
                                     <motion.button

@@ -62,42 +62,42 @@ function DashBoard() {
                             {/* Hiệu ứng bóng đổ cho card */}
                             <Card className="bg-lime-600 rounded-[2.5rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
                             {/* Card chính với nội dung */}
-                                <Image
-                                    src="/dasboard_background_1.png"
-                                    alt="Background"
-                                    layout="fill"
-                                    objectFit="cover"
-                                    quality={100}
-                                    className="absolute inset-0 rounded-[2rem]"
-                                />
-                                <CardContent className="p-8 h-full flex text-gray-800 relative z-10">
-                                    {/* Container cho nội dung bên trái */}
-                                    <div className="flex flex-col justify-start h-full z-10 pr-4 w-3/4 items-start pt-2">
-                                        {/* Label "Nổi bật" */}
-                                        <div className="inline-flex items-center gap-2 bg-white text-lime-700 px-4 py-2 rounded-[1rem] text-lg font-semibold mb-4 shadow border border-lime-300">
-                                            <FiActivity className="w-4 h-4" />
-                                            Nổi bật
-                                        </div>
-                                        {/* Tiêu đề và mô tả */}
-                                        <h2 className="text-4xl font-bold text-gray-900 mb-3 text-left">
-                                            Phỏng vấn thực chiến
-                                        </h2>
-                                        <p className="text-gray-800 text-left">
-                                            Thực hành phỏng vấn thời gian thực với AI,
-                                        </p>
-                                        <p className="text-gray-800 mb-6 text-left">
-                                            nhận phản hồi tức thì để phát triển!
-                                        </p>
-                                        {/* Nút CTA với hiệu ứng hover */}
-                                        <Button
-                                            onClick={() => setShowDesignModal(true)}
-                                            className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white h-14 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group px-8 self-start border-2 border-white"
-                                        >
-                                            Bắt đầu ngay
-                                            <FiArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-                                        </Button>
+                            <Image
+                                src="/dasboard_background_1.png"
+                                alt="Background"
+                                layout="fill"
+                                objectFit="cover"
+                                quality={100}
+                                className="absolute inset-0 rounded-[2rem]"
+                            />
+                            <CardContent className="p-8 h-full flex text-gray-800 relative z-10">
+                                {/* Container cho nội dung bên trái */}
+                                <div className="flex flex-col justify-start h-full z-10 pr-4 w-3/4 items-start pt-2">
+                                    {/* Label "Nổi bật" */}
+                                    <div className="inline-flex items-center gap-2 bg-white text-lime-700 px-4 py-2 rounded-[1rem] text-lg font-semibold mb-4 shadow border border-lime-300">
+                                        <FiActivity className="w-4 h-4" />
+                                        Nổi bật
                                     </div>
-                                </CardContent>                  
+                                    {/* Tiêu đề và mô tả */}
+                                    <h2 className="text-4xl font-bold text-gray-900 mb-3 text-left">
+                                        Phỏng vấn thực chiến
+                                    </h2>
+                                    <p className="text-gray-800 text-left">
+                                        Thực hành phỏng vấn thời gian thực với AI,
+                                    </p>
+                                    <p className="text-gray-800 mb-6 text-left">
+                                        nhận phản hồi tức thì để phát triển!
+                                    </p>
+                                    {/* Nút CTA với hiệu ứng hover */}
+                                    <Button
+                                        onClick={() => setShowDesignModal(true)}
+                                        className="bg-gradient-to-r from-pink-500 to-red-500 hover:from-pink-600 hover:to-red-600 text-white h-14 rounded-full text-lg font-semibold shadow-lg hover:shadow-xl transition-all duration-300 group px-8 self-start border-2 border-white"
+                                    >
+                                        Bắt đầu ngay
+                                        <FiArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+                                    </Button>
+                                </div>
+                            </CardContent>
                         </div>
                     </motion.div>
 
