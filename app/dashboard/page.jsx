@@ -20,7 +20,7 @@ function DashBoard() {
 
     return (
         <div className="w-full min-h-screen bg-[#FAF8F6]">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-2 lg:px-4 py-12">
                 {/* Phần Hero - Thông điệp chào mừng với animation */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -50,17 +50,17 @@ function DashBoard() {
                 </motion.div>
 
                 {/* Grid chính: Card thực hành (trái) và Tính năng (phải) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start mb-16">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start mb-16">
 
                     {/* Cột trái - Card thực hành trực tiếp */}
                     <motion.div
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="md:col-span-2 flex flex-col h-full"
+                        className="lg:col-span-2 flex flex-col h-full"
                     >
                         <div className="relative h-full">
                             {/* Hiệu ứng bóng đổ cho card */}
-                            <Card className="bg-lime-600 rounded-[2.5rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
+                            <Card className="bg-lime-600 max-[580px]:bg-[#b6ed76] rounded-[2.5rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />
                             {/* Card chính với nội dung */}
                             <Image
                                 src="/dasboard_background_1.png"
@@ -68,11 +68,11 @@ function DashBoard() {
                                 layout="fill"
                                 objectFit="cover"
                                 quality={100}
-                                className="absolute inset-0 rounded-[2rem]"
+                                className="absolute inset-0 rounded-[2rem] max-[580px]:hidden"
                             />
                             <CardContent className="p-8 h-full flex text-gray-800 relative z-10">
                                 {/* Container cho nội dung bên trái */}
-                                <div className="flex flex-col justify-start h-full z-10 pr-4 w-3/4 items-start pt-2">
+                                <div className="flex flex-col justify-start h-full z-10 pr-4 w-3/4 max-[580px]:w-full items-start pt-2">
                                     {/* Label "Nổi bật" */}
                                     <div className="inline-flex items-center gap-2 bg-white text-lime-700 px-4 py-2 rounded-[1rem] text-lg font-semibold mb-4 shadow border border-lime-300">
                                         <FiActivity className="w-4 h-4" />
@@ -105,7 +105,7 @@ function DashBoard() {
                     <motion.div
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        className="md:col-span-1 flex flex-col h-full relative"
+                        className="lg:col-span-1 flex flex-col h-full relative sm:mx-auto sm:w-full"
                     >
                         {/* Hiệu ứng bóng đổ cho card tính năng */}
                         <Card className="bg-[#3a220f] rounded-[2rem] overflow-hidden border-none h-full w-full absolute top-1.5 left-0 z-0" />

@@ -121,10 +121,10 @@ const plans = [
             {/* Logo */}
             <div className="flex items-center gap-3">
               <Image src="/Logo.png" alt="AI.Interview Logo" width={40} height={40} quality={100} priority />
-              <span className="font-bold text-2xl text-[#22372B]">AI.Interview</span>
+              <span className="font-bold text-2xl text-[#22372B] hidden sm:inline">AI.Interview</span>
             </div>
             {/* Menu */}
-            <nav className="hidden md:flex gap-16 text-lg">
+            <nav className="hidden md:flex max-lg:gap-7 gap-16 text-lg">
               <Link href="#how-it-works" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Cách hoạt động</Link>
               <Link href="/pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Bảng giá</Link>
               <Link href="#affiliate" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Affiliate</Link>

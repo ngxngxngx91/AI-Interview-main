@@ -151,7 +151,7 @@ export default function Home() {
         <div className="min-h-screen" style={{ background: '#FCF9F2' }}>
             {/* Phần Hero Section - Thiết kế giao diện chính */}
             <div
-                className="relative overflow-hidden min-h-[654px] h-[654px] flex items-center"
+                className="relative overflow-hidden max-sm:pb-8 sm:pb-8 md:py-10 h-auto flex items-center"
                 style={{
                     backgroundImage: 'url(/landing_page_1.png)',
                     backgroundSize: 'cover',
@@ -161,14 +161,14 @@ export default function Home() {
             >
                 <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col h-full justify-center">
                     {/* Thanh điều hướng (Navigation Bar) */}
-                    <div className="flex justify-between items-center w-full" style={{ minHeight: '80px' }}>
+                    <div className="flex justify-between items-center w-full md:-mt-10" style={{ minHeight: '80px' }}>
                         {/* Logo và tên ứng dụng */}
                         <div className="flex items-center gap-3">
                             <Image src="/Logo.png" alt="AI.Interview Logo" width={40} height={40} quality={100} priority />
                             <span className="font-bold text-2xl text-[#22372B]" style={{ fontFamily: 'Inter, sans-serif' }}>AI.Interview</span>
                         </div>
                         {/* Menu điều hướng chính */}
-                        <nav className="hidden md:flex gap-16 text-lg">
+                        <nav className="hidden md:flex max-lg:gap-7 gap-16 text-lg">
                             <Link href="/how-it-works" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Cách hoạt động</Link>
                             <Link href="/pricing" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Bảng giá</Link>
                             <Link href="/affiliate" className="text-[#4B6358] hover:text-[#22372B] transition-colors font-normal">Affiliate</Link>
@@ -186,7 +186,7 @@ export default function Home() {
                     {/* Nội dung chính: Layout 2 cột */}
                     <div className="flex flex-col md:flex-row items-center justify-between gap-8 flex-1">
                         {/* Cột trái: Text và các nút */}
-                        <div className="flex-1 flex flex-col items-start justify-center gap-8 min-w-[462px] min-h-[390px]">
+                        <div className="flex-1 flex flex-col items-start justify-center gap-8 min-w-[462px] min-h-[390px] max-sm:w-full max-sm:min-w-0">
                             {/* Tiêu đề chính với hiệu ứng gradient */}
                             <h1 className="text-[56px] leading-[1.1] font-bold text-[#22372B] mb-4" style={{ letterSpacing: '-2px' }}>
                                 Chinh phục<br />
@@ -199,7 +199,7 @@ export default function Home() {
                                 tăng cường sự tự tin cho cuộc phỏng vấn tiếp theo
                             </p>
                             {/* Nhóm các nút CTA */}
-                            <div className="flex gap-4">
+                            <div className="flex gap-4 flex-wrap max-sm:justify-center">
                                 <Link href="/dashboard">
                                     <button
                                         className="relative flex items-center h-[56px] pr-5 pl-7 rounded-full font-semibold text-white text-base shadow-md transition-transform duration-150 ease-in-out hover:scale-105 active:scale-95"
@@ -258,7 +258,7 @@ export default function Home() {
             </div>
 
             {/* Featured Benefits Section - Vietnamese Redesign */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center" style={{ height: '928px', minHeight: '928px' }}>
+            <div className="max-lg:!h-auto max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center" style={{ height: '928px', minHeight: '928px' }}>
                 <div className="text-center mb-12">
                     <h2 className="text-[48px] md:text-[56px] font-bold text-[#22372B] mb-3 md:mb-6" style={{ letterSpacing: '-1.5px' }}>Tối ưu hành trình Làm Chủ & Cải Thiện với 4 tính năng tuyệt vời</h2>
                     <p className="text-[#4B6358] text-lg md:text-xl">AI-Interview sẽ luôn đồng hành cùng bạn xuyên suốt hành trình luyện tập cho đến ngày "hái quả ngọt"</p>
@@ -268,7 +268,7 @@ export default function Home() {
             </div>
 
             {/* Free Interview Experience Section - Vietnamese Redesign */}
-            <div className="w-full" style={{ background: 'url(/landing_page_4.png) center/cover no-repeat', height: '752px', minHeight: '752px', position: 'relative' }}>
+            <div className="w-full max-lg:!h-auto" style={{ background: 'url(/landing_page_4.png) center/cover no-repeat', height: '752px', minHeight: '752px', position: 'relative' }}>
                 <div className="flex justify-center items-center relative h-full">
                     {/* Decorative block image at top left */}
                     <Image
@@ -281,7 +281,7 @@ export default function Home() {
                         priority
                         className="hidden md:block absolute left-64 top-48 z-10 w-[110px] h-auto"
                     />
-                    <div className="w-full max-w-3xl flex flex-col items-center justify-center mx-auto">
+                    <div className="max-lg:!py-10 w-full max-w-3xl flex flex-col items-center justify-center mx-auto px-4">
                         <h2 className="text-5xl font-bold text-[#22372B] mb-2 mt-0 text-center">Trải nghiệm phỏng vấn miễn phí</h2>
                         <p className="text-[#7A8576] text-lg mt-3 mb-12 text-center">Thử sức với những câu hỏi thực tế và nhận phản hồi tức thì từ AI</p>
                         <div className="bg-white rounded-2xl px-8 py-8 w-full relative z-10 flex flex-col justify-center">
@@ -291,7 +291,7 @@ export default function Home() {
                                     variant="outline"
                                     size="lg"
                                     onClick={getRandomQuestion}
-                                    className="border border-[#7ED957] text-[#22372B] font-semibold rounded-full px-4 py-2 hover:bg-[#EAF5E3] transition"
+                                    className="border border-[#7ED957] text-[#22372B] font-semibold rounded-full px-4 py-2 hover:bg-[#EAF5E3] hover:text-black transition"
                                 >
                                     <RefreshCcw className="w-4 h-4 mr-2 inline-block" />
                                     Đổi câu hỏi
@@ -353,13 +353,13 @@ export default function Home() {
                         quality={100}
                         unoptimized={true}
                         priority
-                        className="hidden md:block absolute right-28 bottom-0 z-15 w-[308px] h-auto"
+                        className="hidden xl:block absolute right-28 bottom-0 z-15 w-[308px] h-auto"
                     />
                 </div>
             </div>
 
             {/* Why Choose AI.Interview Section - Vietnamese Redesign */}
-            <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[660px] h-[660px] flex items-center justify-center overflow-visible">
+            <div className="max-lg:!h-auto max-lg:!py-12 relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[660px] h-[660px] flex items-center justify-center overflow-visible">
                 {/* Decorative shapes inside section */}
                 <div className="pointer-events-none absolute z-0 w-full h-full left-0 top-0">
                     {/* Top left orange pill */}
@@ -423,7 +423,7 @@ export default function Home() {
 
             {/* Success CTA Section - Vietnamese Redesign */}
             <div
-                className="w-full"
+                className="w-full max-lg:!h-auto"
                 style={{
                     background: '#B6F57D',
                     minHeight: '696px',
@@ -431,7 +431,7 @@ export default function Home() {
                     position: 'relative',
                 }}
             >
-                <div className="w-full h-full flex flex-col lg:flex-row items-center justify-between gap-0" style={{ height: '696px' }}>
+                <div className="w-full h-full max-lg:!h-auto flex flex-col lg:flex-row items-center justify-between gap-0" style={{ height: '696px' }}>
                     {/* Left Section: Text and Button */}
                     <div className="flex flex-col justify-center gap-6 min-w-[220px] max-w-full lg:max-w-[700px] w-full lg:w-[48vw] items-center z-10 h-full mx-auto px-4 py-8 lg:py-0">
                         <h2 className="text-4xl lg:text-5xl font-bold text-[#22372B] leading-tight text-center">
@@ -472,7 +472,7 @@ export default function Home() {
                         </Link>
                     </div>
                     {/* Right Section: Chat UI + Character Image */}
-                    <div className="relative h-[320px] sm:h-[420px] md:h-[520px] lg:h-[744px] w-full lg:w-[52vw] min-w-[180px] flex items-center justify-center lg:justify-end mt-8 lg:mt-0">
+                    <div className="relative h-[320px] max-lg:!h-auto max-lg:!-mt-6 sm:h-[420px] md:h-[520px] lg:h-[744px] w-full lg:w-[52vw] min-w-[180px] flex items-center justify-center lg:justify-end mt-8 lg:mt-0">
                         <Image
                             src="/landing_page_section_start_1.png"
                             alt="Chat UI and Character"
@@ -629,7 +629,7 @@ function FeatureScrollGallery() {
     // Render stacked cards
     return (
         <div ref={containerRef} className="flex flex-col items-center justify-center w-full min-h-0 select-none" style={{ outline: 'none', minHeight: CARD_HEIGHT + 80 }} tabIndex={0}>
-            <div className="relative mx-auto flex items-center justify-center" style={{ minHeight: CARD_HEIGHT, height: CARD_HEIGHT, width: CARD_WIDTH }}>
+            <div className="max-xl:!w-full relative mx-auto flex items-center justify-center" style={{ minHeight: CARD_HEIGHT, height: CARD_HEIGHT, width: CARD_WIDTH }}>
                 {/* Stack all cards, only top card animates */}
                 {cards.map((card, idx) => {
                     // Calculate stack position
@@ -639,7 +639,7 @@ function FeatureScrollGallery() {
                         return (
                             <div
                                 key={idx}
-                                className="absolute left-1/2 top-0 flex flex-row rounded-[40px] shadow-2xl overflow-visible"
+                                className="max-xl:!w-full absolute left-1/2 top-0 flex flex-row rounded-[40px] shadow-2xl overflow-visible"
                                 style={{
                                     border: 'none',
                                     zIndex: 10,
@@ -651,14 +651,14 @@ function FeatureScrollGallery() {
                                 }}
                             >
                                 {/* Left: Image */}
-                                <div className="flex items-center justify-center bg-transparent" style={{ flexBasis: IMAGE_WIDTH, minWidth: IMAGE_WIDTH, maxWidth: IMAGE_WIDTH, height: '100%', borderRadius: '32px', overflow: 'visible', position: 'relative' }}>
+                                <div className="max-lg:!hidden flex items-center justify-center bg-transparent" style={{ flexBasis: IMAGE_WIDTH, minWidth: IMAGE_WIDTH, maxWidth: IMAGE_WIDTH, height: '100%', borderRadius: '32px', overflow: 'visible', position: 'relative' }}>
                                     <Image
                                         src={card.image}
                                         alt="Feature visual"
                                         width={IMAGE_WIDTH}
                                         height={IMAGE_HEIGHT}
                                         quality={100}
-                                        className="w-full h-[400px] object-contain rounded-[32px]"
+                                        className="max-lg:!hidden w-full h-[400px] object-contain rounded-[32px]"
                                     />
                                 </div>
                                 {/* Right: Text/Content */}
@@ -672,7 +672,7 @@ function FeatureScrollGallery() {
                         return (
                             <div
                                 key={idx}
-                                className="absolute left-1/2 top-0 flex flex-row rounded-[40px] shadow-2xl overflow-visible pointer-events-none"
+                                className="max-xl:!w-full absolute left-1/2 top-0 flex flex-row rounded-[40px] shadow-2xl overflow-visible pointer-events-none"
                                 style={{
                                     border: 'none',
                                     zIndex: 10 - pos,
@@ -685,7 +685,7 @@ function FeatureScrollGallery() {
                                 aria-hidden="true"
                             >
                                 {/* Left: Image */}
-                                <div className="flex items-center justify-center bg-transparent" style={{ flexBasis: IMAGE_WIDTH, minWidth: IMAGE_WIDTH, maxWidth: IMAGE_WIDTH, height: '100%', borderRadius: '32px', overflow: 'visible', position: 'relative' }}>
+                                <div className="max-lg:!hidden flex items-center justify-center bg-transparent" style={{ flexBasis: IMAGE_WIDTH, minWidth: IMAGE_WIDTH, maxWidth: IMAGE_WIDTH, height: '100%', borderRadius: '32px', overflow: 'visible', position: 'relative' }}>
                                     <Image
                                         src={card.image}
                                         alt="Feature visual"

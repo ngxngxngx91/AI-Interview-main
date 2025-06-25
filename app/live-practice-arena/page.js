@@ -212,7 +212,7 @@ function LivePracticeArenaContent() {
             />
             {/* Lớp phủ làm tối */}
             <div className="absolute inset-0 z-0" />
-            <div className={`relative z-10 w-full ${isPracticeMode ? 'max-w-none' : 'max-w-2xl mx-auto'} flex flex-col gap-6 px-2 py-10`}>
+            <div className={`relative z-10 w-full ${isPracticeMode ? 'max-w-none' : 'max-w-2xl mx-auto'} flex flex-col gap-6 px-2 py-6 -mt-3`}>
                 {/* Khu vực trên cùng: Nút Thoát */}
                 {!isPracticeMode && (
                     <div className="mb-2">
@@ -294,7 +294,7 @@ function LivePracticeArenaContent() {
                     <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-7 flex flex-col z-10 relative">
                         <div className="mb-4">
                             <span className="block text-xl font-bold text-[#232E23] mb-4">Thời gian</span>
-                            <div className="flex flex-row gap-2 h-[104px] justify-center">
+                            <div className="flex flex-row flex-wrap md:flex-nowrap gap-2 min-h-[104px] justify-center">
                                 {timeOptions.map((option) => {
                                     const isSelected = selectedTime === option.value;
                                     return (
@@ -317,6 +317,26 @@ function LivePracticeArenaContent() {
                         </div>
                     </div>
                 )}
+                {!isPracticeMode && (
+                    <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-4 flex flex-col z-10 relative">
+                        <div className="mb-4">
+                            <span className="block text-xl font-bold text-[#232E23] mb-4">Ngôn ngữ phỏng vấn</span>
+                            <Select value="vi">
+                                <SelectTrigger className="w-full border border-[#E5E5E5] bg-white text-[#2D221B] focus:border-[#B6F09C] focus:ring-[#B6F09C]/20 rounded-xl h-12 flex items-center pr-2 relative">
+                                <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="bg-white text-[#2D221B]">
+                                <SelectItem value="vi">
+                                    <span className="inline-flex items-center"><span className="mr-2 w-5 h-5 rounded-full bg-[#DA251D] flex items-center justify-center text-[#FFCD00] text-xs">★</span> Tiếng Việt</span>
+                                </SelectItem>
+                                <SelectItem value="en">
+                                    <span className="inline-flex items-center"><span className="mr-2 w-5 h-5 rounded-full bg-[#1877F3] flex items-center justify-center text-white text-base">🇬🇧</span> English</span>
+                                </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                )}
                 {/* Khu vực thứ tư: Nút bắt đầu */}
                 {!isPracticeMode && (
                     <div>
@@ -324,14 +344,14 @@ function LivePracticeArenaContent() {
                             className={`w-full h-12 rounded-[24px] text-lg transition-all duration-300 
                                 ${!selectedTime
                                     ? 'bg-gray-200 text-gray-400'
-                                    : 'bg-[#B5ED76] hover:bg-[#2F3C30] text-white shadow-lg hover:shadow-xl'
+                                    : 'bg-[#B5ED76] hover:bg-[#97e046] text-white shadow-lg hover:shadow-xl'
                                 }`}
                             disabled={!selectedTime}
                             onClick={handleStartPractice}
                         >
                             <span className="flex items-center gap-2 text-black">
                                 <Play className="w-5 h-5" />
-                                Bắt Đầu
+                                Bắt đầu
                                 <Sparkles className="w-5 h-5" />
                             </span>
                         </Button>
@@ -339,7 +359,7 @@ function LivePracticeArenaContent() {
                 )}
                 {/* Chế độ luyện tập: Hiển thị giao diện luyện tập khi đã chọn thời gian */}
                 {isPracticeMode && (
-                    <motion.div className="w-full h-[calc(100vh-4rem)] flex items-center justify-center">
+                    <motion.div className="w-full h-[calc(100vh-7rem)] flex items-center justify-center">
                         <ScenarioContent
                             scenarioData={scenarioData}
                             timeLimit={parseInt(selectedTime)}

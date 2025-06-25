@@ -440,10 +440,10 @@ Language: ${selectedLanguage}`;
                         })()
                       }
                       {/* Nút hành động: Đổi kịch bản, Vào buổi phỏng vấn */}
-                      <div className="flex gap-3 mt-6">
+                      <div className="grid grid-cols-2 gap-3 mt-6 max-sm:grid-cols-1">
                         <Button
                           variant="outline"
-                          className="flex-1 h-12 rounded-full border border-[#D1D5DB] text-[#374151] bg-white hover:bg-[#F3F4F6] text-lg font-semibold"
+                          className="flex-1 h-12 rounded-full border border-[#D1D5DB] text-[#374151] bg-white hover:bg-[#F3F4F6] text-base font-semibold"
                           onClick={() => {
                             setGeneratedScenario(null);
                             setProgress(0);
@@ -454,7 +454,7 @@ Language: ${selectedLanguage}`;
                           Đổi kịch bản khác
                         </Button>
                         <Button
-                          className="flex-1 h-12 rounded-full bg-[#22C55E] hover:bg-[#16A34A] text-white text-lg font-semibold shadow-none"
+                          className="flex-1 h-12 rounded-full bg-[#B5ED76] hover:bg-[#16A34A] text-black text-base font-semibold shadow-none"
                           onClick={handleProceed}
                           disabled={
                             !generatedScenario?.scenario ||
