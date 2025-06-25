@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { Button } from "@/components/ui/button";
@@ -61,6 +61,67 @@ function ResultFeedbackContent() {
     const [modalContent, setModalContent] = useState("");
     // State quản lý trạng thái thu gọn của từng card đánh giá (theo index)
     const [collapsedCards, setCollapsedCards] = useState({});
+    // Dynamic AI suggestions state (must be at top level)
+    const [dynamicSuggestions, setDynamicSuggestions] = useState({});
+    // Add state for improvement suggestion popup
+    const [improvementDialogOpen, setImprovementDialogOpen] = useState(false);
+    const [improvementDialogContent, setImprovementDialogContent] = useState("");
+    const [improvementDialogTitle, setImprovementDialogTitle] = useState("");
+
+    // Compute weaknessCounts and sortedWeaknesses with useMemo
+    const { weaknessCounts, sortedWeaknesses } = useMemo(() => {
+        const weaknessCounts = {};
+        if (sessionData && sessionData.conversation) {
+            sessionData.conversation
+                .filter(
+                    (msg) =>
+                        msg.type === "user" &&
+                        msg.analysis?.weaknesses
+                )
+                .flatMap((msg) => msg.analysis.weaknesses)
+                .forEach((w) => {
+                    weaknessCounts[w] = (weaknessCounts[w] || 0) + 1;
+                });
+        }
+        const sortedWeaknesses = Object.entries(weaknessCounts)
+            .sort((a, b) => b[1] - a[1]);
+        return { weaknessCounts, sortedWeaknesses };
+    }, [sessionData]);
+
+    // Actionable suggestions mapping
+    const suggestionMap = {
+        "Chưa trả lời đúng trọng tâm": "Hãy đọc kỹ câu hỏi và trả lời trực tiếp vào trọng tâm.",
+        "Thiếu ví dụ minh họa": "Thêm ví dụ thực tế để làm rõ ý của bạn.",
+        "Câu trả lời còn chung chung": "Cố gắng cụ thể hóa câu trả lời bằng số liệu hoặc trải nghiệm cá nhân.",
+        "Thiếu tự tin khi trình bày": "Luyện tập nói trước gương hoặc ghi âm để tăng sự tự tin.",
+        "Chưa nêu bật kỹ năng mềm": "Đề cập đến các kỹ năng mềm liên quan như giao tiếp, làm việc nhóm...",
+        // ... add more mappings as needed
+    };
+
+    // Fetch dynamic suggestions for weaknesses not in the static map
+    useEffect(() => {
+        sortedWeaknesses.forEach(([weakness]) => {
+            if (!suggestionMap[weakness] && !dynamicSuggestions[weakness]) {
+                fetch("/api/interview-feedback/generate-suggestion", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ weakness }),
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.suggestion) {
+                            setDynamicSuggestions((prev) => ({ ...prev, [weakness]: data.suggestion }));
+                        } else {
+                            setDynamicSuggestions((prev) => ({ ...prev, [weakness]: "Không thể tạo gợi ý." }));
+                        }
+                    })
+                    .catch(() => {
+                        setDynamicSuggestions((prev) => ({ ...prev, [weakness]: "Không thể tạo gợi ý." }));
+                    });
+            }
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [JSON.stringify(sortedWeaknesses)]);
 
     useEffect(() => {
         const mockId = searchParams.get("mockId");
@@ -131,15 +192,23 @@ function ResultFeedbackContent() {
 
     if (!sessionData) return null;
 
-    // Tính điểm trung bình từ tất cả các tin nhắn của người dùng
-    const averageScore = Math.round(
-        sessionData.conversation
-            .filter((msg) => msg.type === "user" && msg.analysis?.overallScore)
-            .reduce((acc, msg) => acc + msg.analysis.overallScore, 0) /
-            sessionData.conversation.filter(
-                (msg) => msg.type === "user" && msg.analysis?.overallScore
-            ).length
-    );
+    // Calculate new overallScore factoring in time and answers
+    const numAnswers = sessionData.conversation.filter(
+        (msg) => msg.type === "user" && msg.analysis?.overallScore
+    ).length;
+    const avgScore =
+        numAnswers > 0
+            ? sessionData.conversation
+                  .filter((msg) => msg.type === "user" && msg.analysis?.overallScore)
+                  .reduce((acc, msg) => acc + msg.analysis.overallScore, 0) /
+              numAnswers
+            : 0;
+    const durationUsed = sessionData.duration; // in seconds
+    const expectedDuration = 180; // 3 minutes default
+    const expectedAnswers = 3; // default
+    const timeFactor = Math.min(1, Math.max(0.7, durationUsed / expectedDuration));
+    const answerFactor = Math.min(1, Math.max(0.7, numAnswers / expectedAnswers));
+    const overallScore = Math.round(avgScore * timeFactor * answerFactor);
 
     // Giao diện chính của trang kết quả phản hồi
     return (
@@ -191,7 +260,7 @@ function ResultFeedbackContent() {
                             fill="none"
                             stroke="#E97B5A"
                             strokeWidth="12"
-                            strokeDasharray={`${averageScore * 3.9}, 390`}
+                            strokeDasharray={`${overallScore * 3.9}, 390`}
                             strokeLinecap="round"
                             style={{ transition: "stroke-dasharray 0.6s" }}
                         />
@@ -204,7 +273,7 @@ function ResultFeedbackContent() {
                             transform: "translate(-50%, -50%)",
                         }}
                     >
-                        {averageScore}
+                        {overallScore}
                     </span>
                 </div>
             </div>
@@ -897,39 +966,98 @@ function ResultFeedbackContent() {
                     <div className="w-full flex flex-col gap-4 py-2 px-1">
                         <div className="max-h-[400px] overflow-y-auto pr-1">
                             {(() => {
-                                // Lấy tất cả điểm yếu duy nhất từ hội thoại để đưa ra lời khuyên
-                                const weaknesses = sessionData.conversation
-                                    .filter(
-                                        (msg) =>
-                                            msg.type === "user" &&
-                                            msg.analysis?.weaknesses
-                                    )
-                                    .flatMap((msg) => msg.analysis.weaknesses)
-                                    .filter(
-                                        (w, i, arr) => arr.indexOf(w) === i
-                                    );
-                                if (weaknesses.length === 0) {
+                                // Assign priority and color
+                                const getPriority = (idx) => {
+                                    if (idx === 0) return { label: "Rất quan trọng", color: "#E24C4B", bg: "#FDEDE7" };
+                                    if (idx === 1 || idx === 2) return { label: "Nên cải thiện sớm", color: "#FFD166", bg: "#FFF9E3" };
+                                    return { label: "Có thể cải thiện dần", color: "#6BAA4D", bg: "#E7F3DF" };
+                                };
+
+                                if (sortedWeaknesses.length === 0) {
                                     return (
                                         <div className="text-gray-500 text-center py-8">
                                             Không có lời khuyên nào.
                                         </div>
                                     );
                                 }
-                                return weaknesses.map((weakness, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex items-start gap-4 bg-[#E7F3DF] rounded-[2rem] px-6 py-4 w-full border border-[#D1E7C6] mb-4"
-                                    >
-                                        <CheckCircle2 className="w-6 h-6 text-[#6BAA4D] flex-shrink-0 mt-1" />
-                                        <div className="flex flex-col">
-                                            <span className="font-bold text-[#2D332B] text-lg leading-snug">
-                                                Tập trung vào: {weakness}
-                                            </span>
+                                return sortedWeaknesses.map(([weakness, count], idx) => {
+                                    const { label, color, bg } = getPriority(idx);
+                                    const suggestionRaw =
+                                        suggestionMap[weakness] ||
+                                        dynamicSuggestions[weakness] ||
+                                        "Đang tạo gợi ý...";
+
+                                    // Parse suggestion if it's a JSON array or object with suggestion/reason
+                                    let suggestion = "";
+                                    let reason = "";
+                                    try {
+                                        const parsed = JSON.parse(suggestionRaw);
+                                        if (Array.isArray(parsed) && parsed[0]?.suggestion) {
+                                            suggestion = parsed[0].suggestion;
+                                            reason = parsed[0].reason || "";
+                                        } else if (parsed && typeof parsed === 'object' && parsed.suggestion) {
+                                            suggestion = parsed.suggestion;
+                                            reason = parsed.reason || "";
+                                        } else {
+                                            suggestion = suggestionRaw;
+                                        }
+                                    } catch {
+                                        suggestion = suggestionRaw;
+                                    }
+
+                                    return (
+                                        <div
+                                            key={weakness}
+                                            className="flex items-start gap-4 rounded-[2rem] px-6 py-4 w-full border mb-4"
+                                            style={{ background: bg, borderColor: color }}
+                                        >
+                                            <div className="flex flex-col min-w-[120px] items-center justify-center mr-2">
+                                                <span
+                                                    className="font-bold text-base mb-1 px-3 py-1 rounded-full"
+                                                    style={{ color: color, background: '#fff', border: `1px solid ${color}` }}
+                                                >
+                                                    {label}
+                                                </span>
+                                                <span className="text-xs text-[#7A6A2F] mt-1">({count} lần)</span>
+                                            </div>
+                                            <div className="flex flex-col flex-1">
+                                                <span className="font-bold text-[#2D332B] text-lg leading-snug mb-2">
+                                                    {weakness}
+                                                </span>
+                                                <Button
+                                                    variant="outline"
+                                                    className="w-fit px-4 py-1 text-sm rounded-full border border-[#B89B2B] text-[#B89B2B] hover:bg-[#FFF9E3]"
+                                                    onClick={() => {
+                                                        setImprovementDialogTitle(`Đề xuất cải thiện cho: ${weakness}`);
+                                                        setImprovementDialogContent(
+                                                            reason
+                                                                ? `<b>Gợi ý:</b> ${suggestion}<br/><b>Lý do:</b> ${reason}`
+                                                                : suggestion
+                                                        );
+                                                        setImprovementDialogOpen(true);
+                                                    }}
+                                                    disabled={suggestionRaw === "Đang tạo gợi ý..."}
+                                                >
+                                                    Xem Đề Suất Cải Thiện
+                                                </Button>
+                                            </div>
                                         </div>
-                                    </div>
-                                ));
+                                    );
+                                });
                             })()}
                         </div>
+                        {/* Improvement Suggestion Dialog */}
+                        <Dialog open={improvementDialogOpen} onOpenChange={setImprovementDialogOpen}>
+                            <DialogContent className="max-w-lg w-full">
+                                <DialogTitle className="font-bold text-lg text-[#B89B2B] mb-2">
+                                    {improvementDialogTitle}
+                                </DialogTitle>
+                                <div
+                                    className="text-base text-[#7A6A2F] mt-2"
+                                    dangerouslySetInnerHTML={{ __html: improvementDialogContent }}
+                                />
+                            </DialogContent>
+                        </Dialog>
                     </div>
                 )}
             </div>
@@ -940,10 +1068,10 @@ function ResultFeedbackContent() {
                     className="max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-2xl border-none"
                     style={{ boxShadow: "0 8px 32px 0 rgba(60,60,60,0.10)" }}
                 >
+                    <DialogTitle className="font-bold text-lg text-[#B89B2B] mb-4">
+                        {modalTitle}
+                    </DialogTitle>
                     <div className="bg-[#FFF9E3] rounded-2xl p-6 shadow-lg border border-[#F7E6A2]">
-                        <h3 className="font-bold text-lg text-[#B89B2B] mb-4">
-                            {modalTitle}
-                        </h3>
                         <ul className="list-disc pl-5 text-base text-[#7A6A2F] space-y-2">
                             {modalContent
                                 .split("\n")

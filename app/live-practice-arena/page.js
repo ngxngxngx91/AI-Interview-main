@@ -317,7 +317,7 @@ function LivePracticeArenaContent() {
                         </div>
                     </div>
                 )}
-                {!isPracticeMode && (
+                {/* {!isPracticeMode && (
                     <div className="w-full bg-white rounded-[28px] shadow-lg px-8 py-4 flex flex-col z-10 relative">
                         <div className="mb-4">
                             <span className="block text-xl font-bold text-[#232E23] mb-4">Ngôn ngữ phỏng vấn</span>
@@ -336,7 +336,7 @@ function LivePracticeArenaContent() {
                             </Select>
                         </div>
                     </div>
-                )}
+                )} */}
                 {/* Khu vực thứ tư: Nút bắt đầu */}
                 {!isPracticeMode && (
                     <div>

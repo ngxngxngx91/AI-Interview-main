@@ -27,6 +27,7 @@ export async function GET() {
       duration: InterviewFeedback.duration,
       averageScore: InterviewFeedback.averageScore,
       createdAt: InterviewFeedback.createdAt,
+      conversation: InterviewFeedback.conversation,
     })
     .from(MockInterview)
     .leftJoin(InterviewFeedback, eq(MockInterview.mockID, InterviewFeedback.mockIdRef))

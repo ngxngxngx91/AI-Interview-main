@@ -402,7 +402,7 @@ Language: ${selectedLanguage}`;
                         </span>
                       </div>
                       {/* Mô tả kịch bản */}
-                      <p className="text-base text-[#374151] mb-2">{generatedScenario.description || generatedScenario.scenario || 'Mô tả kịch bản...'}</p>
+                      <p className="text-base text-[#374151] mb-2">{generatedScenario.scenario || 'Mô tả kịch bản...'}</p>
                       {/* Đường kẻ phân cách */}
                       <div className="border-t border-[#E5E7EB] my-2" />
                       {/* Hộp tình huống từ khách hàng */}
@@ -645,7 +645,7 @@ Language: ${selectedLanguage}`;
                         <div className="flex items-center justify-between text-sm text-gray-400">
                           <span className="flex items-center gap-2">
                             <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
-                            Generating your interview scenario...
+                            Hệ thống đang tiến hành khởi tạo buổi phỏng vấn cho bạn ...
                           </span>
                           <span>{progress}%</span>
                         </div>

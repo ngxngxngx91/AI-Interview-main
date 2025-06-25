@@ -46,8 +46,29 @@ const ScoreCircle = ({ overallScore, extraClassname }) => {
 // Component hiển thị thông tin một buổi phỏng vấn
 const InterviewCard = ({ interview, onDelete }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  // Lấy điểm số từ dữ liệu phỏng vấn
-  const overallScore = interview.averageScore || 0;
+  // Calculate score using the same logic as the feedback page
+  let overallScore = 0;
+  try {
+    const conversation = interview.conversation ? JSON.parse(interview.conversation) : [];
+    const numAnswers = conversation.filter(
+      (msg) => msg.type === "user" && msg.analysis?.overallScore
+    ).length;
+    const avgScore =
+      numAnswers > 0
+        ? conversation
+            .filter((msg) => msg.type === "user" && msg.analysis?.overallScore)
+            .reduce((acc, msg) => acc + msg.analysis.overallScore, 0) /
+          numAnswers
+        : 0;
+    const durationUsed = parseInt(interview.duration) || 0; // in seconds
+    const expectedDuration = 180; // 3 minutes default
+    const expectedAnswers = 3; // default
+    const timeFactor = Math.min(1, Math.max(0.7, durationUsed / expectedDuration));
+    const answerFactor = Math.min(1, Math.max(0.7, numAnswers / expectedAnswers));
+    overallScore = Math.round(avgScore * timeFactor * answerFactor);
+  } catch (e) {
+    overallScore = parseInt(interview.averageScore) || 0;
+  }
   const router = useRouter(); // Lấy instance router
 
   // Hàm xác định màu sắc badge dựa trên độ khó

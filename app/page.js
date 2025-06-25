@@ -63,21 +63,17 @@ export default function Home() {
 
         setIsLoading(true);
         try {
-            const feedbackPrompt = `As an interview coach, provide a brief, constructive feedback for this interview question and answer. Return the feedback in the following JSON format:
-      {
-        "strengths": "Key strengths of the answer (1-2 points)",
-        "improvement": "One specific area for improvement"
-      }
-      
-      Question: ${currentQuestion}
-      Answer: ${answer}`;
+            // Prompt in Vietnamese, ask for Vietnamese JSON keys/values
+            const feedbackPrompt = `Bạn là huấn luyện viên phỏng vấn. Hãy đưa ra phản hồi ngắn gọn, mang tính xây dựng cho câu hỏi và câu trả lời phỏng vấn sau. Trả về phản hồi theo đúng định dạng JSON sau (bằng tiếng Việt):\n{
+  "diem_manh": "1-2 điểm mạnh của câu trả lời",
+  "can_cai_thien": "Một điểm cần cải thiện cụ thể"
+}\n\nCâu hỏi: ${currentQuestion}\nCâu trả lời: ${answer}`;
 
-            const result = await generateWithRetry(feedbackPrompt);
-            const responseText = result.response.text();
+            const responseText = await generateWithRetry(feedbackPrompt);
 
             try {
                 const jsonResponse = JSON.parse(responseText);
-                const formattedFeedback = `Strengths: ${jsonResponse.strengths}\n\nArea for Improvement: ${jsonResponse.improvement}`;
+                const formattedFeedback = `Điểm mạnh: ${jsonResponse.diem_manh}\n\nCần cải thiện: ${jsonResponse.can_cai_thien}`;
                 setFeedback(formattedFeedback);
             } catch (jsonError) {
                 const cleanedResponse = responseText
@@ -86,7 +82,7 @@ export default function Home() {
                     .trim();
                 try {
                     const jsonResponse = JSON.parse(cleanedResponse);
-                    const formattedFeedback = `Strengths: ${jsonResponse.strengths}\n\nArea for Improvement: ${jsonResponse.improvement}`;
+                    const formattedFeedback = `Điểm mạnh: ${jsonResponse.diem_manh}\n\nCần cải thiện: ${jsonResponse.can_cai_thien}`;
                     setFeedback(formattedFeedback);
                 } catch {
                     setFeedback(responseText.replace(/```json/g, '').replace(/```/g, '').trim());
@@ -94,7 +90,7 @@ export default function Home() {
             }
         } catch (error) {
             console.error("Error getting feedback:", error);
-            setFeedback("Sorry, there was an error generating feedback. Please try again.");
+            setFeedback("Xin lỗi, đã xảy ra lỗi khi tạo phản hồi. Vui lòng thử lại.");
         } finally {
             setIsLoading(false);
         }
@@ -607,25 +603,6 @@ function FeatureScrollGallery() {
     const stackOffsetY = 8; // 4px down per stack
     const stackOffsetX = 0; // 24px right per stack
 
-    // Handle mouse wheel scroll and prevent page scroll
-    useEffect(() => {
-        const handleWheel = (e) => {
-            e.preventDefault();
-            if (e.deltaY > 0) {
-                setCurrent((prev) => (prev + 1) % cards.length);
-            } else if (e.deltaY < 0) {
-                setCurrent((prev) => (prev - 1 + cards.length) % cards.length);
-            }
-        };
-        const ref = containerRef.current;
-        if (ref) {
-            ref.addEventListener('wheel', handleWheel, { passive: false });
-        }
-        return () => {
-            if (ref) ref.removeEventListener('wheel', handleWheel);
-        };
-    }, [cards.length]);
-
     // Render stacked cards
     return (
         <div ref={containerRef} className="flex flex-col items-center justify-center w-full min-h-0 select-none" style={{ outline: 'none', minHeight: CARD_HEIGHT + 80 }} tabIndex={0}>
@@ -665,6 +642,15 @@ function FeatureScrollGallery() {
                                 <div className="flex flex-col justify-center px-16 py-10 gap-6" style={{ flex: 1, minWidth: 0 }}>
                                     {card.right}
                                 </div>
+                                {/* Arrow button on the right */}
+                                <button
+                                    onClick={() => setCurrent((prev) => (prev + 1) % cards.length)}
+                                    className="absolute right-8 top-1/4 -translate-y-28 translate-x-2 bg-white rounded-full shadow-lg p-3 border border-[#E0E0E0] hover:bg-[#F3F3F3] transition"
+                                    style={{ outline: 'none' }}
+                                    aria-label="Next card"
+                                >
+                                    <svg width="24" height="24" fill="none" stroke="#22372B" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+                                </button>
                             </div>
                         );
                     } else if (pos < 4) {
