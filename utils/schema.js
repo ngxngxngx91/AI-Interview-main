@@ -34,3 +34,11 @@ export const InterviewFeedback = pgTable('interviewFeedback', {
 
     messageAnalysis: text('messageAnalysis').notNull()
 })
+
+export const User = pgTable('users', {
+    id: serial('id').primaryKey(),
+    fullName: varchar('fullName').default(null),
+    username: varchar('username').notNull(),
+    email: varchar('email').notNull(),
+    password: varchar('password').default(null),
+})

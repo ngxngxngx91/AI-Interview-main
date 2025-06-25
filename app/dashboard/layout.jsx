@@ -11,7 +11,7 @@ function DashBoardLayout({ children }) {
     return (
         <div>
             <Header />
-            <div style={{ background: '#FAF8F6', width: '100%' }} className="px-4 sm:px-6 lg:px-8">
+            <div style={{ background: '#FAF8F6', width: '100%' }} className="px-4 sm:px-2 lg:px-2">
                 {children}
             </div>
         </div>

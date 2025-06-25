@@ -159,7 +159,7 @@ const InterviewList = ({ setShowDesignModal }) => {
               onClick={() => setShowDesignModal(true)}
             >
               <PlusCircle className="w-5 h-5 text-[#e45a5a]" />
-              Tạo buổi phỏng vấn mới
+              <span className='max-[450px]:hidden'>Tạo buổi phỏng vấn mới</span>
             </Button>
           </div>
         </div>
@@ -170,7 +170,7 @@ const InterviewList = ({ setShowDesignModal }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-2 gap-6"
+        className="grid grid-cols-1 min-[950px]:grid-cols-2 gap-6"
       >
         {filteredInterviews.map((interview) => (
           <InterviewCard

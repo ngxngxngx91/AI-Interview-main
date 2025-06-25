@@ -21,6 +21,7 @@ import { generateWithRetry } from "@/utils/GeminiAIModal";
 import { analyzeResponse } from "@/utils/responseAnalyzer";
 import ConversationBox from "./ConversationBox";
 import AnalysisOverlay from "./AnalysisOverlay";
+import Image from 'next/image';
 
 // Danh sách các ngôn ngữ được hỗ trợ cho cuộc phỏng vấn
 const availableLanguages = [
@@ -474,7 +475,7 @@ Your task:
                 <div className="flex flex-row flex-1 min-h-0 w-full justify-center items-stretch transition-all duration-300">
                     {/* Main Conversation Area */}
                     <motion.div
-                        className={`flex-1 flex flex-col w-full min-w-[220px] max-w-[1000px] transition-all duration-300 ${showScenarioPanel ? 'md:mr-4' : ''} h-[60vh] min-h-[300px] sm:h-[500px] sm:min-h-[400px] lg:h-[800px] lg:max-h-[800px] lg:min-h-[800px] ${!showScenarioPanel ? 'mx-auto' : ''}`}
+                        className={`flex-1 flex flex-col w-full min-w-[220px] max-w-[1000px] transition-all duration-300 ${showScenarioPanel ? 'md:mr-4' : ''} max-h-[690px] min-h-[690px] ${!showScenarioPanel ? 'mx-auto' : ''}`}
                         style={{ minWidth: 0 }}
                     >
                         <ConversationBox
@@ -506,7 +507,7 @@ Your task:
                                 animate={{ x: 0, opacity: 1 }}
                                 exit={{ x: 300, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="md:block w-[450px] max-w-full bg-white rounded-[28px] shadow-lg flex flex-col z-20 h-[300px] sm:h-[500px] lg:h-[800px] lg:max-h-[800px] lg:min-h-[800px] min-h-0"
+                                className="max-md:hidden md:block w-[450px] max-w-full bg-white rounded-[28px] shadow-lg flex flex-col z-20 h-[300px] sm:h-[690px] lg:h-[690px] lg:max-h-[690px] lg:min-h-[690px] min-h-0"
                                 style={{ minWidth: 0 }}
                             >
                                 <div className="flex flex-col flex-1 min-h-0 h-full">
@@ -674,30 +675,30 @@ Your task:
                     </AnimatePresence>
                 </div>
                 {/* Overlay Control Bar: fixed at bottom center, overlays ConversationBox */}
-                <div className="fixed left-1/2 bottom-8 z-50 transform -translate-x-1/2 flex flex-row flex-wrap justify-center items-center gap-2 rounded-2xl shadow-lg px-4 py-2"
+                <div className="fixed left-1/2 bottom-8 transform -translate-x-1/2 flex flex-row flex-wrap justify-center items-end gap-3 max-sm:gap-0 rounded-2xl px-4 py-2 w-full"
                     style={{ pointerEvents: 'auto' }}>
                     {/* End Button */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 mb-1.5">
                         <AlertDialog>
                             <AlertDialogTrigger asChild>
                                 <Button
                                     disabled={isTimeUp}
                                     title="Kết thúc phỏng vấn"
-                                    className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md min-w-[32px] min-h-[32px] text-xs sm:text-sm md:text-base"
+                                    className="flex items-center justify-center bg-[#F37C5A] hover:bg-[#e45a5a] text-white font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md w-[143px] h-[59px] max-sm:w-[50px] max-sm:h-[50px] text-xs sm:text-sm md:text-base"
                                 >
-                                    <XCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" />
+                                    <Image src='/end-chat.png' alt='End Chat' width={20} height={20} />
                                     <span className="hidden sm:inline">Kết thúc</span>
                                 </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                                 <AlertDialogHeader>
-                                    <AlertDialogTitle>Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
+                                    <AlertDialogTitle className="text-black">Bạn có chắc chắn muốn kết thúc cuộc phỏng vấn?</AlertDialogTitle>
                                     <AlertDialogDescription>
                                         Hành động này sẽ kết thúc cuộc phỏng vấn và lưu lại kết quả phỏng vấn. Bạn không thể quay lại sau khi kết thúc.
                                     </AlertDialogDescription>
                                 </AlertDialogHeader>
                                 <AlertDialogFooter>
-                                    <AlertDialogCancel>Hủy</AlertDialogCancel>
+                                    <AlertDialogCancel className="text-black hover:bg-white hover:text-black">Hủy</AlertDialogCancel>
                                     <AlertDialogAction
                                         onClick={handleManualStopInterview}
                                         className="bg-[#F37C5A] hover:bg-[#e45a5a] text-white"
@@ -712,32 +713,32 @@ Your task:
                     <div className="relative flex flex-col items-center justify-center flex-shrink-0">
                         {/* Tooltip above (always, label changes by state) */}
                         <div className="mb-1 flex items-center justify-center">
-                            <div className="bg-[#232B22] text-white text-[10px] sm:text-xs md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
-                                {isListening ? 'Bấm để xác nhận câu trả lời' : 'Bấm để ghi âm câu trả lời'}
-                                <span className="absolute left-1/2 top-5 sm:top-6 -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px' }}></span>
+                            <div className="bg-[#232B22] text-white text-[10px] max-sm:text-sm sm:text-sm md:text-sm px-2 sm:px-3 md:px-4 py-1 rounded-2xl shadow-lg relative z-10 flex items-center justify-center max-w-[80vw] break-words text-center">
+                                {isListening ? 'Bấm để xác nhận câu trả lời' : 'Bấm để ghi âm và trả lời'}
+                                <span className="absolute left-1/2 top-5 sm:top-[1.25rem] -translate-x-1/2 bg-[#232B22] rotate-45 z-0" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', width: '8px', height: '12px' }}></span>
                             </div>
                         </div>
                         <Button
                             onClick={toggleListening}
                             disabled={isTimeUp || isPaused || !selectedLanguage}
                             title={isListening ? 'Gửi câu trả lời' : 'Bắt đầu ghi âm'}
-                            className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 min-w-[36px] min-h-[36px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
+                            className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 w-[216px] h-[72px] max-sm:w-[120px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
                             style={{ fontSize: undefined }}
                         >
                             {isListening ? (
                                 <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><rect x="6" y="6" width="12" height="12" rx="3" fill="currentColor" /></svg>
                             ) : (
-                                <Mic className="w-6 h-6 sm:w-10 sm:h-10 md:w-14 md:h-14" />
+                                <Image src='/chat-mic.png' alt='Chat Mic' width={20} height={20} />
                             )}
                         </Button>
                     </div>
                     {/* Pause/Start Button */}
-                    <div className="flex-shrink-0">
+                    <div className="flex-shrink-0 mb-1.5">
                         <Button
                             onClick={togglePause}
                             disabled={!selectedLanguage}
                             title={isPaused ? 'Bắt đầu' : 'Tạm dừng'}
-                            className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md border border-[#E0D6C3] min-w-[32px] min-h-[32px] sm:min-w-[60px] sm:min-h-[40px] md:min-w-[100px] md:min-h-[48px] text-xs sm:text-sm md:text-base"
+                            className="flex items-center justify-center bg-white hover:bg-[#F8F6F2] text-[#232B22] font-semibold rounded-full px-2 py-2 sm:px-3 sm:py-2 md:px-5 md:py-3 shadow-md border border-[#E0D6C3] w-[143px] h-[59px] max-sm:w-[50px] max-sm:h-[50px] sm:min-w-[60px] sm:min-h-[40px] md:min-w-[100px] md:min-h-[48px] text-xs sm:text-sm md:text-base"
                         >
                             {isPaused ? <><PlayCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Bắt đầu</span></> : <><PauseCircle className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 mr-0 sm:mr-2" /><span className="hidden sm:inline">Tạm dừng</span></>}
                         </Button>
