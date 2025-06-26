@@ -5,31 +5,53 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
-import { X, Wand2, Loader2, Sparkles, Target, Clock, AlertCircle, ArrowRight, RefreshCw, Globe2 } from "lucide-react";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
+import {
+    X,
+    Wand2,
+    Loader2,
+    Sparkles,
+    Target,
+    Clock,
+    AlertCircle,
+    ArrowRight,
+    RefreshCw,
+    Globe2,
+} from "lucide-react";
 import { generateWithRetry } from "@/utils/GeminiAIModal";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import { toast } from 'sonner';
 
 // Danh sách các ngành nghề được hỗ trợ
 const industries = [
-  { value: "Sales", label: "Sales", icon: "💼" },
-  { value: "Customer Service", label: "Customer Service", icon: "🎯" },
-  { value: "Business Analysis", label: "Business Analysis", icon: "📊" },
-  { value: "It", label: "IT", icon: "💻" },
-  { value: "Healthcare", label: "Healthcare", icon: "🏥" },
-  { value: "Marketing", label: "Marketing", icon: "💰" },
+    { value: "Sales", label: "Sales", icon: "💼" },
+    { value: "Customer Service", label: "Customer Service", icon: "🎯" },
+    { value: "Business Analysis", label: "Business Analysis", icon: "📊" },
+    { value: "It", label: "IT", icon: "💻" },
+    { value: "Healthcare", label: "Healthcare", icon: "🏥" },
+    { value: "Marketing", label: "Marketing", icon: "💰" },
 ];
 
 // Component modal thiết kế kịch bản phỏng vấn
 const ScenarioDesignModal = ({
-  show,
-  onClose,
-  selectedIndustry,
-  roleDescription,
+    show,
+    onClose,
+    selectedIndustry,
+    roleDescription,
 }) => {
   const router = useRouter();
   // State quản lý thông tin kịch bản phỏng vấn
@@ -48,86 +70,86 @@ const ScenarioDesignModal = ({
   const [focusArea, setFocusArea] = React.useState("");
   const [retryCount, setRetryCount] = React.useState(0);
 
-  // Danh sách các cấp độ khó dễ
-  const difficulties = [
-    { value: "Intern", label: "Intern" },
-    { value: "Fresher", label: "Fresher" },
-    { value: "Junior", label: "Junior" },
-    { value: "Senior", label: "Senior" },
-  ];
+    // Danh sách các cấp độ khó dễ
+    const difficulties = [
+        { value: "Intern", label: "Intern" },
+        { value: "Fresher", label: "Fresher" },
+        { value: "Junior", label: "Junior" },
+        { value: "Senior", label: "Senior" },
+    ];
 
-  // Danh sách ngôn ngữ được hỗ trợ
-  const languages = [
-    { value: "en", label: "English" },
-    { value: "vi", label: "Vietnamese" },
-  ];
+    // Danh sách ngôn ngữ được hỗ trợ
+    const languages = [
+        { value: "en", label: "English" },
+        { value: "vi", label: "Vietnamese" },
+    ];
 
-  // Danh sách loại phỏng vấn (focus area)
-  const focusAreas = [
-    { value: "Kiến thức", label: "Kiến thức" },
-    { value: "Hành vi", label: "Hành vi" },
-    { value: "Tình huống", label: "Tình huống" },
-    { value: "Khác", label: "Khác" },
-  ];
+    // Danh sách loại phỏng vấn (focus area)
+    const focusAreas = [
+        { value: "Kiến thức", label: "Kiến thức" },
+        { value: "Hành vi", label: "Hành vi" },
+        { value: "Tình huống", label: "Tình huống" },
+        { value: "Khác", label: "Khác" },
+    ];
 
-  // Hàm ánh xạ độ khó sang cấu hình gợi ý (số lượng và phong cách)
-  function getSuggestionConfig(difficulty) {
-    switch (difficulty) {
-      case "Intern":
-        return {
-          count: 5,
-          style: "Frame each suggestion as a reflective question or prompt to help the user think through the situation step by step. Avoid giving direct instructions; instead, encourage the user to consider what actions they might take and why."
-        };
-      case "Fresher":
-        return {
-          count: 4,
-          style: "Provide clear coaching prompts or questions that encourage the user to consider their options and possible consequences, with some gentle guidance. Avoid direct instructions."
-        };
-      case "Junior":
-        return {
-          count: 3,
-          style: "Offer concise, open-ended prompts that encourage independent analysis and decision-making. Focus on helping the user reflect on their approach."
-        };
-      case "Senior":
-        return {
-          count: 2,
-          style: "Give high-level, strategic coaching prompts or challenging questions that stimulate critical thinking and autonomy. Do not provide direct instructions or step-by-step guidance."
-        };
-      default:
-        return {
-          count: 4,
-          style: "Provide coaching prompts or reflective questions that help the user think through the situation."
-        };
+    // Hàm ánh xạ độ khó sang cấu hình gợi ý (số lượng và phong cách)
+    function getSuggestionConfig(difficulty) {
+        switch (difficulty) {
+            case "Intern":
+                return {
+                    count: 5,
+                    style: "Frame each suggestion as a reflective question or prompt to help the user think through the situation step by step. Avoid giving direct instructions; instead, encourage the user to consider what actions they might take and why.",
+                };
+            case "Fresher":
+                return {
+                    count: 4,
+                    style: "Provide clear coaching prompts or questions that encourage the user to consider their options and possible consequences, with some gentle guidance. Avoid direct instructions.",
+                };
+            case "Junior":
+                return {
+                    count: 3,
+                    style: "Offer concise, open-ended prompts that encourage independent analysis and decision-making. Focus on helping the user reflect on their approach.",
+                };
+            case "Senior":
+                return {
+                    count: 2,
+                    style: "Give high-level, strategic coaching prompts or challenging questions that stimulate critical thinking and autonomy. Do not provide direct instructions or step-by-step guidance.",
+                };
+            default:
+                return {
+                    count: 4,
+                    style: "Provide coaching prompts or reflective questions that help the user think through the situation.",
+                };
+        }
     }
-  }
 
-  // Xây dựng focusInstructions dựa trên loại phỏng vấn
-  let focusInstructions = "";
-  if (focusArea === "Kiến thức") {
-    focusInstructions = `\nIMPORTANT: This is a technical knowledge interview. The scenario and customerQuery must directly test the user's knowledge in their field (for example, for a Tester: ask about types of testing, testing strategies, tools, or best practices). The customerQuery should be a direct technical question or challenge, not a soft skill or behavioral situation. The expectedResponse should be coaching prompts that help the user recall, explain, or structure their technical answer.\n\nExample:\n- scenario: Bạn là một Tester thực tập tại một công ty phần mềm. Trong buổi phỏng vấn, bạn được yêu cầu trình bày về các loại kiểm thử phần mềm và khi nào nên sử dụng từng loại.\n- customerQuery: Bạn có thể liệt kê và giải thích các loại kiểm thử phần mềm phổ biến không? Khi nào thì nên sử dụng kiểm thử chức năng so với kiểm thử phi chức năng?`;
-  } else if (focusArea === "Hành vi") {
-    focusInstructions = `\nIMPORTANT: This is a behavioral interview. The scenario and customerQuery must focus on the user's past behaviors, attitudes, or soft skills in the workplace.\n\nExample:\n- scenario: Bạn từng gặp phải xung đột với đồng nghiệp trong một dự án quan trọng. Hãy kể lại cách bạn xử lý tình huống đó.\n- customerQuery: Khi bạn không đồng ý với ý kiến của đồng nghiệp, bạn thường làm gì?`;
-  } else if (focusArea === "Tình huống") {
-    focusInstructions = `\nIMPORTANT: This is a situational interview. The scenario and customerQuery must present a hypothetical situation that tests the user's problem-solving or decision-making skills.\n\nExample:\n- scenario: Bạn là nhân viên chăm sóc khách hàng và nhận được một cuộc gọi từ khách hàng đang rất tức giận vì sản phẩm bị lỗi.\n- customerQuery: Nếu bạn là tôi, bạn sẽ xử lý tình huống này như thế nào?`;
-  } else if (focusArea === "Khác") {
-    focusInstructions = `\nIMPORTANT: Use the context provided to create a relevant scenario and customerQuery.`;
-  }
+    // Xây dựng focusInstructions dựa trên loại phỏng vấn
+    let focusInstructions = "";
+    if (focusArea === "Kiến thức") {
+        focusInstructions = `\nIMPORTANT: This is a technical knowledge interview. The scenario and customerQuery must directly test the user's knowledge in their field (for example, for a Tester: ask about types of testing, testing strategies, tools, or best practices). The customerQuery should be a direct technical question or challenge, not a soft skill or behavioral situation. The expectedResponse should be coaching prompts that help the user recall, explain, or structure their technical answer.\n\nExample:\n- scenario: Bạn là một Tester thực tập tại một công ty phần mềm. Trong buổi phỏng vấn, bạn được yêu cầu trình bày về các loại kiểm thử phần mềm và khi nào nên sử dụng từng loại.\n- customerQuery: Bạn có thể liệt kê và giải thích các loại kiểm thử phần mềm phổ biến không? Khi nào thì nên sử dụng kiểm thử chức năng so với kiểm thử phi chức năng?`;
+    } else if (focusArea === "Hành vi") {
+        focusInstructions = `\nIMPORTANT: This is a behavioral interview. The scenario and customerQuery must focus on the user's past behaviors, attitudes, or soft skills in the workplace.\n\nExample:\n- scenario: Bạn từng gặp phải xung đột với đồng nghiệp trong một dự án quan trọng. Hãy kể lại cách bạn xử lý tình huống đó.\n- customerQuery: Khi bạn không đồng ý với ý kiến của đồng nghiệp, bạn thường làm gì?`;
+    } else if (focusArea === "Tình huống") {
+        focusInstructions = `\nIMPORTANT: This is a situational interview. The scenario and customerQuery must present a hypothetical situation that tests the user's problem-solving or decision-making skills.\n\nExample:\n- scenario: Bạn là nhân viên chăm sóc khách hàng và nhận được một cuộc gọi từ khách hàng đang rất tức giận vì sản phẩm bị lỗi.\n- customerQuery: Nếu bạn là tôi, bạn sẽ xử lý tình huống này như thế nào?`;
+    } else if (focusArea === "Khác") {
+        focusInstructions = `\nIMPORTANT: Use the context provided to create a relevant scenario and customerQuery.`;
+    }
 
-  // Hàm tạo kịch bản phỏng vấn bằng AI
-  const generateScenario = async (autoRetry = false) => {
-    setIsGenerating(true);
-    setError(null);
-    setProgress(0);
+    // Hàm tạo kịch bản phỏng vấn bằng AI
+    const generateScenario = async (autoRetry = false) => {
+        setIsGenerating(true);
+        setError(null);
+        setProgress(0);
 
-    // Hiệu ứng loading với thanh tiến trình
-    const progressInterval = setInterval(() => {
-      setProgress(prev => Math.min(prev + 10, 90));
-    }, 500);
+        // Hiệu ứng loading với thanh tiến trình
+        const progressInterval = setInterval(() => {
+            setProgress((prev) => Math.min(prev + 10, 90));
+        }, 500);
 
-    try {
-      // Tạo prompt cho AI để tạo kịch bản
-      const { count, style } = getSuggestionConfig(difficulty);
-      const prompt = `You are an API that generates interview scenarios.
+        try {
+            // Tạo prompt cho AI để tạo kịch bản
+            const { count, style } = getSuggestionConfig(difficulty);
+            const prompt = `You are an API that generates interview scenarios.
 ${focusInstructions}
 Respond ONLY with a valid JSON object, and nothing else.
 DO NOT include any explanations, markdown, or extra text.
@@ -169,155 +191,166 @@ Focus: ${focusArea}
 Context: ${description}
 Language: ${selectedLanguage}`;
 
-      // Gửi prompt đến AI và xử lý kết quả với retry
-      const responseText = await generateWithRetry(prompt);
-      // Strict validation and parsing
-      let jsonResponse;
-      let cleanedResponse;
-      try {
-        jsonResponse = JSON.parse(responseText);
-      } catch (err) {
-        cleanedResponse = responseText
-          .replace(/```json/g, '')
-          .replace(/```/g, '')
-          .trim();
-        try {
-          jsonResponse = JSON.parse(cleanedResponse);
-        } catch (parseErr) {
-          // Nếu lỗi, thử lại tối đa 2 lần
-          if (retryCount < 2) {
-            if (!autoRetry) {
-              toast(
-                'Đã xảy ra lỗi khi tạo kịch bản. Hệ thống đang tự động tạo lại kịch bản mới, vui lòng chờ...',
-                { style: { color: '#000' } }
-              );
+            // Gửi prompt đến AI và xử lý kết quả với retry
+            const responseText = await generateWithRetry(prompt);
+            // Strict validation and parsing
+            let jsonResponse;
+            let cleanedResponse;
+            try {
+                jsonResponse = JSON.parse(responseText);
+            } catch (err) {
+                cleanedResponse = responseText
+                    .replace(/```json/g, "")
+                    .replace(/```/g, "")
+                    .trim();
+                try {
+                    jsonResponse = JSON.parse(cleanedResponse);
+                } catch (parseErr) {
+                    // Nếu lỗi, thử lại tối đa 2 lần
+                    if (retryCount < 2) {
+                        if (!autoRetry) {
+                            toast(
+                                "Đã xảy ra lỗi khi tạo kịch bản. Hệ thống đang tự động tạo lại kịch bản mới, vui lòng chờ...",
+                                { style: { color: "#000" } }
+                            );
+                        }
+                        setRetryCount(retryCount + 1);
+                        clearInterval(progressInterval);
+                        setTimeout(() => generateScenario(true), 500);
+                        return;
+                    } else {
+                        setRetryCount(0);
+                        throw new Error("AI response is not valid JSON."); // Nếu vượt quá số lần thử, báo lỗi dữ liệu AI trả về không hợp lệ
+                    }
+                }
             }
-            setRetryCount(retryCount + 1);
-            clearInterval(progressInterval);
-            setTimeout(() => generateScenario(true), 500);
-            return;
-          } else {
+            // Kiểm tra dữ liệu trả về từ AI có hợp lệ không (phải có đủ các trường cần thiết)
+            if (
+                !jsonResponse.scenario ||
+                !jsonResponse.customerQuery ||
+                !jsonResponse.expectedResponse ||
+                typeof jsonResponse.scenario !== "string" ||
+                typeof jsonResponse.customerQuery !== "string" ||
+                typeof jsonResponse.expectedResponse !== "string"
+            ) {
+                // Nếu dữ liệu không hợp lệ, thử lại tối đa 2 lần
+                if (retryCount < 2) {
+                    if (!autoRetry) {
+                        toast(
+                            "Đã xảy ra lỗi khi tạo kịch bản. Hệ thống đang tự động tạo lại kịch bản mới, vui lòng chờ...",
+                            { style: { color: "#000" } }
+                        );
+                    }
+                    setRetryCount(retryCount + 1);
+                    clearInterval(progressInterval);
+                    setTimeout(() => generateScenario(true), 500);
+                    return;
+                } else {
+                    setRetryCount(0);
+                    throw new Error(
+                        "AI response missing required fields. Please try again."
+                    );
+                }
+            }
+            setGeneratedScenario({
+                customerQuery: jsonResponse.customerQuery,
+                expectedResponse: jsonResponse.expectedResponse,
+                scenario: jsonResponse.scenario,
+                difficulty,
+                language: selectedLanguage,
+                title,
+                description,
+                industry: selectedIndustryLocal,
+                role: roleDescriptionLocal,
+                focusArea,
+            });
+            setProgress(100);
             setRetryCount(0);
-            throw new Error("AI response is not valid JSON."); // Nếu vượt quá số lần thử, báo lỗi dữ liệu AI trả về không hợp lệ
-          }
-        }
-      }
-      // Kiểm tra dữ liệu trả về từ AI có hợp lệ không (phải có đủ các trường cần thiết)
-      if (
-        !jsonResponse.scenario ||
-        !jsonResponse.customerQuery ||
-        !jsonResponse.expectedResponse ||
-        typeof jsonResponse.scenario !== "string" ||
-        typeof jsonResponse.customerQuery !== "string" ||
-        typeof jsonResponse.expectedResponse !== "string"
-      ) {
-        // Nếu dữ liệu không hợp lệ, thử lại tối đa 2 lần
-        if (retryCount < 2) {
-          if (!autoRetry) {
-            toast(
-              'Đã xảy ra lỗi khi tạo kịch bản. Hệ thống đang tự động tạo lại kịch bản mới, vui lòng chờ...',
-              { style: { color: '#000' } }
+        } catch (error) {
+            setError(
+                error.message ||
+                    "Failed to generate scenario. Please try again."
             );
-          }
-          setRetryCount(retryCount + 1);
-          clearInterval(progressInterval);
-          setTimeout(() => generateScenario(true), 500);
-          return;
-        } else {
-          setRetryCount(0);
-          throw new Error("AI response missing required fields. Please try again.");
+            setGeneratedScenario(null);
+            if (typeof responseText !== "undefined") {
+                console.error("Scenario generation error:", error);
+                console.log("Raw AI response:", responseText); // Debug log
+                if (typeof cleanedResponse !== "undefined") {
+                    console.log("Cleaned AI response:", cleanedResponse); // Debug log
+                }
+            }
+        } finally {
+            clearInterval(progressInterval);
+            setIsGenerating(false);
         }
-      }
-      setGeneratedScenario({
-        customerQuery: jsonResponse.customerQuery,
-        expectedResponse: jsonResponse.expectedResponse,
-        scenario: jsonResponse.scenario,
-        difficulty,
-        language: selectedLanguage,
-        title,
-        description,
-        industry: selectedIndustryLocal,
-        role: roleDescriptionLocal,
-        focusArea
-      });
-      setProgress(100);
-      setRetryCount(0);
-    } catch (error) {
-      setError(error.message || "Failed to generate scenario. Please try again.");
-      setGeneratedScenario(null);
-      if (typeof responseText !== 'undefined') {
-        console.error('Scenario generation error:', error);
-        console.log('Raw AI response:', responseText); // Debug log
-        if (typeof cleanedResponse !== 'undefined') {
-          console.log('Cleaned AI response:', cleanedResponse); // Debug log
+    };
+
+    // Xử lý khi người dùng muốn tiếp tục với kịch bản đã tạo
+    const handleProceed = async () => {
+        console.log("handleProceed called");
+        setIsProceeding(true);
+        try {
+            // Generate mockID with fallback
+            let mockID;
+            try {
+                mockID = crypto.randomUUID();
+            } catch (e) {
+                mockID = Math.random().toString(36).substring(2, 15);
+                console.warn(
+                    "crypto.randomUUID() not available, using fallback mockID:",
+                    mockID
+                );
+            }
+            console.log("mockID:", mockID);
+            // Chuẩn bị dữ liệu kịch bản phỏng vấn
+            console.log("Preparing scenarioData...");
+            const scenarioData = {
+                title: title.trim(),
+                description: description.trim(),
+                difficulty,
+                scenario: generatedScenario.scenario.trim(),
+                customerQuery: generatedScenario.customerQuery.trim(),
+                expectedResponse: generatedScenario.expectedResponse.trim(),
+                language: selectedLanguage,
+                industry: selectedIndustryLocal.trim(),
+                role: roleDescriptionLocal.trim(),
+                focusArea: focusArea,
+                createdBy: "user", // Sẽ được thay thế bằng ID/email người dùng thực tế
+                createdAt: new Date().toISOString(),
+                mockID: mockID,
+            };
+            console.log("Scenario data to save:", scenarioData);
+
+            // Lưu vào database
+            console.log("Sending fetch to /api/mock-interview...");
+            const response = await fetch("/api/mock-interview", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(scenarioData),
+            });
+
+            console.log("API response status:", response.status);
+            if (!response.ok) {
+                setError("Không thể lưu kịch bản. Vui lòng thử lại.");
+                setIsProceeding(false);
+                return;
+            }
+
+            console.log(
+                "Redirecting to:",
+                `/live-practice-arena?mockId=${mockID}`
+            );
+            // Chỉ chuyển hướng nếu lưu thành công
+            router.push(`/live-practice-arena?mockId=${mockID}`);
+        } catch (error) {
+            console.error("Error saving scenario:", error);
+            setError("Đã xảy ra lỗi khi lưu kịch bản. Vui lòng thử lại.");
+            setIsProceeding(false);
+            // Không chuyển hướng nếu có lỗi
         }
-      }
-    } finally {
-      clearInterval(progressInterval);
-      setIsGenerating(false);
-    }
-  };
-
-  // Xử lý khi người dùng muốn tiếp tục với kịch bản đã tạo
-  const handleProceed = async () => {
-    console.log("handleProceed called");
-    setIsProceeding(true);
-    try {
-      // Generate mockID with fallback
-      let mockID;
-      try {
-        mockID = crypto.randomUUID();
-      } catch (e) {
-        mockID = Math.random().toString(36).substring(2, 15);
-        console.warn("crypto.randomUUID() not available, using fallback mockID:", mockID);
-      }
-      console.log("mockID:", mockID);
-      // Chuẩn bị dữ liệu kịch bản phỏng vấn
-      console.log("Preparing scenarioData...");
-      const scenarioData = {
-        title: title.trim(),
-        description: description.trim(),
-        difficulty,
-        scenario: generatedScenario.scenario.trim(),
-        customerQuery: generatedScenario.customerQuery.trim(),
-        expectedResponse: generatedScenario.expectedResponse.trim(),
-        language: selectedLanguage,
-        industry: selectedIndustryLocal.trim(),
-        role: roleDescriptionLocal.trim(),
-        focusArea: focusArea,
-        createdBy: "user", // Sẽ được thay thế bằng ID/email người dùng thực tế
-        createdAt: new Date().toISOString(),
-        mockID: mockID
-      };
-      console.log("Scenario data to save:", scenarioData);
-
-      // Lưu vào database
-      console.log("Sending fetch to /api/mock-interview...");
-      const response = await fetch('/api/mock-interview', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(scenarioData),
-      });
-
-      console.log("API response status:", response.status);
-      if (!response.ok) {
-        setError("Không thể lưu kịch bản. Vui lòng thử lại.");
-        setIsProceeding(false);
-        return;
-      }
-
-      console.log("Redirecting to:", `/live-practice-arena?mockId=${mockID}`);
-      // Chỉ chuyển hướng nếu lưu thành công
-      router.push(`/live-practice-arena?mockId=${mockID}`);
-    } catch (error) {
-      console.error('Error saving scenario:', error);
-      setError("Đã xảy ra lỗi khi lưu kịch bản. Vui lòng thử lại.");
-      setIsProceeding(false);
-      // Không chuyển hướng nếu có lỗi
-    }
-  };
+    };
 
   return (
     <AnimatePresence>
