@@ -1,13 +1,13 @@
 import { db } from '@/utils/db';
 import { InterviewFeedback } from "../../../utils/schema";
 import { sql, eq } from 'drizzle-orm';
-import { currentUser } from '@clerk/nextjs/server';
+import { getUserFromCookie } from '@/lib/auth';
 
 // API endpoint để lấy điểm cao nhất của người dùng
 export async function GET() {
   try {
     // Kiểm tra xác thực người dùng thông qua Clerk
-    const user = await currentUser();
+    const user = await getUserFromCookie();
     
     // Kiểm tra nếu người dùng chưa đăng nhập hoặc không có email
     if (!user || !user.emailAddresses || user.emailAddresses.length === 0) {
