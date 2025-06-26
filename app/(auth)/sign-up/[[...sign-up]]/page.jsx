@@ -215,19 +215,6 @@ function CustomSignUpForm() {
             <div className="flex flex-row items-center justify-center gap-4 mt-2 mb-2">
                 <button
                     type="button"
-                    aria-label="Đăng ký với Facebook"
-                    className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-100 mx-2 shadow-none"
-                    onClick={() => handleSocial("facebook")}
-                >
-                    <Image
-                        src="/facebook.png"
-                        alt="Facebook"
-                        width={28}
-                        height={28}
-                    />
-                </button>
-                <button
-                    type="button"
                     aria-label="Đăng ký với Google"
                     className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-100 mx-2 shadow-none"
                     onClick={() => handleSocial("google")}
