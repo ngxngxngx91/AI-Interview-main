@@ -1026,7 +1026,7 @@ function ResultFeedbackContent() {
                                                 </span>
                                                 <Button
                                                     variant="outline"
-                                                    className="w-fit px-4 py-1 text-sm rounded-full border border-[#B89B2B] text-[#B89B2B] hover:bg-[#FFF9E3]"
+                                                    className="w-fit px-4 py-1 text-sm rounded-full border border-[#B89B2B] text-[#B89B2B]"
                                                     onClick={() => {
                                                         setImprovementDialogTitle(`Đề xuất cải thiện cho: ${weakness}`);
                                                         setImprovementDialogContent(
@@ -1038,7 +1038,7 @@ function ResultFeedbackContent() {
                                                     }}
                                                     disabled={suggestionRaw === "Đang tạo gợi ý..."}
                                                 >
-                                                    Xem Đề Suất Cải Thiện
+                                                    Xem Đề Xuất Cải Thiện
                                                 </Button>
                                             </div>
                                         </div>

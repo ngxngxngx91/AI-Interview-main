@@ -13,7 +13,6 @@ import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useRouter } from "next/navigation";
 import { toast } from 'sonner';
-import { useUser } from "@/app/context/UserContext";
 
 // Danh sách các ngành nghề được hỗ trợ
 const industries = [
@@ -33,7 +32,6 @@ const ScenarioDesignModal = ({
   roleDescription,
 }) => {
   const router = useRouter();
-  const { user } = useUser();
   // State quản lý thông tin kịch bản phỏng vấn
   const [title, setTitle] = React.useState("");
   const [description, setDescription] = React.useState("");
@@ -470,12 +468,6 @@ Language: ${selectedLanguage}`;
                 ) : (
                   <div className="flex-1 bg-white px-7 py-6 flex flex-col gap-7">
                     {/* Section: Thông tin chung */}
-                    {/* Hiển thị thông báo nếu chưa đăng nhập */}
-                    {!user?.primaryEmailAddress?.emailAddress && (
-                      <div className="text-red-500 text-center mb-4">
-                        Vui lòng đăng nhập để tạo kịch bản phỏng vấn.
-                      </div>
-                    )}
                     <div>
                       <div className="flex items-center gap-2 mb-3">
                         <span className="text-lg"><Target className="w-5 h-5 text-[#3A2921]" /></span>
@@ -655,7 +647,7 @@ Language: ${selectedLanguage}`;
                     {/* Nút khởi tạo cuộc phỏng vấn */}
                     <div className="mt-2">
                       <Button
-                        className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${!difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !focusArea || !user?.primaryEmailAddress?.emailAddress
+                        className={`w-full h-12 rounded-full text-lg font-semibold transition-all duration-300 ${!difficulty || !selectedIndustryLocal || !roleDescriptionLocal || !title || !focusArea
                             ? 'bg-[#E5D6C6] text-[#B0A08F]'
                             : 'bg-[#B6F09C] text-[#2D221B] hover:bg-[#A0E07C]'
                           } shadow-none`}
@@ -665,7 +657,6 @@ Language: ${selectedLanguage}`;
                           !roleDescriptionLocal ||
                           !title ||
                           !focusArea ||
-                          !user?.primaryEmailAddress?.emailAddress ||
                           isGenerating
                         }
                         onClick={() => {
