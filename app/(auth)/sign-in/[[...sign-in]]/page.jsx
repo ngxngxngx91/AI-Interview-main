@@ -29,8 +29,8 @@ function CustomLoginForm() {
 
     const { openSignIn } = useClerk();
     // Social login handlers (optional, can be implemented with Clerk's openSignIn)
-    const handleSocial = async (strategy) => {
-        await openSignIn({
+    const handleSocial = (strategy) => {
+        openSignIn({
             strategy,
             redirectUrl: "/dashboard",
         });

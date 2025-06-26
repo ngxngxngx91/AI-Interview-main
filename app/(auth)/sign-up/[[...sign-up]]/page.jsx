@@ -1,6 +1,6 @@
 "use client";
 
-import { useSignUp } from "@clerk/nextjs";
+import { useClerk, useSignUp } from "@clerk/nextjs";
 import { Brain, Eye, EyeOff, Rocket, Shield, Star } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -114,9 +114,9 @@ function CustomSignUpForm() {
         }
     };
 
+    const { openSignIn } = useClerk();
     const handleSocial = (strategy) => {
-        if (!isLoaded) return;
-        signUp.authenticateWithRedirect({
+        openSignIn({
             strategy,
             redirectUrl: "/dashboard",
         });
