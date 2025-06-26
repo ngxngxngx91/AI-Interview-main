@@ -1,8 +1,5 @@
 import { NextResponse } from "next/server";
 import { createAccount, isUserExists } from "@/utils/helpers";
-import { Clerk } from "@clerk/clerk-sdk-node";
-
-const clerk = new Clerk({ secretKey: process.env.CLERK_SECRET_KEY });
 
 export async function POST(request) {
     try {
@@ -18,11 +15,6 @@ export async function POST(request) {
             throw new Error("User with email or username already exists");
         }
 
-        await clerk.users.createUser({
-            emailAddress: [email],
-            password,
-            username,
-        });
         await createAccount({ fullName, username, password, email });
 
         return NextResponse.json({

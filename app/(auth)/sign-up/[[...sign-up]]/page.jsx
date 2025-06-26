@@ -1,6 +1,5 @@
 "use client";
 
-import { useClerk, useSignUp } from "@clerk/nextjs";
 import { Brain, Eye, EyeOff, Rocket, Shield, Star } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -73,7 +72,6 @@ const benefits = [
 ];
 
 function CustomSignUpForm() {
-    const { signUp, setActive, isLoaded } = useSignUp();
     const [name, setName] = useState("");
     const [username, setUsername] = useState("");
     const [email, setEmail] = useState("");
@@ -87,7 +85,6 @@ function CustomSignUpForm() {
         e.preventDefault();
         setError("");
         setLoading(true);
-        if (!isLoaded) return;
         try {
             fetch(`/api/auth/sign-up`, {
                 method: "POST",
@@ -114,12 +111,8 @@ function CustomSignUpForm() {
         }
     };
 
-    const { openSignIn } = useClerk();
     const handleSocial = (strategy) => {
-        openSignIn({
-            strategy,
-            redirectUrl: "/dashboard",
-        });
+        window.location.href = `/api/auth/${strategy}/login`;
     };
 
     return (
@@ -222,22 +215,9 @@ function CustomSignUpForm() {
             <div className="flex flex-row items-center justify-center gap-4 mt-2 mb-2">
                 <button
                     type="button"
-                    aria-label="Đăng ký với Facebook"
-                    className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-100 mx-2 shadow-none"
-                    onClick={() => handleSocial("oauth_facebook")}
-                >
-                    <Image
-                        src="/facebook.png"
-                        alt="Facebook"
-                        width={28}
-                        height={28}
-                    />
-                </button>
-                <button
-                    type="button"
                     aria-label="Đăng ký với Google"
                     className="flex items-center justify-center w-12 h-12 rounded-full border border-gray-200 bg-white hover:bg-gray-100 mx-2 shadow-none"
-                    onClick={() => handleSocial("oauth_google")}
+                    onClick={() => handleSocial("google")}
                 >
                     <Image
                         src="/google.png"

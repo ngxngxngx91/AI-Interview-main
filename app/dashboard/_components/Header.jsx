@@ -12,6 +12,7 @@ import {
     Crown,
     HelpCircle,
     Sparkles,
+    CircleUserRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,14 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Link from "next/link";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuPortal,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useUser } from "@/app/context/UserContext";
 
 // Component Header chính của ứng dụng
 function Header() {
@@ -30,6 +39,16 @@ function Header() {
     const isDashboard = path === "/dashboard";
     const isInterview = path.includes("interview");
     const [showMenuDrawer, setShowMenuDrawer] = useState(false);
+    const user = useUser();
+
+    const handleLogout = () => {
+        window.location.href = "/";
+        fetch("/api/auth/logout", {
+            method: "POST",
+        }).catch((error) => {
+            console.error("Lỗi khi đăng xuất:", error);
+        });
+    };
 
     // Xử lý hiệu ứng cuộn trang
     useEffect(() => {
@@ -149,19 +168,30 @@ function Header() {
                                     Nâng cấp
                                 </Button>
                             </Link>
-                            <UserButton
-                                appearance={{
-                                    elements: {
-                                        avatarBox:
-                                            "w-10 h-10 ring-2 ring-gray-300/40 hover:ring-blue-400/40 transition-all duration-300",
-                                    },
-                                    layout: {
-                                        unsafe_disableDevelopmentModeWarnings: true,
-                                        socialButtonsIconButton: "hidden",
-                                    },
-                                }}
-                                afterSignOutUrl="/"
-                            />
+                            {user ? (
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <CircleUserRound className="w-7 h-7 text-black cursor-pointer" />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuPortal>
+                                        <DropdownMenuContent className="p-2">
+                                            <DropdownMenuItem className="text-white hover:!bg-black">
+                                                {user.email}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                className="cursor-pointer"
+                                                onClick={handleLogout}
+                                            >
+                                                <span className="w-full text-center">
+                                                    Đăng xuất
+                                                </span>
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenuPortal>
+                                </DropdownMenu>
+                            ) : (
+                                ""
+                            )}
                             <Menu
                                 className="cursor-pointer ml-1 text-[50px] lg:hidden"
                                 color="black"

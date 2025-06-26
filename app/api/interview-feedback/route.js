@@ -2,7 +2,6 @@ import { NextResponse } from 'next/server';
 import { db } from '@/utils/db';
 import { InterviewFeedback, MockInterview } from '@/utils/schema';
 import { eq, sql } from 'drizzle-orm';
-import { currentUser } from '@clerk/nextjs/server';
 
 // API endpoint để lưu phản hồi phỏng vấn mới
 export async function POST(request) {

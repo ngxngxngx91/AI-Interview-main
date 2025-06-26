@@ -722,7 +722,7 @@ Your task:
                             onClick={toggleListening}
                             disabled={isTimeUp || isPaused || !selectedLanguage}
                             title={isListening ? 'Gửi câu trả lời' : 'Bắt đầu ghi âm'}
-                            className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 w-[216px] h-[72px] max-sm:w-[120px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
+                            className={`w-full max-w-[180px] sm:max-w-[220px] md:max-w-[300px] flex items-center justify-center rounded-full shadow-xl transition-all duration-150 h-[72px] max-sm:w-[120px] sm:min-w-[56px] sm:min-h-[48px] md:min-w-[90px] md:min-h-[56px] text-base sm:text-xl md:text-2xl p-0 border-none ${isListening ? 'bg-[#F37C5A] hover:bg-[#e45a5a] text-white ring-2 sm:ring-4 ring-[#e45a5a]' : 'bg-[#C6F89C] hover:bg-[#A8E063] text-[#232B22]'}`}
                             style={{ fontSize: undefined }}
                         >
                             {isListening ? (

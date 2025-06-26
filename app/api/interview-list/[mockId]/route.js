@@ -2,13 +2,13 @@ import { NextResponse } from 'next/server';
 import { db } from '@/utils/db';
 import { MockInterview, InterviewFeedback } from '@/utils/schema';
 import { eq, and } from 'drizzle-orm';
-import { currentUser } from '@clerk/nextjs/server';
+import { getUserFromCookie } from '@/lib/auth';
 
 // API endpoint để xóa một buổi phỏng vấn
 export async function DELETE(request, { params }) {
   try {
     // Kiểm tra xác thực người dùng
-    const user = await currentUser();
+    const user = await getUserFromCookie();
     if (!user || !user.emailAddresses || user.emailAddresses.length === 0) {
       return NextResponse.json({ error: "User email not found or user not authenticated" }, { status: 401 });
     }
