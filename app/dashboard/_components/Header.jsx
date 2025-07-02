@@ -99,7 +99,7 @@ function Header() {
                 <div className="relative">
                     <div className="flex justify-between items-center px-4 sm:px-6 lg:px-8 xl:px-32 py-3 z-20">
                         {/* Logo và tên ứng dụng */}
-                        <div className="flex-shrink-0 relative group flex items-center gap-2">
+                        <Link href="/" className="flex-shrink-0 relative group flex items-center gap-2">
                             <Image
                                 src="/Logo.png"
                                 alt="Logo"
@@ -111,7 +111,7 @@ function Header() {
                             <span className="hidden sm:inline text-2xl font-bold text-[#3d463b] ml-1">
                                 AI.Interview
                             </span>
-                        </div>
+                        </Link>
 
                         {/* Menu chính ở giữa */}
                         <nav className="flex-1 flex items-center justify-center max-lg:hidden">

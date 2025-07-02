@@ -1,5 +1,6 @@
 "use client";
 import React, { useState } from "react";
+import Link from "next/link";
 
 export default function PaymentPage() {
   const [discountCode, setDiscountCode] = useState("");
@@ -19,6 +20,13 @@ export default function PaymentPage() {
 
   return (
     <div className="min-h-screen bg-[#f6f2e9] flex justify-center items-center p-4">
+      {/* Button to return to pricing page */}
+      <Link href="/pricing" className="absolute top-6 left-6 z-50">
+        <button className="bg-white border border-gray-200 rounded-full px-4 py-2 shadow hover:bg-gray-100 font-semibold text-gray-700 flex items-center gap-2">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+          Quay lại bảng giá
+        </button>
+      </Link>
       <div className="bg-white rounded-2xl shadow-lg p-8 grid md:grid-cols-2 gap-8 max-w-5xl w-full">
         {/* Thông tin đơn hàng */}
         <div  className="text-gray-800">
