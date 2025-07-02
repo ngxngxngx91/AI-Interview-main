@@ -4,6 +4,7 @@ import { Brain, Eye, EyeOff, Rocket, Shield, Star } from "lucide-react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 
 // Danh sách các tính năng chính của ứng dụng
 const features = [
@@ -234,6 +235,13 @@ function CustomSignUpForm() {
 export default function Page() {
     return (
         <div className="min-h-screen w-full flex flex-row bg-transparent">
+            {/* Button to go to landing page */}
+            <Link href="/" className="absolute top-6 left-6 z-50">
+                <button className="bg-white border border-gray-200 rounded-full px-4 py-2 shadow hover:bg-gray-100 font-semibold text-gray-700 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" /></svg>
+                    Trang chủ
+                </button>
+            </Link>
             {/* Left Side: 3/4, sign-up form, background image */}
             <div className="w-full min-h-screen flex items-center justify-center relative bg-[#F7F5EF]">
                 <Image

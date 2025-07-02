@@ -38,12 +38,11 @@ import { toast } from 'sonner';
 
 // Danh sách các ngành nghề được hỗ trợ
 const industries = [
-    { value: "Sales", label: "Sales", icon: "💼" },
-    { value: "Customer Service", label: "Customer Service", icon: "🎯" },
-    { value: "Business Analysis", label: "Business Analysis", icon: "📊" },
     { value: "It", label: "IT", icon: "💻" },
-    { value: "Healthcare", label: "Healthcare", icon: "🏥" },
     { value: "Marketing", label: "Marketing", icon: "💰" },
+    { value: "Communication", label: "Communication", icon: "📢" },
+    { value: "Data Science", label: "Data Science", icon: "📈" },
+    { value: "Business Analysis", label: "Business Analysis", icon: "📊" },
 ];
 
 // Component modal thiết kế kịch bản phỏng vấn
